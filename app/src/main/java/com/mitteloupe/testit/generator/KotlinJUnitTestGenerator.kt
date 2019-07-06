@@ -87,6 +87,7 @@ class KotlinJUnitTestGenerator(
             when (val parameterType = parameter.type) {
                 "Boolean" -> "private val $parameterName = false"
                 "Byte" -> "private val $parameterName = 0b0"
+                "Class" -> "private val $parameterName = Any::class.java"
                 "Double" -> "private val $parameterName = 0.0"
                 "Float" -> "private val $parameterName = 0f"
                 "Int", "Long", "Short" -> "private val $parameterName: $parameterType = 0"
@@ -155,6 +156,7 @@ class KotlinJUnitTestGenerator(
     private fun getMockedValue(variableType: String) = when (variableType) {
         "Boolean" -> "false"
         "Byte" -> "0b0"
+        "Class" -> "Any::class.java"
         "Double" -> "0.0"
         "Float" -> "0f"
         "Int" -> "0"
