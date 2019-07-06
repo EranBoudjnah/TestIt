@@ -1,0 +1,8 @@
+#!/bin/bash
+path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
+if [ $# -ne 0 ]
+  then
+    "$path/gradlew" run -q --args "$1"
+  else
+    "$path/gradlew" run -q
+fi

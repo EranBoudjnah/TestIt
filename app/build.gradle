@@ -1,0 +1,13 @@
+apply plugin: 'application'
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation"org.jetbrains.kotlin:kotlin-compiler:$kotlin_version"
+    implementation"org.jetbrains.kotlin:kotlin-script-util:$kotlin_version"
+    testImplementation 'junit:junit:4.12'
+}
+
+applicationName = "testit"
+mainClassName = 'com.mitteloupe.testit.TestItKt'
