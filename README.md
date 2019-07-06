@@ -1,17 +1,22 @@
 # TestIt
 
+While [TDD](https://en.wikipedia.org/wiki/Test-driven_development) is a better approach for development, many projects end up with low test coverage.
+This project is here to help you improve your test coverage by reducing the effort spent on writing boilerplate code, allowing you to focus on writing the actual tests.
+
 Generate unit testing boilerplate from kotlin files.
 
 ## Getting Started
 
 While you can run `./gradlew run --args "filepath"`, it might be more convenient to set up a shortcut to the provided helper script:
 
-### Prerequisites
+### Install
 
 1. Make the helper script executable: `chmod +x /path/to/testit`
 2. Get [HomeBrew](https://brew.sh/)
 3. Run `brew install coreutils`
 4. Create a symbolic link: `sudo ln -s /path/to/testit /usr/local/bin`
+
+Note: your project would need to include [mockito](https://site.mockito.org/) and [mockito-kotlin](https://github.com/nhaarman/mockito-kotlin).
 
 ## Output
 
@@ -83,6 +88,11 @@ class TestItTest {
     }
 }
 ```
+
+## Features
+
+* Automatically compiles a list of required imports
+* Supports multiple classes in one Kotlin file
 
 ## Acknowledgments
 
