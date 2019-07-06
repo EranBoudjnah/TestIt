@@ -51,7 +51,7 @@ class KotlinJUnitTestGenerator(
         return appendPackageName(classUnderTest.packageName)
             .appendImports()
             .appendRunWithAnnotation()
-            .append("class ${classUnderTest.className}Test() {\n")
+            .append("class ${classUnderTest.className}Test {\n")
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
             .appendSetUp(classUnderTest.className, classUnderTest.constructorParameters)
