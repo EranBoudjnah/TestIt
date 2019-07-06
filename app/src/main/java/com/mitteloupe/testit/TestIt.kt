@@ -1,26 +1,29 @@
 package com.mitteloupe.testit
 
 import com.mitteloupe.testit.generator.KotlinJUnitTestGenerator
+import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
+import com.mitteloupe.testit.parser.FileProvider
 import com.mitteloupe.testit.parser.KotlinFileParser
-import java.io.File
 
 /**
  * Created by Eran Boudjnah on 2019-07-04.
  */
 class TestIt(
+    private val fileProvider: FileProvider,
     private val kotlinFileParser: KotlinFileParser,
+    private val testFilePathFormatter: TestFilePathFormatter,
     private val testsGenerator: TestsGenerator
 ) {
     fun getTestsForFile(fileName: String) = getFileContents(fileName)?.let { getTestsForNodes(it) } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode) {
-        val sourceFile = File(sourceFileName)
-        val outputPath = getTestPathForClass(sourceFile.absolutePath)
-        val outputFile = File("$outputPath${classTestCode.className}Test.kt")
+        val sourceFile = fileProvider.getFile(sourceFileName)
+        val outputPath = testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
+        val outputFile = fileProvider.getFile("$outputPath${classTestCode.className}Test.kt")
         val isFileCreated = outputFile.createNewFile()
         if (isFileCreated) {
             outputFile.writeText(classTestCode.testSource)
@@ -55,23 +58,10 @@ class TestIt(
 
     private fun KotlinFileParser.parseFile(source: String) = source.parse()
 
-    private fun getTestPathForClass(fileName: String): String? {
-        val pathRegex = Regex("/src/[a-z]+/(java|kotlin)/")
-
-        return if (pathRegex.containsMatchIn(fileName)) {
-            val sourcePath = fileName.substringBeforeLast("/") + "/"
-            pathRegex.replace(sourcePath) { matchResult ->
-                "/src/test/${matchResult.groupValues[1]}/"
-            }
-        } else {
-            null
-        }
-    }
-
     private fun TestsGenerator.addToTests(classUnderTest: ClassMetadata) = classUnderTest.addToTests()
 
     private fun getFileContents(fileName: String): String? {
-        val file = File(fileName)
+        val file = fileProvider.getFile(fileName)
         if (!file.exists()) {
             println("File not found: $fileName")
             return null
@@ -81,7 +71,12 @@ class TestIt(
 }
 
 fun main(args: Array<String>) {
-    val testIt = TestIt(AntlrKotlinFileParser(), KotlinJUnitTestGenerator(StringBuilder()))
+    val testIt = TestIt(
+        FileProvider(),
+        AntlrKotlinFileParser(),
+        TestFilePathFormatter(),
+        KotlinJUnitTestGenerator(StringBuilder())
+    )
 
     if (args.isEmpty()) {
         testIt.showHelp()
