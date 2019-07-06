@@ -38,7 +38,7 @@ class KotlinJUnitTestGenerator(
             mutableMapOf(
                 "Mock" to "org.mockito.Mock",
                 "mock" to "com.nhaarman.mockitokotlin2.mock",
-                "test" to "org.junit.Test"
+                "Test" to "org.junit.Test"
             )
         )
     }
@@ -135,11 +135,17 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendFunctionParameterMocks(function: FunctionMetadata): StringBuilder {
         function.parameters.forEach { parameter ->
-            append("${INDENT_2}val ${parameter.name} = mock<${parameter.type}>()\n")
+            val value = getMockedValue(parameter.type)
+            append("${INDENT_2}val ${parameter.name} = $value\n")
         }
         append("\n")
 
         return this
+    }
+
+    private fun getMockedValue(variableType: String) = when (variableType) {
+        "String" -> "\"variableType\""
+        else -> "mock<$variableType>()"
     }
 
     private fun StringBuilder.appendWhen(
