@@ -83,10 +83,16 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendMocks(classParameters: List<TypedParameter>): StringBuilder {
         append(classParameters.joinToString("\n\n") { parameter ->
-            when (parameter.type) {
-                "String" -> "private val ${parameter.name} = \"${parameter.name}\""
+            val parameterName = parameter.name
+            when (val parameterType = parameter.type) {
+                "Boolean" -> "private val $parameterName = false"
+                "Byte" -> "private val $parameterName = 0b0"
+                "Double" -> "private val $parameterName = 0.0"
+                "Float" -> "private val $parameterName = 0f"
+                "Int", "Long", "Short" -> "private val $parameterName: $parameterType = 0"
+                "String" -> "private val $parameterName = \"$parameterName\""
                 else -> "$INDENT@Mock\n" +
-                        "${INDENT}lateinit var ${parameter.name}: ${parameter.type}"
+                        "${INDENT}lateinit var $parameterName: $parameterType"
             }
         })
 
@@ -147,6 +153,13 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun getMockedValue(variableType: String) = when (variableType) {
+        "Boolean" -> "false"
+        "Byte" -> "0b0"
+        "Double" -> "0.0"
+        "Float" -> "0f"
+        "Int" -> "0"
+        "Long" -> "0L"
+        "Short" -> "0.toShort()"
         "String" -> "\"variableType\""
         else -> "mock<$variableType>()"
     }
