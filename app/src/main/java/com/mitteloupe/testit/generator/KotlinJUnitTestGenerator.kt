@@ -83,8 +83,11 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendMocks(classParameters: List<TypedParameter>): StringBuilder {
         append(classParameters.joinToString("\n\n") { parameter ->
-            "$INDENT@Mock\n" +
-                    "${INDENT}lateinit var ${parameter.name}: ${parameter.type}"
+            when (parameter.type) {
+                "String" -> "private val ${parameter.name} = \"${parameter.name}\""
+                else -> "$INDENT@Mock\n" +
+                        "${INDENT}lateinit var ${parameter.name}: ${parameter.type}"
+            }
         })
 
         if (classParameters.isNotEmpty()) {
