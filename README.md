@@ -21,7 +21,7 @@ For example, when run against itself (`testit app/src/main/java/com/mitteloupe/t
 see [source file](https://github.com/EranBoudjnah/TestIt/blob/master/app/src/main/java/com/mitteloupe/testit/TestIt.kt) -
 it generates the below file at `app/src/test/java/com/mitteloupe/testit/TestItTest.kt`:
 
-```
+```kotlin
 package com.mitteloupe.testit
 
 import com.mitteloupe.testit.generator.TestsGenerator
