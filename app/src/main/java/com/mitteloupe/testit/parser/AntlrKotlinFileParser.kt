@@ -165,22 +165,17 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun getNameFromNode(node: KotlinParseTree) = node.extractChildNode(listOf("Identifier"))?.text
 
-    private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String {
+    private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String =
         when (node.name) {
-            "simpleIdentifier" -> {
-                val name = getNameFromNode(node)
-                name?.let { return name }
-            }
-            "ANNOTATION" -> return node.text ?: ""
-            "DOT" -> return "."
-            "LANGLE" -> return "<"
-            "RANGLE" -> return ">"
-        }
-
-        return node.children.joinToString("") { childNode ->
+            "simpleIdentifier" -> getNameFromNode(node)
+            "ANNOTATION", "FILE" -> node.text ?: ""
+            "DOT" -> "."
+            "LANGLE" -> "<"
+            "RANGLE" -> ">"
+            else -> null
+        } ?: node.children.joinToString("") { childNode ->
             getNameRecursivelyFromChildren(childNode)
         }
-    }
 
     private fun extractConstructorParametersListFromNode(node: KotlinParseTree) = node.applyToChildNodes(
         listOf("classParameters", "classParameter"),

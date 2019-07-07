@@ -1,4 +1,4 @@
-package com.mitteloupe.testit.parser
+package com.mitteloupe.testit.file
 
 import java.io.File
 

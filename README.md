@@ -16,7 +16,7 @@ While you can run `./gradlew run --args "filepath"`, it might be more convenient
 3. Run `brew install coreutils`
 4. Create a symbolic link: `sudo ln -s /path/to/testit /usr/local/bin`
 
-Note: your project would need to include [mockito](https://site.mockito.org/) and [mockito-kotlin](https://github.com/nhaarman/mockito-kotlin).
+Note: your project would need to include [mockito 2](https://site.mockito.org/) and [mockito-kotlin](https://github.com/nhaarman/mockito-kotlin) or [MockK](https://mockk.io/).
 
 ## Output
 
@@ -24,12 +24,15 @@ TestIt generates a test file for you in the default expected path.
 
 For example, when run against itself (`testit app/src/main/java/com/mitteloupe/testit/TestIt.kt`) -
 see [source file](https://github.com/EranBoudjnah/TestIt/blob/master/app/src/main/java/com/mitteloupe/testit/TestIt.kt) -
-it generates the below file at `app/src/test/java/com/mitteloupe/testit/TestItTest.kt`:
+it generates the below file at `app/src/test/java/com/mitteloupe/testit/TestItTest2.kt`:
 
 ```kotlin
 package com.mitteloupe.testit
 
-import com.mitteloupe.testit.generator.TestsGenerator
+import com.mitteloupe.testit.config.PropertiesReader
+import com.mitteloupe.testit.file.FileProvider
+import com.mitteloupe.testit.generator.TestFilePathFormatter
+import com.mitteloupe.testit.generator.TestsGeneratorFactory
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.parser.KotlinFileParser
 import com.nhaarman.mockitokotlin2.mock
@@ -44,37 +47,48 @@ class TestItTest {
     private lateinit var cut: TestIt
 
     @Mock
+    lateinit var propertiesReader: PropertiesReader
+
+    @Mock
+    lateinit var fileProvider: FileProvider
+
+    @Mock
     lateinit var kotlinFileParser: KotlinFileParser
 
     @Mock
-    lateinit var testsGenerator: TestsGenerator
+    lateinit var testFilePathFormatter: TestFilePathFormatter
+
+    @Mock
+    lateinit var testsGeneratorFactory: TestsGeneratorFactory
 
     @Before
     fun setUp() {
-        cut = TestIt(kotlinFileParser, testsGenerator)
+        cut = TestIt(propertiesReader, fileProvider, kotlinFileParser, testFilePathFormatter, testsGeneratorFactory)
     }
 
     @Test
     fun `Given _ when getTestsForFile then _`() {
         // Given
-        val fileName = mock<String>()
+        val fileName = "fileName"
 
         // When
-        val actual = cut.getTestsForFile(fileName)
+        val actualValue = cut.getTestsForFile(fileName)
 
         // Then
+        TODO("Define assertions")
     }
 
     @Test
     fun `Given _ when saveTestsToFile then _`() {
         // Given
-        val sourceFileName = mock<String>()
+        val sourceFileName = "sourceFileName"
         val classTestCode = mock<ClassTestCode>()
 
         // When
         cut.saveTestsToFile(sourceFileName, classTestCode)
 
         // Then
+        TODO("Define assertions")
     }
 
     @Test
@@ -85,6 +99,7 @@ class TestItTest {
         cut.showHelp()
 
         // Then
+        TODO("Define assertions")
     }
 }
 ```
@@ -93,6 +108,7 @@ class TestItTest {
 
 * Automatically compiles a list of required imports
 * Supports multiple classes in one Kotlin file
+* Supports both [mockito 2](https://site.mockito.org/) and [MockK](https://mockk.io/)
 
 ## Acknowledgments
 

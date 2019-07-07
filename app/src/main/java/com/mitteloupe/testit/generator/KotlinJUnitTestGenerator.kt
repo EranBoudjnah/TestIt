@@ -4,43 +4,68 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
-private const val INDENT = "    "
-private const val INDENT_2 = "$INDENT$INDENT"
 private const val CLASS_UNDER_TEST = "cut"
 
 class KotlinJUnitTestGenerator(
-    private val stringBuilder: StringBuilder
+    private val stringBuilder: StringBuilder,
+    private val mockerCodeGenerator: MockerCodeGenerator
 ) : TestsGenerator {
     private val usedImports = mutableMapOf<String, String>()
 
     private val knownImports = mutableMapOf<String, String>()
+
+    private val nonMockableTypes = listOf(
+        ConcreteValue("Boolean") { "false" },
+        ConcreteValue("Byte") { "0b0" },
+        ConcreteValue("Class") { "Any::class.java" },
+        ConcreteValue("Double") { "0.0" },
+        ConcreteValue("Float") { "0f" },
+        ConcreteValue("Int") { "0" },
+        ConcreteValue("Long") { "0L" },
+        ConcreteValue("Short") { "0.toShort()" },
+        ConcreteValue("String") { parameterName -> "\"$parameterName\"" }
+    )
 
     init {
         reset()
     }
 
     override fun ClassMetadata.addToTests() {
+        setUpMockGenerator(this)
         stringBuilder.appendTestClass(this)
+    }
+
+    private fun setUpMockGenerator(classUnderTest: ClassMetadata) {
+        if (hasMockableConstructorParameters(classUnderTest.constructorParameters)) {
+            mockerCodeGenerator.setHasMockedConstructorParameters()
+        }
+
+        if (hasMockableFunctionParameters(classUnderTest.functions)) {
+            mockerCodeGenerator.setHasMockedFunctionParameters()
+        }
     }
 
     override fun reset() {
         stringBuilder.clear()
-        usedImports.clear()
-        usedImports.putAll(
-            mutableMapOf(
-                "RunWith" to "org.junit.runner.RunWith",
-                "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
-                "Before" to "org.junit.Before"
+        with(usedImports) {
+            clear()
+            putAll(
+                mutableMapOf(
+                    "Before" to "org.junit.Before"
+                )
             )
-        )
-        knownImports.clear()
-        knownImports.putAll(
-            mutableMapOf(
-                "Mock" to "org.mockito.Mock",
-                "mock" to "com.nhaarman.mockitokotlin2.mock",
-                "Test" to "org.junit.Test"
+            putAll(mockerCodeGenerator.usedImports)
+        }
+
+        with(knownImports) {
+            clear()
+            putAll(
+                mutableMapOf(
+                    "Test" to "org.junit.Test"
+                )
             )
-        )
+            putAll(mockerCodeGenerator.knownImports)
+        }
     }
 
     override fun generateTests() = stringBuilder.toString()
@@ -50,7 +75,7 @@ class KotlinJUnitTestGenerator(
 
         return appendPackageName(classUnderTest.packageName)
             .appendImports()
-            .appendRunWithAnnotation()
+            .appendTestClassAnnotation(classUnderTest.constructorParameters)
             .append("class ${classUnderTest.className}Test {\n")
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
@@ -75,26 +100,22 @@ class KotlinJUnitTestGenerator(
         return this
     }
 
-    private fun StringBuilder.appendRunWithAnnotation() = append("@RunWith(MockitoJUnitRunner::class)\n")
-
-    private fun StringBuilder.appendClassVariable(
-        className: String
-    ) = append("${INDENT}private lateinit var $CLASS_UNDER_TEST: $className\n\n")
+    private fun StringBuilder.appendTestClassAnnotation(constructorParameters: List<TypedParameter>): StringBuilder {
+        if (hasMockableConstructorParameters(constructorParameters)) {
+            mockerCodeGenerator.testClassAnnotation?.let { annotation ->
+                append("$annotation\n")
+            }
+        }
+        return this
+    }
 
     private fun StringBuilder.appendMocks(classParameters: List<TypedParameter>): StringBuilder {
         append(classParameters.joinToString("\n\n") { parameter ->
             val parameterName = parameter.name
-            when (val parameterType = parameter.type) {
-                "Boolean" -> "private val $parameterName = false"
-                "Byte" -> "private val $parameterName = 0b0"
-                "Class" -> "private val $parameterName = Any::class.java"
-                "Double" -> "private val $parameterName = 0.0"
-                "Float" -> "private val $parameterName = 0f"
-                "Int", "Long", "Short" -> "private val $parameterName: $parameterType = 0"
-                "String" -> "private val $parameterName = \"$parameterName\""
-                else -> "$INDENT@Mock\n" +
-                        "${INDENT}lateinit var $parameterName: $parameterType"
-            }
+            val parameterType = parameter.type
+            nonMockableTypes.firstOrNull { type -> type.dataType == parameterType }?.let { type ->
+                "private val $parameterName = ${type.defaultValue(parameterName)}"
+            } ?: mockerCodeGenerator.getConstructorMock(parameterName, parameterType)
         })
 
         if (classParameters.isNotEmpty()) {
@@ -104,14 +125,22 @@ class KotlinJUnitTestGenerator(
         return this
     }
 
-    private fun StringBuilder.appendSetUp(className: String, classParameters: List<TypedParameter>) =
+    private fun StringBuilder.appendSetUp(className: String, classParameters: List<TypedParameter>): StringBuilder {
         append("$INDENT@Before\n")
             .append("${INDENT}fun setUp() {\n")
-            .append("$INDENT_2$CLASS_UNDER_TEST = $className(")
+
+        mockerCodeGenerator.setUpStatements?.let {
+            append(it)
+        }
+
+        append("$INDENT_2$CLASS_UNDER_TEST = $className(")
             .append(classParameters.joinToString(", ") { parameter -> parameter.name })
             .append(")\n")
             .append("$INDENT}")
             .appendBlankLine()
+
+        return this
+    }
 
     private fun StringBuilder.appendTests(classUnderTest: ClassMetadata): StringBuilder {
         val lastIndex = classUnderTest.functions.size - 1
@@ -145,7 +174,7 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendFunctionParameterMocks(function: FunctionMetadata): StringBuilder {
         function.parameters.forEach { parameter ->
-            val value = getMockedValue(parameter.type)
+            val value = getMockedValue(parameter.type, parameter.name)
             append("${INDENT_2}val ${parameter.name} = $value\n")
         }
         append("\n")
@@ -153,24 +182,16 @@ class KotlinJUnitTestGenerator(
         return this
     }
 
-    private fun getMockedValue(variableType: String) = when (variableType) {
-        "Boolean" -> "false"
-        "Byte" -> "0b0"
-        "Class" -> "Any::class.java"
-        "Double" -> "0.0"
-        "Float" -> "0f"
-        "Int" -> "0"
-        "Long" -> "0L"
-        "Short" -> "0.toShort()"
-        "String" -> "\"variableType\""
-        else -> "mock<$variableType>()"
-    }
+    private fun getMockedValue(variableType: String, variableName: String) =
+        nonMockableTypes.firstOrNull { type -> type.dataType == variableType }?.let { type ->
+            type.defaultValue(variableName)
+        } ?: mockerCodeGenerator.getMockedInstance(variableType)
 
     private fun StringBuilder.appendWhen(
         function: FunctionMetadata
     ): StringBuilder {
         val actualVariable = if (function.returnType != "Unit") {
-            "val actual = "
+            "val actualValue = "
         } else {
             ""
         }
@@ -182,21 +203,37 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun StringBuilder.appendThen() = append("$INDENT_2// Then\n")
+        .append("${INDENT_2}TODO(\"Define assertions\")\n")
 
     private fun StringBuilder.appendBlankLine() = append("\n\n")
 
+    private fun StringBuilder.appendClassVariable(
+        className: String
+    ) = append("${INDENT}private lateinit var $CLASS_UNDER_TEST: $className\n\n")
+
     private fun evaluateImports(classUnderTest: ClassMetadata) {
-        if (classUnderTest.constructorParameters.isNotEmpty()) {
-            addImportIfKnown("Mock")
-        }
+        val imports = mockerCodeGenerator.getRequiredImports()
+        imports.forEach(::addImportIfKnown)
+
         if (classUnderTest.functions.isNotEmpty()) {
             addImportIfKnown("Test")
         }
-        if (classUnderTest.functions.any { it.parameters.isNotEmpty() }) {
-            addImportIfKnown("mock")
-        }
 
         classUnderTest.imports.forEach { (a, b) -> usedImports[a] = b }
+    }
+
+    private fun hasMockableConstructorParameters(constructorParameters: List<TypedParameter>) =
+        constructorParameters.any { parameter -> parameter.isMockable() }
+
+    private fun hasMockableFunctionParameters(functions: List<FunctionMetadata>) =
+        functions.any { function ->
+            function.parameters.any { parameter -> parameter.isMockable() }
+        }
+
+    private fun TypedParameter.isMockable(): Boolean {
+        return nonMockableTypes.none { mockableType ->
+            type == mockableType.dataType
+        }
     }
 
     private fun addImportIfKnown(entityName: String) {
@@ -206,3 +243,8 @@ class KotlinJUnitTestGenerator(
         }
     }
 }
+
+private data class ConcreteValue(
+    val dataType: String,
+    val defaultValue: (String) -> String
+)

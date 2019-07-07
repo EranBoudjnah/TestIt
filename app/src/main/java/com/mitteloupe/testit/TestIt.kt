@@ -1,23 +1,33 @@
 package com.mitteloupe.testit
 
-import com.mitteloupe.testit.generator.KotlinJUnitTestGenerator
+import com.mitteloupe.testit.config.ConfigurationBuilder
+import com.mitteloupe.testit.config.PropertiesReader
+import com.mitteloupe.testit.file.FileInputStreamProvider
+import com.mitteloupe.testit.file.FileProvider
 import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGenerator
+import com.mitteloupe.testit.generator.TestsGeneratorFactory
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
-import com.mitteloupe.testit.parser.FileProvider
 import com.mitteloupe.testit.parser.KotlinFileParser
 
 /**
  * Created by Eran Boudjnah on 2019-07-04.
  */
 class TestIt(
+    private val propertiesReader: PropertiesReader,
     private val fileProvider: FileProvider,
     private val kotlinFileParser: KotlinFileParser,
     private val testFilePathFormatter: TestFilePathFormatter,
-    private val testsGenerator: TestsGenerator
+    private val testsGeneratorFactory: TestsGeneratorFactory
 ) {
+    private lateinit var testsGenerator: TestsGenerator
+
+    init {
+        loadConfiguration()
+    }
+
     fun getTestsForFile(fileName: String) = getFileContents(fileName)?.let { getTestsForNodes(it) } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode) {
@@ -56,6 +66,17 @@ class TestIt(
         return tests
     }
 
+    private fun loadConfiguration() {
+        val appPath = getApplicationRootPath()
+        val configuration = propertiesReader.readFromFile("$appPath/settings.properties")
+
+        testsGenerator = testsGeneratorFactory.createTestsGenerator(configuration)
+    }
+
+    private fun getApplicationRootPath() =
+        System.getProperty("user.dir")
+            .substringBeforeLast("/")
+
     private fun KotlinFileParser.parseFile(source: String) = source.parse()
 
     private fun TestsGenerator.addToTests(classUnderTest: ClassMetadata) = classUnderTest.addToTests()
@@ -71,11 +92,14 @@ class TestIt(
 }
 
 fun main(args: Array<String>) {
+    val fileProvider = FileProvider()
+
     val testIt = TestIt(
-        FileProvider(),
+        PropertiesReader(fileProvider, FileInputStreamProvider(), ConfigurationBuilder()),
+        fileProvider,
         AntlrKotlinFileParser(),
         TestFilePathFormatter(),
-        KotlinJUnitTestGenerator(StringBuilder())
+        TestsGeneratorFactory()
     )
 
     if (args.isEmpty()) {
