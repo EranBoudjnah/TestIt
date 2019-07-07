@@ -24,7 +24,7 @@ TestIt generates a test file for you in the default expected path.
 
 For example, when run against itself (`testit app/src/main/java/com/mitteloupe/testit/TestIt.kt`) -
 see [source file](https://github.com/EranBoudjnah/TestIt/blob/master/app/src/main/java/com/mitteloupe/testit/TestIt.kt) -
-it generates the below file at `app/src/test/java/com/mitteloupe/testit/TestItTest2.kt`:
+it generates the below file at `app/src/test/java/com/mitteloupe/testit/TestItTest.kt`:
 
 ```kotlin
 package com.mitteloupe.testit
