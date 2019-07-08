@@ -11,10 +11,9 @@ While you can run `./gradlew run --args "filepath"`, it might be more convenient
 
 ### Install
 
-1. Make the helper script executable: `chmod +x /path/to/testit`
-2. Get [HomeBrew](https://brew.sh/)
-3. Run `brew install coreutils`
-4. Create a symbolic link: `sudo ln -s /path/to/testit /usr/local/bin`
+1. Get [HomeBrew](https://brew.sh/)
+2. Run `brew install coreutils`
+3. Create a symbolic link: `sudo ln -s /path/to/testit /usr/local/bin`
 
 Note: your project would need to include [mockito 2](https://site.mockito.org/) and [mockito-kotlin](https://github.com/nhaarman/mockito-kotlin) or [MockK](https://mockk.io/).
 
