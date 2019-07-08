@@ -34,7 +34,7 @@ class KotlinParserException(val parserMessage: String, val position: Pair<Int, I
 }
 
 class KotlinParseTree(
-    val type: KotlinParseTreeNodeType,
+    private val type: KotlinParseTreeNodeType,
     val name: String,
     val text: String? = null,
     val children: MutableList<KotlinParseTree> = mutableListOf()

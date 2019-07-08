@@ -4,11 +4,12 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
-private const val CLASS_UNDER_TEST = "cut"
-
 class KotlinJUnitTestGenerator(
     private val stringBuilder: StringBuilder,
-    private val mockerCodeGenerator: MockerCodeGenerator
+    private val mockerCodeGenerator: MockerCodeGenerator,
+    private val classUnderTestVariableName: String,
+    private val actualValueVariableName: String,
+    private val defaultAssertionStatement: String
 ) : TestsGenerator {
     private val usedImports = mutableMapOf<String, String>()
 
@@ -133,7 +134,7 @@ class KotlinJUnitTestGenerator(
             append(it)
         }
 
-        append("$INDENT_2$CLASS_UNDER_TEST = $className(")
+        append("$INDENT_2$classUnderTestVariableName = $className(")
             .append(classParameters.joinToString(", ") { parameter -> parameter.name })
             .append(")\n")
             .append("$INDENT}")
@@ -191,25 +192,25 @@ class KotlinJUnitTestGenerator(
         function: FunctionMetadata
     ): StringBuilder {
         val actualVariable = if (function.returnType != "Unit") {
-            "val actualValue = "
+            "val $actualValueVariableName = "
         } else {
             ""
         }
         return append("$INDENT_2// When\n")
-            .append("$INDENT_2${actualVariable}cut.${function.name}(")
+            .append("$INDENT_2$actualVariable$classUnderTestVariableName.${function.name}(")
             .append(function.parameters.joinToString(", ") { it.name })
             .append(")")
             .appendBlankLine()
     }
 
     private fun StringBuilder.appendThen() = append("$INDENT_2// Then\n")
-        .append("${INDENT_2}TODO(\"Define assertions\")\n")
+        .append("$INDENT_2$defaultAssertionStatement\n")
 
     private fun StringBuilder.appendBlankLine() = append("\n\n")
 
     private fun StringBuilder.appendClassVariable(
         className: String
-    ) = append("${INDENT}private lateinit var $CLASS_UNDER_TEST: $className\n\n")
+    ) = append("${INDENT}private lateinit var $classUnderTestVariableName: $className\n\n")
 
     private fun evaluateImports(classUnderTest: ClassMetadata) {
         val imports = mockerCodeGenerator.getRequiredImports()

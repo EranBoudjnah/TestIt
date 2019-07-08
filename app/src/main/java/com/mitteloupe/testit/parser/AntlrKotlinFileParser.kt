@@ -151,9 +151,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
     }
 
     private fun isPrivateFunction(childNode: KotlinParseTree) =
-        childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PRIVATE"))?.let {
-            true
-        } ?: false
+        childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PRIVATE")) != null
 
     private fun extractFunctionReturnType(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
@@ -168,10 +166,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
     private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String =
         when (node.name) {
             "simpleIdentifier" -> getNameFromNode(node)
-            "ANNOTATION", "FILE" -> node.text ?: ""
             "DOT" -> "."
             "LANGLE" -> "<"
             "RANGLE" -> ">"
+            in Regex("[A-Z]+") -> node.text ?: ""
             else -> null
         } ?: node.children.joinToString("") { childNode ->
             getNameRecursivelyFromChildren(childNode)
@@ -248,4 +246,6 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 matchingChild.extractChildNode(nodeNames.subList(1, nodeNames.size))
             }
         }
+
+    private operator fun Regex.contains(text: CharSequence): Boolean = this.matches(text)
 }

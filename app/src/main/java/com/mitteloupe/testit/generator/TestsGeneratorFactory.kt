@@ -9,6 +9,12 @@ class TestsGeneratorFactory {
             Mocker.MOCKITO -> MockitoCodeGenerator()
             Mocker.MOCKK -> MockkCodeGenerator()
         }
-        return KotlinJUnitTestGenerator(StringBuilder(), mockerCodeGenerator)
+        return KotlinJUnitTestGenerator(
+            StringBuilder(),
+            mockerCodeGenerator,
+            configuration.classUnderTest,
+            configuration.actualValue,
+            configuration.defaultAssertion
+        )
     }
 }
