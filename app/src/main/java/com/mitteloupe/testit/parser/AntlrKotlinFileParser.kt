@@ -48,11 +48,13 @@ class AntlrKotlinFileParser : KotlinFileParser {
         val classParameters = mutableListOf<TypedParameter>()
         val functions = mutableListOf<FunctionMetadata>()
 
+        if (!isClassType(node)) {
+            return null
+        }
+
         node.children.forEach { childNode ->
             when (childNode.name) {
-                "simpleIdentifier" -> {
-                    className = getNameFromNode(childNode)
-                }
+                "simpleIdentifier" -> className = getNameFromNode(childNode)
                 "primaryConstructor" -> {
                     extractConstructorParametersListFromNode(childNode).let { parameters ->
                         classParameters.addAll(parameters)
@@ -63,10 +65,12 @@ class AntlrKotlinFileParser : KotlinFileParser {
                         functions.addAll(parameters)
                     }
                 }
-                "modifiers" -> {
-                    if (isSealedClass(childNode)) {
-                        return null
-                    }
+                "modifiers" -> if (
+                    isDataClass(childNode) ||
+                    isEnumClass(childNode) ||
+                    isSealedClass(childNode)
+                ) {
+                    return null
                 }
             }
         }
@@ -80,16 +84,20 @@ class AntlrKotlinFileParser : KotlinFileParser {
         return classMetadata
     }
 
+    private fun isClassType(node: KotlinParseTree) =
+        node.children.any { childNode -> childNode.name == "CLASS" }
+
+    private fun isDataClass(childNode: KotlinParseTree) =
+        childNode.hasClassModifier("DATA")
+
+    private fun isEnumClass(childNode: KotlinParseTree) =
+        childNode.hasClassModifier("ENUM")
+
     private fun isSealedClass(childNode: KotlinParseTree) =
-        childNode.extractChildNode(
-            listOf(
-                "modifier",
-                "classModifier",
-                "SEALED"
-            )
-        )?.let {
-            true
-        } ?: false
+        childNode.hasClassModifier("SEALED")
+
+    private fun KotlinParseTree.hasClassModifier(modifier: String) =
+        extractChildNode(listOf("modifier", "classModifier", modifier)) != null
 
     private fun extractPublicFunctionsFromNodes(node: KotlinParseTree) =
         node.applyToChildNodes(
