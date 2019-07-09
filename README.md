@@ -1,9 +1,10 @@
 # TestIt
 
-While [TDD](https://en.wikipedia.org/wiki/Test-driven_development) is a better approach for development, many projects end up with low test coverage.
+While [TDD](https://en.wikipedia.org/wiki/Test-driven_development) is a better approach for development, many projects don't practice it and end up with low test coverage.
+
 This project is here to help you improve your test coverage by reducing the effort spent on writing boilerplate code, allowing you to focus on writing the actual tests.
 
-Generate unit testing boilerplate from kotlin files.
+Use TestIt to generate unit testing boilerplate from kotlin files.
 
 ## Getting Started
 
@@ -17,9 +18,15 @@ While you can run `./gradlew run --args "filepath"`, it might be more convenient
 
 Note: your project would need to include [mockito 2](https://site.mockito.org/) and [mockito-kotlin](https://github.com/nhaarman/mockito-kotlin) or [MockK](https://mockk.io/).
 
+## Usage
+
+One installed, running TestIt is as simple as
+
+`testit path/to/file.kt`
+
 ## Output
 
-TestIt generates a test file for you in the default expected path.
+TestIt generates a test file in the default expected path.
 
 For example, when run against itself (`testit app/src/main/java/com/mitteloupe/testit/TestIt.kt`) -
 see [source file](https://github.com/EranBoudjnah/TestIt/blob/master/app/src/main/java/com/mitteloupe/testit/TestIt.kt) -
