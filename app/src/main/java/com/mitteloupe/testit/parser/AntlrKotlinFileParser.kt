@@ -45,6 +45,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun extractClassFromNode(node: KotlinParseTree): ClassMetadata? {
         var className: String? = null
+        var isClassAbstract = false
         val classParameters = mutableListOf<TypedParameter>()
         val functions = mutableListOf<FunctionMetadata>()
 
@@ -65,18 +66,30 @@ class AntlrKotlinFileParser : KotlinFileParser {
                         functions.addAll(parameters)
                     }
                 }
-                "modifiers" -> if (
-                    isDataClass(childNode) ||
-                    isEnumClass(childNode) ||
-                    isSealedClass(childNode)
-                ) {
-                    return null
+                "modifiers" -> {
+                    if (isDataClass(childNode) ||
+                        isEnumClass(childNode) ||
+                        isSealedClass(childNode) ||
+                        isPrivateClass(childNode)
+                    ) {
+                        return null
+                    }
+                    if (isAbstractClass(childNode)) {
+                        isClassAbstract = true
+                    }
                 }
             }
         }
 
         val classMetadata = className?.let { validClassName ->
-            ClassMetadata(packageName, HashMap(usedImports), validClassName, classParameters, functions)
+            ClassMetadata(
+                packageName,
+                HashMap(usedImports),
+                validClassName,
+                isClassAbstract,
+                classParameters,
+                functions
+            )
         }
 
         resetUsedImports()
@@ -96,8 +109,23 @@ class AntlrKotlinFileParser : KotlinFileParser {
     private fun isSealedClass(childNode: KotlinParseTree) =
         childNode.hasClassModifier("SEALED")
 
+    private fun isPrivateClass(childNode: KotlinParseTree) =
+        childNode.hasInheritanceModifier("PRIVATE")
+
+    private fun isAbstractClass(childNode: KotlinParseTree) =
+        childNode.hasInheritanceModifier("ABSTRACT")
+
     private fun KotlinParseTree.hasClassModifier(modifier: String) =
-        extractChildNode(listOf("modifier", "classModifier", modifier)) != null
+        hasModifier("classModifier", modifier)
+
+    private fun KotlinParseTree.hasInheritanceModifier(modifier: String) =
+        hasModifier("inheritanceModifier", modifier)
+
+    private fun KotlinParseTree.hasVisibilityModifier(modifier: String) =
+        hasModifier("visibilityModifier", modifier)
+
+    private fun KotlinParseTree.hasModifier(modifierType: String, modifier: String) =
+        extractChildNode(listOf("modifier", modifierType, modifier)) != null
 
     private fun extractPublicFunctionsFromNodes(node: KotlinParseTree) =
         node.applyToChildNodes(
@@ -112,6 +140,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun extractFunctionMetadataFromNode(node: KotlinParseTree): FunctionMetadata? {
         var functionName: String? = null
+        var isAbstract = false
         var returnType: String? = null
         val functionParameters = mutableListOf<TypedParameter>()
 
@@ -123,6 +152,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 "modifiers" -> {
                     if (isPrivateFunction(childNode)) {
                         return null
+                    }
+                    if (isAbstractFunction(childNode)) {
+                        isAbstract = true
                     }
                 }
                 "functionValueParameters" -> {
@@ -154,12 +186,15 @@ class AntlrKotlinFileParser : KotlinFileParser {
         }
 
         return functionName?.let { validFunctionName ->
-            FunctionMetadata(validFunctionName, functionParameters, returnType ?: "Unit")
+            FunctionMetadata(validFunctionName, isAbstract, functionParameters, returnType ?: "Unit")
         }
     }
 
     private fun isPrivateFunction(childNode: KotlinParseTree) =
         childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PRIVATE")) != null
+
+    private fun isAbstractFunction(childNode: KotlinParseTree) =
+        childNode.extractChildNode(listOf("modifier", "inheritanceModifier", "ABSTRACT")) != null
 
     private fun extractFunctionReturnType(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")

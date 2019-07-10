@@ -1,6 +1,8 @@
 package com.mitteloupe.testit.generator
 
-class MockitoCodeGenerator : MockerCodeGenerator {
+import com.mitteloupe.testit.model.ClassMetadata
+
+class MockitoCodeGenerator : MockerCodeGenerator() {
     private val requiredImports = mutableSetOf<String>()
 
     override val testClassAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
@@ -11,7 +13,8 @@ class MockitoCodeGenerator : MockerCodeGenerator {
         "RunWith" to "org.junit.runner.RunWith",
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
         "Mock" to "org.mockito.Mock",
-        "mock" to "com.nhaarman.mockitokotlin2.mock"
+        "mock" to "com.nhaarman.mockitokotlin2.mock",
+        "Mockito" to "org.mockito.Mockito"
     )
 
     override val setUpStatements: String? = null
@@ -21,6 +24,11 @@ class MockitoCodeGenerator : MockerCodeGenerator {
                 "${INDENT}lateinit var $parameterName: $parameterType"
 
     override fun getMockedInstance(variableType: String) = "mock<$variableType>()"
+
+    override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
+        "mock<${classUnderTest.className}>(defaultAnswer = Mockito.CALLS_REAL_METHODS)"
+
+    override fun getRequiredImports() = requiredImports
 
     override fun setHasMockedConstructorParameters() {
         requiredImports.add("RunWith")
@@ -32,5 +40,8 @@ class MockitoCodeGenerator : MockerCodeGenerator {
         requiredImports.add("mock")
     }
 
-    override fun getRequiredImports() = requiredImports
+    override fun setIsAbstractClassUnderTest() {
+        requiredImports.add("mock")
+        requiredImports.add("Mockito")
+    }
 }

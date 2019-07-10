@@ -15,18 +15,6 @@ class KotlinJUnitTestGenerator(
 
     private val knownImports = mutableMapOf<String, String>()
 
-    private val nonMockableTypes = listOf(
-        ConcreteValue("Boolean") { "false" },
-        ConcreteValue("Byte") { "0b0" },
-        ConcreteValue("Class") { "Any::class.java" },
-        ConcreteValue("Double") { "0.0" },
-        ConcreteValue("Float") { "0f" },
-        ConcreteValue("Int") { "0" },
-        ConcreteValue("Long") { "0L" },
-        ConcreteValue("Short") { "0.toShort()" },
-        ConcreteValue("String") { parameterName -> "\"$parameterName\"" }
-    )
-
     init {
         reset()
     }
@@ -44,27 +32,23 @@ class KotlinJUnitTestGenerator(
         if (hasMockableFunctionParameters(classUnderTest.functions)) {
             mockerCodeGenerator.setHasMockedFunctionParameters()
         }
+
+        if (classUnderTest.isAbstract) {
+            mockerCodeGenerator.setIsAbstractClassUnderTest()
+        }
     }
 
     override fun reset() {
         stringBuilder.clear()
         with(usedImports) {
             clear()
-            putAll(
-                mutableMapOf(
-                    "Before" to "org.junit.Before"
-                )
-            )
+            putAll(mutableMapOf("Before" to "org.junit.Before"))
             putAll(mockerCodeGenerator.usedImports)
         }
 
         with(knownImports) {
             clear()
-            putAll(
-                mutableMapOf(
-                    "Test" to "org.junit.Test"
-                )
-            )
+            putAll(mutableMapOf("Test" to "org.junit.Test"))
             putAll(mockerCodeGenerator.knownImports)
         }
     }
@@ -80,7 +64,7 @@ class KotlinJUnitTestGenerator(
             .append("class ${classUnderTest.className}Test {\n")
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
-            .appendSetUp(classUnderTest.className, classUnderTest.constructorParameters)
+            .appendSetUp(classUnderTest)
             .appendTests(classUnderTest)
             .append("}")
             .appendBlankLine()
@@ -112,11 +96,7 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendMocks(classParameters: List<TypedParameter>): StringBuilder {
         append(classParameters.joinToString("\n\n") { parameter ->
-            val parameterName = parameter.name
-            val parameterType = parameter.type
-            nonMockableTypes.firstOrNull { type -> type.dataType == parameterType }?.let { type ->
-                "private val $parameterName = ${type.defaultValue(parameterName)}"
-            } ?: mockerCodeGenerator.getConstructorMock(parameterName, parameterType)
+            mockerCodeGenerator.getMockedVariableDefinition(parameter)
         })
 
         if (classParameters.isNotEmpty()) {
@@ -126,7 +106,9 @@ class KotlinJUnitTestGenerator(
         return this
     }
 
-    private fun StringBuilder.appendSetUp(className: String, classParameters: List<TypedParameter>): StringBuilder {
+    private fun StringBuilder.appendSetUp(
+        classUnderTest: ClassMetadata
+    ): StringBuilder {
         append("$INDENT@Before\n")
             .append("${INDENT}fun setUp() {\n")
 
@@ -134,10 +116,18 @@ class KotlinJUnitTestGenerator(
             append(it)
         }
 
-        append("$INDENT_2$classUnderTestVariableName = $className(")
-            .append(classParameters.joinToString(", ") { parameter -> parameter.name })
-            .append(")\n")
-            .append("$INDENT}")
+        append("$INDENT_2$classUnderTestVariableName = ")
+        if (classUnderTest.isAbstract) {
+            val abstractClassUnderTest = mockerCodeGenerator.getAbstractClassUnderTest(classUnderTest)
+            append("$abstractClassUnderTest\n")
+
+        } else {
+            append("${classUnderTest.className}(")
+                .append(classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name })
+                .append(")\n")
+        }
+
+        append("$INDENT}")
             .appendBlankLine()
 
         return this
@@ -175,18 +165,13 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendFunctionParameterMocks(function: FunctionMetadata): StringBuilder {
         function.parameters.forEach { parameter ->
-            val value = getMockedValue(parameter.type, parameter.name)
+            val value = mockerCodeGenerator.getMockedValue(parameter.type, parameter.name)
             append("${INDENT_2}val ${parameter.name} = $value\n")
         }
         append("\n")
 
         return this
     }
-
-    private fun getMockedValue(variableType: String, variableName: String) =
-        nonMockableTypes.firstOrNull { type -> type.dataType == variableType }?.let { type ->
-            type.defaultValue(variableName)
-        } ?: mockerCodeGenerator.getMockedInstance(variableType)
 
     private fun StringBuilder.appendWhen(
         function: FunctionMetadata
@@ -224,18 +209,14 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun hasMockableConstructorParameters(constructorParameters: List<TypedParameter>) =
-        constructorParameters.any { parameter -> parameter.isMockable() }
+        constructorParameters.any { parameter -> mockerCodeGenerator.isMockable(parameter) }
 
     private fun hasMockableFunctionParameters(functions: List<FunctionMetadata>) =
         functions.any { function ->
-            function.parameters.any { parameter -> parameter.isMockable() }
+            function.parameters.any { parameter -> mockerCodeGenerator.isMockable(parameter) }
         }
 
-    private fun TypedParameter.isMockable(): Boolean {
-        return nonMockableTypes.none { mockableType ->
-            type == mockableType.dataType
-        }
-    }
+    private fun MockerCodeGenerator.isMockable(parameter: TypedParameter) = parameter.isMockable()
 
     private fun addImportIfKnown(entityName: String) {
         knownImports[entityName]?.let { qualifiedName ->
@@ -244,8 +225,3 @@ class KotlinJUnitTestGenerator(
         }
     }
 }
-
-private data class ConcreteValue(
-    val dataType: String,
-    val defaultValue: (String) -> String
-)

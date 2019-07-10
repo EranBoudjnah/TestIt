@@ -1,9 +1,13 @@
 package com.mitteloupe.testit.generator
 
-class MockkCodeGenerator : MockerCodeGenerator {
+import com.mitteloupe.testit.model.ClassMetadata
+
+class MockkCodeGenerator : MockerCodeGenerator() {
     private val requiredImports = mutableSetOf<String>()
 
     private var _hasMockedConstructorParameters = false
+
+    private val stringBuilder by lazy { StringBuilder() }
 
     override val testClassAnnotation: String? = null
 
@@ -26,7 +30,25 @@ class MockkCodeGenerator : MockerCodeGenerator {
         "$INDENT@MockK\n" +
                 "${INDENT}lateinit var $parameterName: $parameterType"
 
+    override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
+        stringBuilder.clear()
+            .append("object : ${classUnderTest.className}() {\n")
+
+        classUnderTest.functions
+            .filter { it.isAbstract }
+            .forEach { function ->
+                val mockedValue = getMockedValue(function.returnType, function.name)
+                stringBuilder.append("${INDENT_3}override fun test2() = $mockedValue\n")
+            }
+
+        stringBuilder.append("$INDENT_2}")
+
+        return stringBuilder.toString()
+    }
+
     override fun getMockedInstance(variableType: String) = "mockk<$variableType>()"
+
+    override fun getRequiredImports() = requiredImports
 
     override fun setHasMockedConstructorParameters() {
         _hasMockedConstructorParameters = true
@@ -38,5 +60,6 @@ class MockkCodeGenerator : MockerCodeGenerator {
         requiredImports.add("mockk")
     }
 
-    override fun getRequiredImports() = requiredImports
+    override fun setIsAbstractClassUnderTest() {
+    }
 }
