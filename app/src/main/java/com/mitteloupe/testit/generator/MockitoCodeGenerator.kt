@@ -26,7 +26,7 @@ class MockitoCodeGenerator : MockerCodeGenerator() {
     override fun getMockedInstance(variableType: String) = "mock<$variableType>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
-        "mock<${classUnderTest.className}>(defaultAnswer = Mockito.CALLS_REAL_METHODS)"
+        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS)"
 
     override fun getRequiredImports() = requiredImports
 
