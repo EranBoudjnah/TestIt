@@ -115,7 +115,7 @@ class TestItTest {
 * Automatically compiles a list of required imports
 * Supports multiple classes in one Kotlin file
 * Supports both [mockito 2](https://site.mockito.org/) and [MockK](https://mockk.io/)
-* Test abstract classes as well
+* Can generate test code for abstract classes
 * Configurable
 
 ## Acknowledgments
