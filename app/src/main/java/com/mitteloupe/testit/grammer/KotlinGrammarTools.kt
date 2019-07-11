@@ -21,13 +21,13 @@ enum class KotlinParseTreeNodeType {
     RULE, TERMINAL
 }
 
-class KotlinLexerException(val lexerMessage: String, val position: Pair<Int, Int>) : Throwable() {
+class KotlinLexerException(lexerMessage: String, position: Pair<Int, Int>) : Throwable() {
     init {
         System.err.println("Lexer error: $lexerMessage, position: $position")
     }
 }
 
-class KotlinParserException(val parserMessage: String, val position: Pair<Int, Int>) : Throwable() {
+class KotlinParserException(parserMessage: String, position: Pair<Int, Int>) : Throwable() {
     init {
         System.err.println("Parser error: $parserMessage, position: $position")
     }

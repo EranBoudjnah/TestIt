@@ -49,13 +49,13 @@ internal object Parser {
     private fun getCharsStream(str: String) =
         CharStreams.fromStream(ByteArrayInputStream(str.toByteArray()), StandardCharsets.UTF_8)
 
-    private fun getAntlrTokenByKotlinToken(token: KotlinToken, tokenTypeMap: Map<String, Int>): CommonToken {
-        val tokenNumber = tokenTypeMap[token.type]!!
-
-        return if (token.channel == DEFAULT_CHANNEL)
-            CommonToken(tokenNumber, token.text)
-        else {
-            CommonToken(Pair(null, getCharsStream(token.text)), tokenNumber, token.channel, 0, 0)
+    private fun getAntlrTokenByKotlinToken(token: KotlinToken, tokenTypeMap: Map<String, Int>): CommonToken? {
+        return tokenTypeMap[token.type]?.let { tokenNumber ->
+            if (token.channel == DEFAULT_CHANNEL) {
+                CommonToken(tokenNumber, token.text)
+            } else {
+                CommonToken(Pair(null, getCharsStream(token.text)), tokenNumber, token.channel, 0, 0)
+            }
         }
     }
 
@@ -107,7 +107,7 @@ internal object Parser {
 
     fun parse(tokens: List<KotlinToken>): KotlinParseTree {
         val tokenTypeMap = KotlinLexer(null).tokenTypeMap
-        val tokensList = ListTokenSource(tokens.map { getAntlrTokenByKotlinToken(it, tokenTypeMap) })
+        val tokensList = ListTokenSource(tokens.mapNotNull { getAntlrTokenByKotlinToken(it, tokenTypeMap) })
         val parser = KotlinParser(CommonTokenStream(tokensList)).apply {
             removeErrorListeners()
             addErrorListener(errorParserListener)

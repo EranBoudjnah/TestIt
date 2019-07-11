@@ -2,7 +2,7 @@ package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
 
-class MockkCodeGenerator : MockerCodeGenerator() {
+class MockKCodeGenerator : MockerCodeGenerator() {
     private val requiredImports = mutableSetOf<String>()
 
     private var _hasMockedConstructorParameters = false

@@ -7,7 +7,7 @@ class TestsGeneratorFactory {
     fun createTestsGenerator(configuration: Configuration): TestsGenerator {
         val mockerCodeGenerator = when (configuration.mocker) {
             Mocker.MOCKITO -> MockitoCodeGenerator()
-            Mocker.MOCKK -> MockkCodeGenerator()
+            Mocker.MOCKK -> MockKCodeGenerator()
         }
         return KotlinJUnitTestGenerator(
             StringBuilder(),

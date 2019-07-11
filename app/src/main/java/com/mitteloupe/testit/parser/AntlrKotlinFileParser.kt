@@ -110,7 +110,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
         childNode.hasClassModifier("SEALED")
 
     private fun isPrivateClass(childNode: KotlinParseTree) =
-        childNode.hasInheritanceModifier("PRIVATE")
+        childNode.hasVisibilityModifier("PRIVATE")
 
     private fun isAbstractClass(childNode: KotlinParseTree) =
         childNode.hasInheritanceModifier("ABSTRACT")
