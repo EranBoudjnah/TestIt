@@ -34,6 +34,7 @@ class TestIt(
         val sourceFile = fileProvider.getFile(sourceFileName)
         val outputPath = testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
         val outputFile = fileProvider.getFile("$outputPath${classTestCode.className}Test.kt")
+        outputFile.parentFile.mkdirs()
         val isFileCreated = outputFile.createNewFile()
         if (isFileCreated) {
             outputFile.writeText(classTestCode.testSource)
