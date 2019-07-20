@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
+import com.mitteloupe.testit.model.DataType
 
 class MockitoCodeGenerator : MockerCodeGenerator() {
     private val requiredImports = mutableSetOf<String>()
@@ -19,11 +20,11 @@ class MockitoCodeGenerator : MockerCodeGenerator() {
 
     override val setUpStatements: String? = null
 
-    override fun getConstructorMock(parameterName: String, parameterType: String) =
+    override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "$INDENT@Mock\n" +
-                "${INDENT}lateinit var $parameterName: $parameterType"
+                "${INDENT}lateinit var $parameterName: ${parameterType.name}"
 
-    override fun getMockedInstance(variableType: String) = "mock<$variableType>()"
+    override fun getMockedInstance(variableType: DataType) = "mock<${variableType.name}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
         "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS)"

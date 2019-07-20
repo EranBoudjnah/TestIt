@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
+import com.mitteloupe.testit.model.DataType
 
 class MockKCodeGenerator : MockerCodeGenerator() {
     private val requiredImports = mutableSetOf<String>()
@@ -26,9 +27,9 @@ class MockKCodeGenerator : MockerCodeGenerator() {
             null
         }
 
-    override fun getConstructorMock(parameterName: String, parameterType: String) =
+    override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "$INDENT@MockK\n" +
-                "${INDENT}lateinit var $parameterName: $parameterType"
+                "${INDENT}lateinit var $parameterName: ${parameterType.name}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
         stringBuilder.clear()
@@ -46,7 +47,7 @@ class MockKCodeGenerator : MockerCodeGenerator() {
         return stringBuilder.toString()
     }
 
-    override fun getMockedInstance(variableType: String) = "mockk<$variableType>()"
+    override fun getMockedInstance(variableType: DataType) = "mockk<${variableType.name}>()"
 
     override fun getRequiredImports() = requiredImports
 

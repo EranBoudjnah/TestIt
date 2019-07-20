@@ -176,7 +176,7 @@ class KotlinJUnitTestGenerator(
     private fun StringBuilder.appendWhen(
         function: FunctionMetadata
     ): StringBuilder {
-        val actualVariable = if (function.returnType != "Unit") {
+        val actualVariable = if (function.returnType.name != "Unit") {
             "val $actualValueVariableName = "
         } else {
             ""

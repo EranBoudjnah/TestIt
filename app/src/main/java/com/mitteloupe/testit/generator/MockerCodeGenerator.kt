@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
+import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 
 /**
@@ -20,15 +21,15 @@ abstract class MockerCodeGenerator {
         ConcreteValue("Unit") { "Unit" }
     )
 
-    fun getMockedValue(variableType: String, variableName: String) =
-        nonMockableTypes.firstOrNull { type -> type.dataType == variableType }?.let { type ->
+    fun getMockedValue(variableType: DataType, variableName: String) =
+        nonMockableTypes.firstOrNull { type -> type.dataType == variableType.name }?.let { type ->
             type.defaultValue(variableName)
         } ?: getMockedInstance(variableType)
 
     fun getMockedVariableDefinition(parameter: TypedParameter): String {
         val parameterName = parameter.name
         val parameterType = parameter.type
-        return nonMockableTypes.firstOrNull { type -> type.dataType == parameterType }?.let { type ->
+        return nonMockableTypes.firstOrNull { type -> type.dataType == parameterType.name }?.let { type ->
             "private val $parameterName = ${type.defaultValue(parameterName)}"
         } ?: getConstructorMock(parameterName, parameterType)
     }
@@ -41,9 +42,9 @@ abstract class MockerCodeGenerator {
 
     abstract val setUpStatements: String?
 
-    abstract fun getConstructorMock(parameterName: String, parameterType: String): String
+    abstract fun getConstructorMock(parameterName: String, parameterType: DataType): String
 
-    abstract fun getMockedInstance(variableType: String): String
+    abstract fun getMockedInstance(variableType: DataType): String
 
     abstract fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String
 
@@ -57,7 +58,7 @@ abstract class MockerCodeGenerator {
 
     fun TypedParameter.isMockable() =
         nonMockableTypes.none { mockableType ->
-            type == mockableType.dataType
+            type.name == mockableType.dataType
         }
 }
 

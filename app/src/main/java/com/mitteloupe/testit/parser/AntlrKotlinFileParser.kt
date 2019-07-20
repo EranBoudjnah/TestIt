@@ -3,9 +3,13 @@ package com.mitteloupe.testit.parser
 import com.mitteloupe.testit.grammer.KotlinParseTree
 import com.mitteloupe.testit.grammer.parseKotlinCode
 import com.mitteloupe.testit.model.ClassMetadata
+import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FileMetadata
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
+
+private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown")
+private val UNIT_DATA_TYPE = DataType.Specific("Unit")
 
 /**
  * Created by Eran Boudjnah on 2019-07-05.
@@ -141,7 +145,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
     private fun extractFunctionMetadataFromNode(node: KotlinParseTree): FunctionMetadata? {
         var functionName: String? = null
         var isAbstract = false
-        var returnType: String? = null
+        var returnType: DataType? = null
         val functionParameters = mutableListOf<TypedParameter>()
 
         node.children.forEach { childNode ->
@@ -159,26 +163,22 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "functionValueParameters" -> {
                     extractFunctionParametersListFromNode(childNode).let { parameters ->
-                        functionParameters.addAll(parameters.map {
-                            val typeWithoutGenerics = getTypeWithoutGenerics(it.type)
-                            addImportIfKnown(typeWithoutGenerics)
+                        functionParameters.addAll(parameters.map { typedParameter ->
+                            addAnyKnownImports(typedParameter.type)
 
-                            TypedParameter(
-                                it.name,
-                                typeWithoutGenerics
-                            )
+                            typedParameter
                         })
                     }
                 }
                 "type" -> {
                     extractFunctionReturnType(childNode)?.let {
-                        returnType = it.text
+                        returnType = it.text?.let { getDataTypeFromString(it) } ?: UNKNOWN_DATA_TYPE
                     }
                 }
                 "functionBody" -> {
                     if (returnType == null) {
                         extractTypeByAssignment(childNode)?.let {
-                            returnType = "Unknown"
+                            returnType = UNKNOWN_DATA_TYPE
                         }
                     }
                 }
@@ -186,7 +186,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
         }
 
         return functionName?.let { validFunctionName ->
-            FunctionMetadata(validFunctionName, isAbstract, functionParameters, returnType ?: "Unit")
+            FunctionMetadata(validFunctionName, isAbstract, functionParameters, returnType ?: UNIT_DATA_TYPE)
         }
     }
 
@@ -230,7 +230,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun extractTypedParameterFromNode(node: KotlinParseTree): TypedParameter? {
         var parameterName: String? = null
-        var parameterType: String? = null
+        var parameterType: DataType? = null
 
         node.children.forEach { childNode ->
             when (childNode.name) {
@@ -238,18 +238,33 @@ class AntlrKotlinFileParser : KotlinFileParser {
                     parameterName = getNameFromNode(childNode)
                 }
                 "type" -> {
-                    parameterType = getNameRecursivelyFromChildren(childNode)
+                    val parameterAsString = getNameRecursivelyFromChildren(childNode)
+                    parameterType = getDataTypeFromString(parameterAsString)
                 }
             }
         }
 
         return if (parameterName != null && parameterType != null) {
-            addImportIfKnown(getTypeWithoutGenerics(parameterType!!))
+            addAnyKnownImports(parameterType!!)
             TypedParameter(parameterName!!, parameterType!!)
         } else {
             null
         }
     }
+
+    private fun addAnyKnownImports(dataType: DataType) {
+        getAllSpecificTypes(dataType).forEach { specificType ->
+            addImportIfKnown(specificType)
+        }
+    }
+
+    private fun getAllSpecificTypes(vararg dataTypes: DataType): List<String> =
+        dataTypes.flatMap { dataType ->
+            when (dataType) {
+                is DataType.Generic -> getAllSpecificTypes(*dataType.genericTypes)
+                is DataType.Specific -> listOf(dataType.name)
+            }
+        }
 
     private fun addImportIfKnown(entityName: String) {
         knownImports[entityName]?.let { qualifiedName ->
@@ -263,7 +278,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
         usedImports.clear()
     }
 
-    private fun getTypeWithoutGenerics(parameterType: String) = parameterType.replace(genericsRegex, "")
+    private fun getDataTypeFromString(parameterType: String): DataType {
+        val typeWithoutGenerics = parameterType.replace(genericsRegex, "")
+        return DataType.Specific(typeWithoutGenerics)
+    }
 
     private fun <T : Any> KotlinParseTree.applyToChildNodes(
         nodeNames: List<String>,
