@@ -38,7 +38,7 @@ class MockKCodeGenerator : MockerCodeGenerator() {
         classUnderTest.functions
             .filter { it.isAbstract }
             .forEach { function ->
-                val mockedValue = getMockedValue(function.returnType, function.name)
+                val mockedValue = getMockedValue(function.name, function.returnType)
                 stringBuilder.append("${INDENT_3}override fun test2() = $mockedValue\n")
             }
 

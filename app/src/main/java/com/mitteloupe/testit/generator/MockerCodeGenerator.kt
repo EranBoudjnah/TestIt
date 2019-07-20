@@ -9,28 +9,44 @@ import com.mitteloupe.testit.model.TypedParameter
  */
 abstract class MockerCodeGenerator {
     private val nonMockableTypes = listOf(
-        ConcreteValue("Boolean") { "false" },
-        ConcreteValue("Byte") { "0b0" },
-        ConcreteValue("Class") { "Any::class.java" },
-        ConcreteValue("Double") { "0.0" },
-        ConcreteValue("Float") { "0f" },
-        ConcreteValue("Int") { "0" },
-        ConcreteValue("Long") { "0L" },
-        ConcreteValue("Short") { "0.toShort()" },
-        ConcreteValue("String") { parameterName -> "\"$parameterName\"" },
-        ConcreteValue("Unit") { "Unit" }
+        ConcreteValue("Boolean") { _, _ -> "false" },
+        ConcreteValue("Byte") { _, _ -> "0b0" },
+        ConcreteValue("Class") { _, _ -> "Any::class.java" },
+        ConcreteValue("Double") { _, _ -> "0.0" },
+        ConcreteValue("Float") { _, _ -> "0f" },
+        ConcreteValue("Int") { _, _ -> "0" },
+        ConcreteValue("Long") { _, _ -> "0L" },
+        ConcreteValue("Short") { _, _ -> "0.toShort()" },
+        ConcreteValue("String") { parameterName, _ -> "\"$parameterName\"" },
+        ConcreteValue("List") { _, parameterType -> getCodeForListOf("listOf", parameterType) },
+        ConcreteValue("MutableList") { _, parameterType -> getCodeForListOf("mutableListOf", parameterType) },
+        ConcreteValue("Map") { _, parameterType -> getCodeForListOf("mapOf", parameterType) },
+        ConcreteValue("MutableMap") { _, parameterType -> getCodeForListOf("mutableMapOf", parameterType) },
+        ConcreteValue("Set") { _, parameterType -> getCodeForListOf("setOf", parameterType) },
+        ConcreteValue("MutableSet") { _, parameterType -> getCodeForListOf("mutableSetOf", parameterType) },
+        ConcreteValue("Unit") { _, _ -> "Unit" }
     )
 
-    fun getMockedValue(variableType: DataType, variableName: String) =
+    private fun getCodeForListOf(functionName: String, parameterType: DataType): String {
+        val genericType = when (parameterType) {
+            is DataType.Specific -> "Any"
+            is DataType.Generic -> formatGenericsType(parameterType.genericTypes[0].name)
+        }
+        return "$functionName<$genericType>()"
+    }
+
+    private fun formatGenericsType(genericsType: String) = genericsType.replace(",", ", ")
+
+    fun getMockedValue(variableName: String, variableType: DataType) =
         nonMockableTypes.firstOrNull { type -> type.dataType == variableType.name }?.let { type ->
-            type.defaultValue(variableName)
+            type.defaultValue(variableName, variableType)
         } ?: getMockedInstance(variableType)
 
     fun getMockedVariableDefinition(parameter: TypedParameter): String {
         val parameterName = parameter.name
         val parameterType = parameter.type
         return nonMockableTypes.firstOrNull { type -> type.dataType == parameterType.name }?.let { type ->
-            "private val $parameterName = ${type.defaultValue(parameterName)}"
+            "private val $parameterName = ${type.defaultValue(parameterName, parameterType)}"
         } ?: getConstructorMock(parameterName, parameterType)
     }
 
@@ -65,5 +81,5 @@ abstract class MockerCodeGenerator {
 
 data class ConcreteValue(
     val dataType: String,
-    val defaultValue: (String) -> String
+    val defaultValue: (String, DataType) -> String
 )

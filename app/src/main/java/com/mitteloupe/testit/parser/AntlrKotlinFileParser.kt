@@ -15,7 +15,7 @@ private val UNIT_DATA_TYPE = DataType.Specific("Unit")
  * Created by Eran Boudjnah on 2019-07-05.
  */
 class AntlrKotlinFileParser : KotlinFileParser {
-    private val genericsRegex by lazy { Regex("<(\\w+\\.)*\\w+>") }
+    private val genericsRegex by lazy { Regex("<(.+)>") }
 
     private var packageName: String = ""
 
@@ -279,8 +279,13 @@ class AntlrKotlinFileParser : KotlinFileParser {
     }
 
     private fun getDataTypeFromString(parameterType: String): DataType {
+        val genericsType = genericsRegex.find(parameterType)?.groupValues
         val typeWithoutGenerics = parameterType.replace(genericsRegex, "")
-        return DataType.Specific(typeWithoutGenerics)
+        return if (genericsType != null) {
+            DataType.Generic(typeWithoutGenerics, DataType.Specific(genericsType[1]))
+        } else {
+            DataType.Specific(typeWithoutGenerics)
+        }
     }
 
     private fun <T : Any> KotlinParseTree.applyToChildNodes(

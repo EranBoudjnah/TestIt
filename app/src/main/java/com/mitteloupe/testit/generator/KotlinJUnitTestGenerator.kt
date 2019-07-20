@@ -66,8 +66,7 @@ class KotlinJUnitTestGenerator(
             .appendMocks(classUnderTest.constructorParameters)
             .appendSetUp(classUnderTest)
             .appendTests(classUnderTest)
-            .append("}")
-            .appendBlankLine()
+            .append("}\n")
     }
 
     private fun StringBuilder.appendPackageName(
@@ -165,7 +164,7 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendFunctionParameterMocks(function: FunctionMetadata): StringBuilder {
         function.parameters.forEach { parameter ->
-            val value = mockerCodeGenerator.getMockedValue(parameter.type, parameter.name)
+            val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
             append("${INDENT_2}val ${parameter.name} = $value\n")
         }
         append("\n")
