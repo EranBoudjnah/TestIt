@@ -1,8 +1,15 @@
 #!/bin/bash
-path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
+run_in_testit_path () {
+    path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
+    cd $path > /dev/null
+    echo -e `$1`
+    cd - > /dev/null
+}
+
 if [ $# -ne 0 ]
   then
-    "$path/gradlew" run -q --args "$1"
+    target=`realpath "$1"`
+    run_in_testit_path "./gradlew run -q --console=plain --args '$target'"
   else
-    "$path/gradlew" run -q
+    run_in_testit_path "./gradlew run -q --console=plain"
 fi

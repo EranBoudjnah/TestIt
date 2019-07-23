@@ -30,22 +30,22 @@ class TestIt(
 
     fun getTestsForFile(fileName: String) = getFileContents(fileName)?.let { getTestsForNodes(it) } ?: listOf()
 
-    fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode) {
+    fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val sourceFile = fileProvider.getFile(sourceFileName)
         val outputPath = testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
         val outputFile = fileProvider.getFile("$outputPath${classTestCode.className}Test.kt")
         outputFile.parentFile.mkdirs()
         val isFileCreated = outputFile.createNewFile()
-        if (isFileCreated) {
+        return if (isFileCreated) {
             outputFile.writeText(classTestCode.testSource)
-            println("Wrote tests for ${classTestCode.className} to: ${outputFile.absolutePath}")
+            "Wrote tests for ${classTestCode.className} to: ${outputFile.absolutePath}\\n"
         } else {
-            println("File already exists: ${outputFile.absolutePath}")
+            "File already exists, skipped: ${outputFile.absolutePath}"
         }
     }
 
     fun showHelp() {
-        println("File name of class to write tests for not specified.")
+        print("File name of class to write tests for not specified.")
     }
 
     private fun getTestsForNodes(fileContents: String): List<ClassTestCode> {
@@ -109,8 +109,9 @@ fun main(args: Array<String>) {
     } else {
         val fileName = args[0]
 
-        testIt.getTestsForFile(fileName).forEach { classTestCode ->
+        val output = testIt.getTestsForFile(fileName).map { classTestCode ->
             testIt.saveTestsToFile(fileName, classTestCode)
-        }
+        }.joinToString("\\n")
+        print(output)
     }
 }
