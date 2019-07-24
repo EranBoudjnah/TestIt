@@ -11,6 +11,7 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
 import com.mitteloupe.testit.parser.KotlinFileParser
+import java.io.File
 
 /**
  * Created by Eran Boudjnah on 2019-07-04.
@@ -31,9 +32,7 @@ class TestIt(
     fun getTestsForFile(fileName: String) = getFileContents(fileName)?.let { getTestsForNodes(it) } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
-        val sourceFile = fileProvider.getFile(sourceFileName)
-        val outputPath = testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
-        val outputFile = fileProvider.getFile("$outputPath${classTestCode.className}Test.kt")
+        val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)
         outputFile.parentFile.mkdirs()
         val isFileCreated = outputFile.createNewFile()
         return if (isFileCreated) {
@@ -48,23 +47,46 @@ class TestIt(
         print("File name of class to write tests for not specified.")
     }
 
-    private fun getTestsForNodes(fileContents: String): List<ClassTestCode> {
-        val fileMetadata = kotlinFileParser.parseFile(fileContents)
-        val tests = mutableListOf<ClassTestCode>()
+    private fun isFileExisting(sourceFileName: String, className: String): Boolean {
+        val outputFile = getTestOutputFile(sourceFileName, className)
+        return outputFile.exists()
+    }
 
-        fileMetadata.classes.forEach { classUnderTest ->
-            testsGenerator.addToTests(classUnderTest)
-            tests.add(
-                ClassTestCode(
-                    classUnderTest.packageName,
-                    classUnderTest.className,
-                    testsGenerator.generateTests()
-                )
+    private fun getTestOutputFile(
+        sourceFileName: String,
+        className: String
+    ): File {
+        val outputPath = getTestOutputFilePath(sourceFileName)
+        return fileProvider.getFile("$outputPath${className}Test.kt")
+    }
+
+    private fun getTestOutputFilePath(sourceFileName: String): String? {
+        val sourceFile = fileProvider.getFile(sourceFileName)
+        return testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
+    }
+
+    private fun getTestsForNodes(fileContents: String) = kotlinFileParser
+        .parseFile(fileContents)
+        .classes
+        .map { classUnderTest ->
+            val outputTestCode = if (isFileExisting("", classUnderTest.className)) {
+                ""
+            } else {
+                generateTestsForClassUnderTest(classUnderTest)
+            }
+
+            ClassTestCode(
+                classUnderTest.packageName,
+                classUnderTest.className,
+                outputTestCode
             )
-            testsGenerator.reset()
         }
 
-        return tests
+    private fun generateTestsForClassUnderTest(classUnderTest: ClassMetadata): String {
+        testsGenerator.addToTests(classUnderTest)
+        val result = testsGenerator.generateTests()
+        testsGenerator.reset()
+        return result
     }
 
     private fun loadConfiguration() {
