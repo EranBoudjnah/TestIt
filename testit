@@ -2,7 +2,7 @@
 run_in_testit_path () {
     path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
     cd $path > /dev/null
-    echo -e `$1`
+    $1
     cd - > /dev/null
 }
 

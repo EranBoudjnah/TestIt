@@ -38,7 +38,7 @@ class TestIt(
         val isFileCreated = outputFile.createNewFile()
         return if (isFileCreated) {
             outputFile.writeText(classTestCode.testSource)
-            "Wrote tests for ${classTestCode.className} to: ${outputFile.absolutePath}\\n"
+            "Wrote tests for ${classTestCode.className} to: ${outputFile.absolutePath}"
         } else {
             "File already exists, skipped: ${outputFile.absolutePath}"
         }
@@ -109,9 +109,8 @@ fun main(args: Array<String>) {
     } else {
         val fileName = args[0]
 
-        val output = testIt.getTestsForFile(fileName).map { classTestCode ->
-            testIt.saveTestsToFile(fileName, classTestCode)
-        }.joinToString("\\n")
-        print(output)
+        testIt.getTestsForFile(fileName).forEach { classTestCode ->
+            println(testIt.saveTestsToFile(fileName, classTestCode))
+        }
     }
 }
