@@ -12,8 +12,6 @@ class MockKCodeGenerator : MockerCodeGenerator() {
 
     override val testClassAnnotation: String? = null
 
-    override val usedImports = emptyMap<String, String>()
-
     override val knownImports = mapOf(
         "MockKAnnotations" to "io.mockk.MockKAnnotations",
         "MockK" to "io.mockk.impl.annotations.MockK",
@@ -26,6 +24,10 @@ class MockKCodeGenerator : MockerCodeGenerator() {
         } else {
             null
         }
+
+    override fun reset() {
+        requiredImports.clear()
+    }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "$INDENT@MockK\n" +

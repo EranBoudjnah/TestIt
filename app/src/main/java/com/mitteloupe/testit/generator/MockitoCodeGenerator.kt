@@ -8,8 +8,6 @@ class MockitoCodeGenerator : MockerCodeGenerator() {
 
     override val testClassAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
 
-    override val usedImports = emptyMap<String, String>()
-
     override val knownImports = mapOf(
         "RunWith" to "org.junit.runner.RunWith",
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
@@ -19,6 +17,10 @@ class MockitoCodeGenerator : MockerCodeGenerator() {
     )
 
     override val setUpStatements: String? = null
+
+    override fun reset() {
+        requiredImports.clear()
+    }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "$INDENT@Mock\n" +

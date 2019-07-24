@@ -40,10 +40,10 @@ class KotlinJUnitTestGenerator(
 
     override fun reset() {
         stringBuilder.clear()
+        mockerCodeGenerator.reset()
         with(usedImports) {
             clear()
             putAll(mutableMapOf("Before" to "org.junit.Before"))
-            putAll(mockerCodeGenerator.usedImports)
         }
 
         with(knownImports) {

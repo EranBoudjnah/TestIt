@@ -8,6 +8,12 @@ import com.mitteloupe.testit.model.TypedParameter
  * Created by Eran Boudjnah on 2019-07-07.
  */
 abstract class MockerCodeGenerator {
+    abstract val testClassAnnotation: String?
+
+    abstract val knownImports: Map<String, String>
+
+    abstract val setUpStatements: String?
+
     private val nonMockableTypes = listOf(
         ConcreteValue("Boolean") { _, _ -> "false" },
         ConcreteValue("Byte") { _, _ -> "0b0" },
@@ -27,15 +33,8 @@ abstract class MockerCodeGenerator {
         ConcreteValue("Unit") { _, _ -> "Unit" }
     )
 
-    private fun getCodeForListOf(functionName: String, parameterType: DataType): String {
-        val genericType = when (parameterType) {
-            is DataType.Specific -> "Any"
-            is DataType.Generic -> formatGenericsType(parameterType.genericTypes[0].name)
-        }
-        return "$functionName<$genericType>()"
+    open fun reset() {
     }
-
-    private fun formatGenericsType(genericsType: String) = genericsType.replace(",", ", ")
 
     fun getMockedValue(variableName: String, variableType: DataType) =
         nonMockableTypes.firstOrNull { type -> type.dataType == variableType.name }?.let { type ->
@@ -50,14 +49,6 @@ abstract class MockerCodeGenerator {
         } ?: getConstructorMock(parameterName, parameterType)
     }
 
-    abstract val testClassAnnotation: String?
-
-    abstract val usedImports: Map<String, String>
-
-    abstract val knownImports: Map<String, String>
-
-    abstract val setUpStatements: String?
-
     abstract fun getConstructorMock(parameterName: String, parameterType: DataType): String
 
     abstract fun getMockedInstance(variableType: DataType): String
@@ -71,6 +62,16 @@ abstract class MockerCodeGenerator {
     abstract fun setHasMockedFunctionParameters()
 
     abstract fun setIsAbstractClassUnderTest()
+
+    private fun getCodeForListOf(functionName: String, parameterType: DataType): String {
+        val genericType = when (parameterType) {
+            is DataType.Specific -> "Any"
+            is DataType.Generic -> formatGenericsType(parameterType.genericTypes[0].name)
+        }
+        return "$functionName<$genericType>()"
+    }
+
+    private fun formatGenericsType(genericsType: String) = genericsType.replace(",", ", ")
 
     fun TypedParameter.isMockable() =
         nonMockableTypes.none { mockableType ->
