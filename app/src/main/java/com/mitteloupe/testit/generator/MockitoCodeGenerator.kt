@@ -3,7 +3,7 @@ package com.mitteloupe.testit.generator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 
-class MockitoCodeGenerator : MockerCodeGenerator() {
+class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
 
     override val testClassAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"

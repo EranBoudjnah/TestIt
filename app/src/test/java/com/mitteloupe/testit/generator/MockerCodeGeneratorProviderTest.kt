@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.Mocker
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -10,7 +11,7 @@ class MockerCodeGeneratorProviderTest {
 
     @Before
     fun setUp() {
-        cut = MockerCodeGeneratorProvider()
+        cut = MockerCodeGeneratorProvider(mock())
     }
 
     @Test

@@ -15,9 +15,9 @@ class TestsGeneratorFactory(
     )
 }
 
-class MockerCodeGeneratorProvider {
+class MockerCodeGeneratorProvider(private val mockableTypeQualifier: MockableTypeQualifier) {
     fun getGenerator(mocker: Mocker) = when (mocker) {
-        Mocker.MOCKITO -> MockitoCodeGenerator()
-        Mocker.MOCKK -> MockKCodeGenerator()
+        Mocker.MOCKITO -> MockitoCodeGenerator(mockableTypeQualifier)
+        Mocker.MOCKK -> MockKCodeGenerator(mockableTypeQualifier)
     }
 }

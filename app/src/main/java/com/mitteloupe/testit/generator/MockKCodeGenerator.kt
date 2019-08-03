@@ -3,7 +3,7 @@ package com.mitteloupe.testit.generator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 
-class MockKCodeGenerator : MockerCodeGenerator() {
+class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
 
     private var _hasMockedConstructorParameters = false
