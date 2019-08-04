@@ -134,7 +134,9 @@ class KotlinJUnitTestGenerator(
 
     private fun StringBuilder.appendTests(classUnderTest: ClassMetadata): StringBuilder {
         val lastIndex = classUnderTest.functions.size - 1
-        classUnderTest.functions.forEachIndexed { index, function ->
+        classUnderTest.functions
+            .filter { !it.isAbstract }
+            .forEachIndexed { index, function ->
             appendTest(function)
             if (index != lastIndex) {
                 append("\n")
