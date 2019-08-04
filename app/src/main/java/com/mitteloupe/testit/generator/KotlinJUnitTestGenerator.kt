@@ -7,6 +7,7 @@ import com.mitteloupe.testit.model.FunctionsMetadataContainer
 import com.mitteloupe.testit.model.ImportsContainer
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
+import com.mitteloupe.testit.model.concreteFunctions
 
 class KotlinJUnitTestGenerator(
     private val stringBuilder: StringBuilder,
@@ -316,9 +317,6 @@ class KotlinJUnitTestGenerator(
                 mockerCodeGenerator.isMockable(dataType)
             } ?: false
         }
-
-    private val FunctionsMetadataContainer.concreteFunctions
-        get() = functions.filter { !it.isAbstract }
 
     private val FunctionMetadata.nameForTestFunctionName
         get() = extensionReceiverType?.let { "${extensionReceiverType.name}#$name" } ?: name

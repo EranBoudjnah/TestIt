@@ -65,6 +65,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 "simpleIdentifier" -> className = getNameFromNode(childNode)
                 "primaryConstructor" -> {
                     extractConstructorParametersListFromNode(childNode).let { parameters ->
+                        parameters.forEach { parameter -> addAnyKnownImports (parameter.type) }
                         classParameters.addAll(parameters)
                     }
                 }
@@ -189,11 +190,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "functionValueParameters" -> {
                     extractFunctionParametersListFromNode(childNode).let { parameters ->
-                        functionParameters.addAll(parameters.map { typedParameter ->
-                            addAnyKnownImports(typedParameter.type)
-
-                            typedParameter
-                        })
+                        functionParameters.addAll(parameters)
                     }
                 }
                 "type" -> {
@@ -209,6 +206,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
                     }
                 }
             }
+        }
+
+        if (!isAbstract) {
+            functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
         }
 
         return functionName?.let { validFunctionName ->
@@ -277,7 +278,6 @@ class AntlrKotlinFileParser : KotlinFileParser {
         }
 
         return if (parameterName != null && parameterType != null) {
-            addAnyKnownImports(parameterType!!)
             TypedParameter(parameterName!!, parameterType!!)
         } else {
             null

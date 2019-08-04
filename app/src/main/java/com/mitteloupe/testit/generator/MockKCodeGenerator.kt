@@ -2,6 +2,7 @@ package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
+import com.mitteloupe.testit.model.concreteFunctions
 
 class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
@@ -34,11 +35,11 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerC
                 "${INDENT}lateinit var $parameterName: ${parameterType.name}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
+        val arguments = classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
         stringBuilder.clear()
-            .append("object : ${classUnderTest.className}() {\n")
+            .append("object : ${classUnderTest.className}($arguments) {\n")
 
-        classUnderTest.functions
-            .filter { it.isAbstract }
+        classUnderTest.concreteFunctions
             .forEach { function ->
                 val mockedValue = getMockedValue(function.name, function.returnType)
                 stringBuilder.append("${INDENT_3}override fun test2() = $mockedValue\n")
