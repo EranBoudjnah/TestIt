@@ -53,7 +53,7 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerC
 
     override fun getRequiredImports() = requiredImports
 
-    override fun setHasMockedConstructorParameters() {
+    override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         _hasMockedConstructorParameters = true
         requiredImports.add("MockKAnnotations")
         requiredImports.add("MockK")

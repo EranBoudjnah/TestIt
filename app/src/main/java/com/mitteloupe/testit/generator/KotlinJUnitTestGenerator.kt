@@ -56,11 +56,12 @@ class KotlinJUnitTestGenerator(
 
     private fun setUpMockGenerator(classUnderTest: ClassMetadata) {
         if (hasMockableConstructorParameters(classUnderTest.constructorParameters)) {
-            mockerCodeGenerator.setHasMockedConstructorParameters()
+            mockerCodeGenerator.setHasMockedConstructorParameters(classUnderTest)
         }
 
-        if (hasMockableFunctionParameters(classUnderTest.functions) ||
-            hasMockableReceiver(classUnderTest.functions)
+        val concreteFunctions = classUnderTest.concreteFunctions
+        if (hasMockableFunctionParameters(concreteFunctions) ||
+            hasMockableReceiver(concreteFunctions)
         ) {
             mockerCodeGenerator.setHasMockedFunctionParameters()
         }
@@ -172,15 +173,14 @@ class KotlinJUnitTestGenerator(
         isStatic: Boolean,
         functionsMetadataContainer: FunctionsMetadataContainer
     ): StringBuilder {
-        val lastIndex = functionsMetadataContainer.functions.size - 1
-        functionsMetadataContainer.functions
-            .filter { !it.isAbstract }
-            .forEachIndexed { index, function ->
-                appendTest(isStatic, function)
-                if (index != lastIndex) {
-                    append("\n")
-                }
+        val concreteFunctions = functionsMetadataContainer.concreteFunctions
+        val lastIndex = concreteFunctions.size - 1
+        concreteFunctions.forEachIndexed { index, function ->
+            appendTest(isStatic, function)
+            if (index != lastIndex) {
+                append("\n")
             }
+        }
 
         return this
     }
@@ -286,7 +286,7 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun evaluateFunctionImports(functionsMetadataContainer: FunctionsMetadataContainer) {
-        if (functionsMetadataContainer.functions.isNotEmpty()) {
+        if (functionsMetadataContainer.concreteFunctions.isNotEmpty()) {
             addImportIfKnown("Test")
         }
     }
@@ -317,10 +317,13 @@ class KotlinJUnitTestGenerator(
             } ?: false
         }
 
-    private fun MockerCodeGenerator.isMockable(parameter: TypedParameter) = parameter.isMockable()
-
-    private fun MockerCodeGenerator.isMockable(dataType: DataType) = dataType.isMockable()
+    private val FunctionsMetadataContainer.concreteFunctions
+        get() = functions.filter { !it.isAbstract }
 
     private val FunctionMetadata.nameForTestFunctionName
         get() = extensionReceiverType?.let { "${extensionReceiverType.name}#$name" } ?: name
+
+    private fun MockerCodeGenerator.isMockable(parameter: TypedParameter) = parameter.isMockable()
+
+    private fun MockerCodeGenerator.isMockable(dataType: DataType) = dataType.isMockable()
 }

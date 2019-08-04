@@ -38,7 +38,7 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
 
     abstract fun getRequiredImports(): Set<String>
 
-    abstract fun setHasMockedConstructorParameters()
+    abstract fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata)
 
     abstract fun setHasMockedFunctionParameters()
 

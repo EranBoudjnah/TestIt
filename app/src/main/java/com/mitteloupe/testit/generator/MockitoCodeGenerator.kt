@@ -13,7 +13,8 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : Mocke
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
         "Mock" to "org.mockito.Mock",
         "mock" to "com.nhaarman.mockitokotlin2.mock",
-        "Mockito" to "org.mockito.Mockito"
+        "Mockito" to "org.mockito.Mockito",
+        "UseConstructor" to "com.nhaarman.mockitokotlin2.UseConstructor"
     )
 
     override val setUpStatements: String? = null
@@ -29,14 +30,17 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : Mocke
     override fun getMockedInstance(variableType: DataType) = "mock<${variableType.name}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
-        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS)"
+        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${getConstructorArgumentsForAbstract(classUnderTest)})"
 
     override fun getRequiredImports() = requiredImports
 
-    override fun setHasMockedConstructorParameters() {
+    override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         requiredImports.add("RunWith")
         requiredImports.add("MockitoJUnitRunner")
         requiredImports.add("Mock")
+        if (classUnderTest.isAbstract && classUnderTest.constructorParameters.isNotEmpty()) {
+            requiredImports.add("UseConstructor")
+        }
     }
 
     override fun setHasMockedFunctionParameters() {
@@ -47,4 +51,12 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : Mocke
         requiredImports.add("mock")
         requiredImports.add("Mockito")
     }
+
+    private fun getConstructorArgumentsForAbstract(classUnderTest: ClassMetadata) =
+        if (classUnderTest.constructorParameters.isEmpty()) {
+            ""
+        } else {
+            val arguments = classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
+            ", useConstructor = UseConstructor.withArguments($arguments)"
+        }
 }
