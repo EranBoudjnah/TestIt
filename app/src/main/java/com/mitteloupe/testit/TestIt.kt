@@ -71,27 +71,34 @@ class TestIt(
     private fun getTestsForNodes(filePath: String, fileContents: String) = kotlinFileParser
         .parseFile(fileContents).let { fileMetaData ->
             fileMetaData.getTestsForClasses(filePath)
-                .plus(
-                    fileMetaData.getTestsForStaticFunctions(
-                        filePath,
-                        fileMetaData.staticFunctions.packageName
-                    )
-                )
+                .also { tests ->
+                    if (fileMetaData.staticFunctions.functions.isNotEmpty()) {
+                        tests.plus(
+                            fileMetaData.getTestsForStaticFunctions(
+                                filePath,
+                                fileMetaData.staticFunctions.packageName
+                            )
+                        )
+                    }
+                }
         }
 
     private fun FileMetadata.getTestsForClasses(sourceFilePath: String) = classes
-        .map { classUnderTest ->
-            val outputTestCode = if (isFileExisting(sourceFilePath, classUnderTest.className)) {
-                ""
+        .mapNotNull { classUnderTest ->
+            if (isFileExisting(sourceFilePath, classUnderTest.className)) {
+                null
             } else {
-                generateTestsForClassUnderTest(classUnderTest)
+                val outputTestCode = generateTestsForClassUnderTest(classUnderTest)
+                if (outputTestCode.isBlank()) {
+                    null
+                } else {
+                    ClassTestCode(
+                        classUnderTest.packageName,
+                        classUnderTest.className,
+                        outputTestCode
+                    )
+                }
             }
-
-            ClassTestCode(
-                classUnderTest.packageName,
-                classUnderTest.className,
-                outputTestCode
-            )
         }
 
     private fun FileMetadata.getTestsForStaticFunctions(filePath: String, packageName: String): ClassTestCode {
