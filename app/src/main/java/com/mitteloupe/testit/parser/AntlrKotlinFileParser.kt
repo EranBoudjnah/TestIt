@@ -146,6 +146,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
         var functionName: String? = null
         var isAbstract = false
         var returnType: DataType? = null
+        var extensionReceiverType: DataType? = null
         val functionParameters = mutableListOf<TypedParameter>()
 
         node.children.forEach { childNode ->
@@ -161,6 +162,11 @@ class AntlrKotlinFileParser : KotlinFileParser {
                         isAbstract = true
                     }
                 }
+                "receiverType" -> {
+                    extractDataType(childNode)?.let {
+                        extensionReceiverType = it.text?.let { getDataTypeFromString(it) } ?: UNKNOWN_DATA_TYPE
+                    }
+                }
                 "functionValueParameters" -> {
                     extractFunctionParametersListFromNode(childNode).let { parameters ->
                         functionParameters.addAll(parameters.map { typedParameter ->
@@ -171,7 +177,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
                     }
                 }
                 "type" -> {
-                    extractFunctionReturnType(childNode)?.let {
+                    extractDataType(childNode)?.let {
                         returnType = it.text?.let { getDataTypeFromString(it) } ?: UNKNOWN_DATA_TYPE
                     }
                 }
@@ -186,7 +192,13 @@ class AntlrKotlinFileParser : KotlinFileParser {
         }
 
         return functionName?.let { validFunctionName ->
-            FunctionMetadata(validFunctionName, isAbstract, functionParameters, returnType ?: UNIT_DATA_TYPE)
+            FunctionMetadata(
+                validFunctionName,
+                isAbstract,
+                functionParameters,
+                extensionReceiverType,
+                returnType ?: UNIT_DATA_TYPE
+            )
         }
     }
 
@@ -196,7 +208,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
     private fun isAbstractFunction(childNode: KotlinParseTree) =
         childNode.extractChildNode(listOf("modifier", "inheritanceModifier", "ABSTRACT")) != null
 
-    private fun extractFunctionReturnType(childNode: KotlinParseTree) = childNode.extractChildNode(
+    private fun extractDataType(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
     )
 

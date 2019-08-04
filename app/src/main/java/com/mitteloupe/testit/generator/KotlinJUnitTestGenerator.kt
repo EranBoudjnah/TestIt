@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.model.ClassMetadata
+import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
@@ -137,11 +138,11 @@ class KotlinJUnitTestGenerator(
         classUnderTest.functions
             .filter { !it.isAbstract }
             .forEachIndexed { index, function ->
-            appendTest(function)
-            if (index != lastIndex) {
-                append("\n")
+                appendTest(function)
+                if (index != lastIndex) {
+                    append("\n")
+                }
             }
-        }
 
         return this
     }
@@ -169,9 +170,20 @@ class KotlinJUnitTestGenerator(
             val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
             append("${INDENT_2}val ${parameter.name} = $value\n")
         }
+        function.extensionReceiverType?.let { receiverType ->
+            if (function.parameters.isNotEmpty()) {
+                append("\n")
+            }
+            appendExtensionReceiver(receiverType)
+        }
         append("\n")
 
         return this
+    }
+
+    private fun StringBuilder.appendExtensionReceiver(receiverType: DataType): java.lang.StringBuilder? {
+        val receiverValue = mockerCodeGenerator.getMockedInstance(receiverType)
+        return append("${INDENT_2}val receiver = $receiverValue\n")
     }
 
     private fun StringBuilder.appendWhen(
@@ -182,11 +194,19 @@ class KotlinJUnitTestGenerator(
         } else {
             ""
         }
-        return append("$INDENT_2// When\n")
-            .append("$INDENT_2$actualVariable$classUnderTestVariableName.${function.name}(")
+        val receiver = function.extensionReceiverType?.let {
+            "with($classUnderTestVariableName) {\n${INDENT_3}receiver"
+        } ?: classUnderTestVariableName
+        val output = append("$INDENT_2// When\n")
+            .append("$INDENT_2$actualVariable$receiver.${function.name}(")
             .append(function.parameters.joinToString(", ") { it.name })
             .append(")")
-            .appendBlankLine()
+
+        function.extensionReceiverType?.let {
+            output.append("\n$INDENT_2}")
+        }
+
+        return output.appendBlankLine()
     }
 
     private fun StringBuilder.appendThen() = append("$INDENT_2// Then\n")
