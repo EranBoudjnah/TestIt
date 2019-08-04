@@ -14,6 +14,7 @@ class MockableTypeQualifier {
         ConcreteValue("Double") { _, _ -> "0.0" },
         ConcreteValue("Float") { _, _ -> "0f" },
         ConcreteValue("Int") { _, _ -> "0" },
+        ConcreteValue("Integer") { _, _ -> "0 as Integer" },
         ConcreteValue("Long") { _, _ -> "0L" },
         ConcreteValue("Short") { _, _ -> "0.toShort()" },
         ConcreteValue("String") { parameterName, _ -> "\"$parameterName\"" },
@@ -29,7 +30,9 @@ class MockableTypeQualifier {
     fun getNonMockableType(variableType: String) =
         nonMockableTypes.firstOrNull { type -> type.dataType == variableType }
 
-    fun isMockable(type: TypedParameter) = nonMockableTypes.none { mockableType ->
+    fun isMockable(typedParameter: TypedParameter): Boolean = isMockable(typedParameter.type)
+
+    fun isMockable(type: DataType) = nonMockableTypes.none { mockableType ->
         type.name == mockableType.dataType
     }
 

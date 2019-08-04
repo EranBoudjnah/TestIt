@@ -6,6 +6,7 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FileMetadata
 import com.mitteloupe.testit.model.FunctionMetadata
+import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
 private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown")
@@ -44,7 +45,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
             ::extractClassFromNode
         )
 
-        return FileMetadata(classes)
+        val staticFunctionsMetadata = extractStaticFunctionsMetadataFromNode(code)
+
+        return FileMetadata(classes, staticFunctionsMetadata)
     }
 
     private fun extractClassFromNode(node: KotlinParseTree): ClassMetadata? {
@@ -141,6 +144,23 @@ class AntlrKotlinFileParser : KotlinFileParser {
             ),
             ::extractFunctionMetadataFromNode
         )
+
+    private fun extractStaticFunctionsMetadataFromNode(code: KotlinParseTree): StaticFunctionsMetadata {
+        val staticFunctions = code.applyToChildNodes(
+            listOf("topLevelObject", "declaration", "functionDeclaration"),
+            ::extractFunctionMetadataFromNode
+        )
+
+        val staticFunctionsMetadata = StaticFunctionsMetadata(
+            packageName,
+            HashMap(usedImports),
+            staticFunctions
+        )
+
+        resetUsedImports()
+
+        return staticFunctionsMetadata
+    }
 
     private fun extractFunctionMetadataFromNode(node: KotlinParseTree): FunctionMetadata? {
         var functionName: String? = null

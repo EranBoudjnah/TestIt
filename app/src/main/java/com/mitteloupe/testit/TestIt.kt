@@ -11,6 +11,8 @@ import com.mitteloupe.testit.generator.TestsGenerator
 import com.mitteloupe.testit.generator.TestsGeneratorFactory
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
+import com.mitteloupe.testit.model.FileMetadata
+import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
 import com.mitteloupe.testit.parser.KotlinFileParser
 import java.io.File
@@ -31,7 +33,8 @@ class TestIt(
         loadConfiguration()
     }
 
-    fun getTestsForFile(fileName: String) = getFileContents(fileName)?.let { getTestsForNodes(it) } ?: listOf()
+    fun getTestsForFile(filePath: String) =
+        getFileContents(filePath)?.let { contents -> getTestsForNodes(filePath, contents) } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)
@@ -49,10 +52,8 @@ class TestIt(
         print("File name of class to write tests for not specified.")
     }
 
-    private fun isFileExisting(sourceFileName: String, className: String): Boolean {
-        val outputFile = getTestOutputFile(sourceFileName, className)
-        return outputFile.exists()
-    }
+    private fun isFileExisting(sourceFileName: String, className: String) =
+        getTestOutputFile(sourceFileName, className).exists()
 
     private fun getTestOutputFile(
         sourceFileName: String,
@@ -67,11 +68,20 @@ class TestIt(
         return testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
     }
 
-    private fun getTestsForNodes(fileContents: String) = kotlinFileParser
-        .parseFile(fileContents)
-        .classes
+    private fun getTestsForNodes(filePath: String, fileContents: String) = kotlinFileParser
+        .parseFile(fileContents).let { fileMetaData ->
+            fileMetaData.getTestsForClasses(filePath)
+                .plus(
+                    fileMetaData.getTestsForStaticFunctions(
+                        filePath,
+                        fileMetaData.staticFunctions.packageName
+                    )
+                )
+        }
+
+    private fun FileMetadata.getTestsForClasses(sourceFilePath: String) = classes
         .map { classUnderTest ->
-            val outputTestCode = if (isFileExisting("", classUnderTest.className)) {
+            val outputTestCode = if (isFileExisting(sourceFilePath, classUnderTest.className)) {
                 ""
             } else {
                 generateTestsForClassUnderTest(classUnderTest)
@@ -84,8 +94,39 @@ class TestIt(
             )
         }
 
+    private fun FileMetadata.getTestsForStaticFunctions(filePath: String, packageName: String): ClassTestCode {
+        val fileName = filePath.getFileName()
+        val outputFileName = getStaticFunctionsTestFileName(fileName)
+        val testCode = if (isFileExisting(filePath, outputFileName)) {
+            ""
+        } else {
+            generateTestsForStaticFunctions(staticFunctions, outputFileName)
+        }
+
+        return ClassTestCode(
+            packageName,
+            outputFileName,
+            testCode
+        )
+    }
+
+    private fun getStaticFunctionsTestFileName(sourceFileName: String): String {
+        val fileNameWithoutExtension = sourceFileName.substringBeforeLast(".")
+        return "${fileNameWithoutExtension}Statics"
+    }
+
     private fun generateTestsForClassUnderTest(classUnderTest: ClassMetadata): String {
         testsGenerator.addToTests(classUnderTest)
+        val result = testsGenerator.generateTests()
+        testsGenerator.reset()
+        return result
+    }
+
+    private fun generateTestsForStaticFunctions(
+        functionsUnderTest: StaticFunctionsMetadata,
+        outputClassName: String
+    ): String {
+        testsGenerator.addToTests(functionsUnderTest, outputClassName)
         val result = testsGenerator.generateTests()
         testsGenerator.reset()
         return result
@@ -106,6 +147,9 @@ class TestIt(
 
     private fun TestsGenerator.addToTests(classUnderTest: ClassMetadata) = classUnderTest.addToTests()
 
+    private fun TestsGenerator.addToTests(functionsUnderTest: StaticFunctionsMetadata, outputClassName: String) =
+        functionsUnderTest.addToTests(outputClassName)
+
     private fun getFileContents(fileName: String): String? {
         val file = fileProvider.getFile(fileName)
         if (!file.exists()) {
@@ -114,6 +158,8 @@ class TestIt(
         }
         return file.readLines().joinToString("\n")
     }
+
+    private fun String.getFileName() = substringAfterLast("/")
 }
 
 fun main(args: Array<String>) {

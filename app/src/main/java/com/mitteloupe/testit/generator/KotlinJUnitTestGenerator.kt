@@ -3,6 +3,9 @@ package com.mitteloupe.testit.generator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
+import com.mitteloupe.testit.model.FunctionsMetadataContainer
+import com.mitteloupe.testit.model.ImportsContainer
+import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
 class KotlinJUnitTestGenerator(
@@ -25,12 +28,40 @@ class KotlinJUnitTestGenerator(
         stringBuilder.appendTestClass(this)
     }
 
+    override fun StaticFunctionsMetadata.addToTests(outputClassName: String) {
+        setUpMockGenerator(this)
+        stringBuilder.appendFunctionsTestClass(this, outputClassName)
+    }
+
+    override fun reset() {
+        stringBuilder.clear()
+        mockerCodeGenerator.reset()
+        with(usedImports) {
+            clear()
+        }
+
+        with(knownImports) {
+            clear()
+            putAll(
+                mutableMapOf(
+                    "Before" to "org.junit.Before",
+                    "Test" to "org.junit.Test"
+                )
+            )
+            putAll(mockerCodeGenerator.knownImports)
+        }
+    }
+
+    override fun generateTests() = stringBuilder.toString()
+
     private fun setUpMockGenerator(classUnderTest: ClassMetadata) {
         if (hasMockableConstructorParameters(classUnderTest.constructorParameters)) {
             mockerCodeGenerator.setHasMockedConstructorParameters()
         }
 
-        if (hasMockableFunctionParameters(classUnderTest.functions)) {
+        if (hasMockableFunctionParameters(classUnderTest.functions) ||
+            hasMockableReceiver(classUnderTest.functions)
+        ) {
             mockerCodeGenerator.setHasMockedFunctionParameters()
         }
 
@@ -39,22 +70,13 @@ class KotlinJUnitTestGenerator(
         }
     }
 
-    override fun reset() {
-        stringBuilder.clear()
-        mockerCodeGenerator.reset()
-        with(usedImports) {
-            clear()
-            putAll(mutableMapOf("Before" to "org.junit.Before"))
-        }
-
-        with(knownImports) {
-            clear()
-            putAll(mutableMapOf("Test" to "org.junit.Test"))
-            putAll(mockerCodeGenerator.knownImports)
+    private fun setUpMockGenerator(functionsUnderTest: StaticFunctionsMetadata) {
+        if (hasMockableFunctionParameters(functionsUnderTest.functions) ||
+            hasMockableReceiver(functionsUnderTest.functions)
+        ) {
+            mockerCodeGenerator.setHasMockedFunctionParameters()
         }
     }
-
-    override fun generateTests() = stringBuilder.toString()
 
     private fun StringBuilder.appendTestClass(classUnderTest: ClassMetadata): StringBuilder {
         evaluateImports(classUnderTest)
@@ -66,7 +88,20 @@ class KotlinJUnitTestGenerator(
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
             .appendSetUp(classUnderTest)
-            .appendTests(classUnderTest)
+            .appendTests(false, classUnderTest)
+            .append("}\n")
+    }
+
+    private fun StringBuilder.appendFunctionsTestClass(
+        functionsUnderTest: StaticFunctionsMetadata,
+        outputClassName: String
+    ): StringBuilder {
+        evaluateImports(functionsUnderTest)
+
+        return appendPackageName(functionsUnderTest.packageName)
+            .appendImports()
+            .append("class ${outputClassName}Test {\n")
+            .appendTests(true, functionsUnderTest)
             .append("}\n")
     }
 
@@ -133,12 +168,15 @@ class KotlinJUnitTestGenerator(
         return this
     }
 
-    private fun StringBuilder.appendTests(classUnderTest: ClassMetadata): StringBuilder {
-        val lastIndex = classUnderTest.functions.size - 1
-        classUnderTest.functions
+    private fun StringBuilder.appendTests(
+        isStatic: Boolean,
+        functionsMetadataContainer: FunctionsMetadataContainer
+    ): StringBuilder {
+        val lastIndex = functionsMetadataContainer.functions.size - 1
+        functionsMetadataContainer.functions
             .filter { !it.isAbstract }
             .forEachIndexed { index, function ->
-                appendTest(function)
+                appendTest(isStatic, function)
                 if (index != lastIndex) {
                     append("\n")
                 }
@@ -148,16 +186,18 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun StringBuilder.appendTest(
+        isStatic: Boolean,
         function: FunctionMetadata
     ) = append("$INDENT@Test\n")
-        .append("${INDENT}fun `Given _ when ${function.name} then _`() {\n")
-        .appendTestBody(function)
+        .append("${INDENT}fun `Given _ when ${function.nameForTestFunctionName} then _`() {\n")
+        .appendTestBody(isStatic, function)
         .append("$INDENT}\n")
 
     private fun StringBuilder.appendTestBody(
+        isStatic: Boolean,
         function: FunctionMetadata
     ) = appendGiven(function)
-        .appendWhen(function)
+        .appendWhen(isStatic, function)
         .appendThen()
 
     private fun StringBuilder.appendGiven(
@@ -182,11 +222,12 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun StringBuilder.appendExtensionReceiver(receiverType: DataType): java.lang.StringBuilder? {
-        val receiverValue = mockerCodeGenerator.getMockedInstance(receiverType)
+        val receiverValue = mockerCodeGenerator.getMockedValue(receiverType.name, receiverType)
         return append("${INDENT_2}val receiver = $receiverValue\n")
     }
 
     private fun StringBuilder.appendWhen(
+        isStatic: Boolean,
         function: FunctionMetadata
     ): StringBuilder {
         val actualVariable = if (function.returnType.name != "Unit") {
@@ -195,15 +236,18 @@ class KotlinJUnitTestGenerator(
             ""
         }
         val receiver = function.extensionReceiverType?.let {
-            "with($classUnderTestVariableName) {\n${INDENT_3}receiver"
-        } ?: classUnderTestVariableName
+            val classUnderTestWrapperOpen = if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
+            "${classUnderTestWrapperOpen}receiver."
+        } ?: if (isStatic) "" else "$classUnderTestVariableName."
         val output = append("$INDENT_2// When\n")
-            .append("$INDENT_2$actualVariable$receiver.${function.name}(")
+            .append("$INDENT_2$actualVariable$receiver${function.name}(")
             .append(function.parameters.joinToString(", ") { it.name })
             .append(")")
 
-        function.extensionReceiverType?.let {
-            output.append("\n$INDENT_2}")
+        if (!isStatic) {
+            function.extensionReceiverType?.let {
+                output.append("\n$INDENT_2}")
+            }
         }
 
         return output.appendBlankLine()
@@ -219,14 +263,43 @@ class KotlinJUnitTestGenerator(
     ) = append("${INDENT}private lateinit var $classUnderTestVariableName: $className\n\n")
 
     private fun evaluateImports(classUnderTest: ClassMetadata) {
+        evaluateMockCodeGeneratorImports()
+
+        addImportIfKnown("Before")
+
+        evaluateFunctionImports(classUnderTest)
+
+        evaluateImportsContainerImports(classUnderTest)
+    }
+
+    private fun evaluateImports(functionsUnderTest: StaticFunctionsMetadata) {
+        evaluateMockCodeGeneratorImports()
+
+        evaluateFunctionImports(functionsUnderTest)
+
+        evaluateImportsContainerImports(functionsUnderTest)
+    }
+
+    private fun evaluateMockCodeGeneratorImports() {
         val imports = mockerCodeGenerator.getRequiredImports()
         imports.forEach(::addImportIfKnown)
+    }
 
-        if (classUnderTest.functions.isNotEmpty()) {
+    private fun evaluateFunctionImports(functionsMetadataContainer: FunctionsMetadataContainer) {
+        if (functionsMetadataContainer.functions.isNotEmpty()) {
             addImportIfKnown("Test")
         }
+    }
 
-        classUnderTest.imports.forEach { (a, b) -> usedImports[a] = b }
+    private fun evaluateImportsContainerImports(importsContainer: ImportsContainer) {
+        importsContainer.imports.forEach { (a, b) -> usedImports[a] = b }
+    }
+
+    private fun addImportIfKnown(entityName: String) {
+        knownImports[entityName]?.let { qualifiedName ->
+            usedImports[entityName] = qualifiedName
+            knownImports.remove(entityName)
+        }
     }
 
     private fun hasMockableConstructorParameters(constructorParameters: List<TypedParameter>) =
@@ -237,12 +310,17 @@ class KotlinJUnitTestGenerator(
             function.parameters.any { parameter -> mockerCodeGenerator.isMockable(parameter) }
         }
 
+    private fun hasMockableReceiver(functions: List<FunctionMetadata>) =
+        functions.any { function ->
+            function.extensionReceiverType?.let { dataType ->
+                mockerCodeGenerator.isMockable(dataType)
+            } ?: false
+        }
+
     private fun MockerCodeGenerator.isMockable(parameter: TypedParameter) = parameter.isMockable()
 
-    private fun addImportIfKnown(entityName: String) {
-        knownImports[entityName]?.let { qualifiedName ->
-            usedImports[entityName] = qualifiedName
-            knownImports.remove(entityName)
-        }
-    }
+    private fun MockerCodeGenerator.isMockable(dataType: DataType) = dataType.isMockable()
+
+    private val FunctionMetadata.nameForTestFunctionName
+        get() = extensionReceiverType?.let { "${extensionReceiverType.name}#$name" } ?: name
 }
