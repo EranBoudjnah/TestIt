@@ -213,6 +213,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
             functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
         }
 
+        extensionReceiverType?.let {
+            addImportIfKnown(it.name)
+        }
+
         return functionName?.let { validFunctionName ->
             FunctionMetadata(
                 validFunctionName,
