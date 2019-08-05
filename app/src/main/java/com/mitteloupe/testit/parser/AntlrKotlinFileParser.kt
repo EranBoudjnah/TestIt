@@ -209,15 +209,15 @@ class AntlrKotlinFileParser : KotlinFileParser {
             }
         }
 
-        if (!isAbstract) {
-            functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
-        }
-
-        extensionReceiverType?.let {
-            addImportIfKnown(it.name)
-        }
-
         return functionName?.let { validFunctionName ->
+            if (!isAbstract) {
+                functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
+            }
+
+            extensionReceiverType?.let {
+                addImportIfKnown(it.name)
+            }
+
             FunctionMetadata(
                 validFunctionName,
                 isAbstract,
