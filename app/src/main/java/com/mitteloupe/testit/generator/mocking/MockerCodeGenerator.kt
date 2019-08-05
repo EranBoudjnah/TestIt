@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator.mocking
 
+import com.mitteloupe.testit.generator.INDENT
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
@@ -26,7 +27,7 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
         val parameterName = parameter.name
         val parameterType = parameter.type
         return mockableTypeQualifier.getNonMockableType(parameterType.name)?.let { type ->
-            "private val $parameterName = ${type.defaultValue(parameterName, parameterType)}"
+            "${INDENT}private val $parameterName = ${type.defaultValue(parameterName, parameterType)}"
         } ?: getConstructorMock(parameterName, parameterType)
     }
 
