@@ -1,8 +1,5 @@
 package com.mitteloupe.testit.generator.mocking
 
-import com.mitteloupe.testit.generator.mocking.ConcreteValue
-import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
-import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 import com.nhaarman.mockitokotlin2.UseConstructor
@@ -19,7 +16,7 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class MockerCodeGeneratorTest {
+class MockerCodeGeneratorTest2 {
     private lateinit var cut: MockerCodeGenerator
 
     @Mock
@@ -41,22 +38,6 @@ class MockerCodeGeneratorTest {
         val expected = "default value"
         val concreteValue = getConcreteValue(variableName, variableType, expected)
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(concreteValue)
-
-        // When
-        val actualValue = cut.getMockedValue(variableName, variableType)
-
-        // Then
-        assertEquals(expected, actualValue)
-    }
-
-    @Test
-    fun `Given mockable data type when getMockedValue then returns mocked instance`() {
-        // Given
-        val variableName = "variableName"
-        val variableType = DataType.Specific("mockable data type")
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(null)
-        val expected = "mocked instance"
-        given { cut.getMockedInstance(variableType) }.willReturn(expected)
 
         // When
         val actualValue = cut.getMockedValue(variableName, variableType)

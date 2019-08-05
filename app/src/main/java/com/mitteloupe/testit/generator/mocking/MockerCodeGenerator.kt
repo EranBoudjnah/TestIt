@@ -32,7 +32,7 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
 
     abstract fun getConstructorMock(parameterName: String, parameterType: DataType): String
 
-    internal abstract fun getMockedInstance(variableType: DataType): String
+    protected abstract fun getMockedInstance(variableType: DataType): String
 
     abstract fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String
 

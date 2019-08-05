@@ -176,7 +176,8 @@ class AntlrKotlinFileParser : KotlinFileParser {
                     functionName = getNameFromNode(childNode)
                 }
                 "modifiers" -> {
-                    if (isPrivateFunction(childNode)) {
+                    if (isPrivateFunction(childNode) ||
+                        isProtectedFunction(childNode)) {
                         return null
                     }
                     if (isAbstractFunction(childNode)) {
@@ -225,6 +226,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun isPrivateFunction(childNode: KotlinParseTree) =
         childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PRIVATE")) != null
+
+    private fun isProtectedFunction(childNode: KotlinParseTree) =
+        childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PROTECTED")) != null
 
     private fun isAbstractFunction(childNode: KotlinParseTree) =
         childNode.extractChildNode(listOf("modifier", "inheritanceModifier", "ABSTRACT")) != null

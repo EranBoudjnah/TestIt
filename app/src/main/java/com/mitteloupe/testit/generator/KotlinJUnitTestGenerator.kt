@@ -38,9 +38,7 @@ class KotlinJUnitTestGenerator(
     override fun reset() {
         stringBuilder.clear()
         mockerCodeGenerator.reset()
-        with(usedImports) {
-            clear()
-        }
+        usedImports.clear()
 
         with(knownImports) {
             clear()
