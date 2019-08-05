@@ -1,4 +1,4 @@
-package com.mitteloupe.testit.generator
+package com.mitteloupe.testit.generator.mocking
 
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
@@ -18,12 +18,42 @@ class MockableTypeQualifier {
         ConcreteValue("Long") { _, _ -> "0L" },
         ConcreteValue("Short") { _, _ -> "0.toShort()" },
         ConcreteValue("String") { parameterName, _ -> "\"$parameterName\"" },
-        ConcreteValue("List") { _, parameterType -> getCodeForListOf("listOf", parameterType) },
-        ConcreteValue("MutableList") { _, parameterType -> getCodeForListOf("mutableListOf", parameterType) },
-        ConcreteValue("Map") { _, parameterType -> getCodeForListOf("mapOf", parameterType) },
-        ConcreteValue("MutableMap") { _, parameterType -> getCodeForListOf("mutableMapOf", parameterType) },
-        ConcreteValue("Set") { _, parameterType -> getCodeForListOf("setOf", parameterType) },
-        ConcreteValue("MutableSet") { _, parameterType -> getCodeForListOf("mutableSetOf", parameterType) },
+        ConcreteValue("List") { _, parameterType ->
+            getCodeForListOf(
+                "listOf",
+                parameterType
+            )
+        },
+        ConcreteValue("MutableList") { _, parameterType ->
+            getCodeForListOf(
+                "mutableListOf",
+                parameterType
+            )
+        },
+        ConcreteValue("Map") { _, parameterType ->
+            getCodeForListOf(
+                "mapOf",
+                parameterType
+            )
+        },
+        ConcreteValue("MutableMap") { _, parameterType ->
+            getCodeForListOf(
+                "mutableMapOf",
+                parameterType
+            )
+        },
+        ConcreteValue("Set") { _, parameterType ->
+            getCodeForListOf(
+                "setOf",
+                parameterType
+            )
+        },
+        ConcreteValue("MutableSet") { _, parameterType ->
+            getCodeForListOf(
+                "mutableSetOf",
+                parameterType
+            )
+        },
         ConcreteValue("Unit") { _, _ -> "Unit" }
     )
 

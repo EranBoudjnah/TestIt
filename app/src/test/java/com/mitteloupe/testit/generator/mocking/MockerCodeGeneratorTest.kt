@@ -1,5 +1,8 @@
-package com.mitteloupe.testit.generator
+package com.mitteloupe.testit.generator.mocking
 
+import com.mitteloupe.testit.generator.mocking.ConcreteValue
+import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
+import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 import com.nhaarman.mockitokotlin2.UseConstructor

@@ -1,5 +1,6 @@
-package com.mitteloupe.testit.generator
+package com.mitteloupe.testit.generator.mocking
 
+import com.mitteloupe.testit.generator.MockerCodeGeneratorProvider
 import com.mitteloupe.testit.model.Mocker
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertTrue

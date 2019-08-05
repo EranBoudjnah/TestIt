@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata

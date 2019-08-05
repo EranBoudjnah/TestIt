@@ -1,5 +1,8 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.mocking.MockKCodeGenerator
+import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
+import com.mitteloupe.testit.generator.mocking.MockitoCodeGenerator
 import com.mitteloupe.testit.model.Configuration
 import com.mitteloupe.testit.model.Mocker
 

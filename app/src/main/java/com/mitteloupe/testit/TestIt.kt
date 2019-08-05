@@ -4,7 +4,7 @@ import com.mitteloupe.testit.config.ConfigurationBuilder
 import com.mitteloupe.testit.config.PropertiesReader
 import com.mitteloupe.testit.file.FileInputStreamProvider
 import com.mitteloupe.testit.file.FileProvider
-import com.mitteloupe.testit.generator.MockableTypeQualifier
+import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.generator.MockerCodeGeneratorProvider
 import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGenerator
