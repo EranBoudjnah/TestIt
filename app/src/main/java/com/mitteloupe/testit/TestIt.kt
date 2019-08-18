@@ -4,11 +4,11 @@ import com.mitteloupe.testit.config.ConfigurationBuilder
 import com.mitteloupe.testit.config.PropertiesReader
 import com.mitteloupe.testit.file.FileInputStreamProvider
 import com.mitteloupe.testit.file.FileProvider
-import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.generator.MockerCodeGeneratorProvider
 import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGenerator
 import com.mitteloupe.testit.generator.TestsGeneratorFactory
+import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.model.FileMetadata
@@ -187,7 +187,7 @@ fun main(args: Array<String>) {
         testIt.showHelp()
 
     } else {
-        val fileName = args[0]
+        val fileName = args[0].trim()
 
         testIt.getTestsForFile(fileName).forEach { classTestCode ->
             println(testIt.saveTestsToFile(fileName, classTestCode))
