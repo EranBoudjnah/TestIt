@@ -55,7 +55,7 @@ class MockerCodeGeneratorTest2 {
         val concreteValue = getConcreteValue(variableName, variableType, constructorMock)
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(concreteValue)
         val parameter = TypedParameter(variableName, type = variableType)
-        val expected = "private val variableName = $constructorMock"
+        val expected = "    private val variableName = $constructorMock"
 
         // When
         val actualValue = cut.getMockedVariableDefinition(parameter)
