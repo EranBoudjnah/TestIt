@@ -9,13 +9,19 @@ import com.mitteloupe.testit.model.Mocker
 class TestsGeneratorFactory(
     private val mockerCodeGeneratorProvider: MockerCodeGeneratorProvider
 ) {
-    fun createTestsGenerator(configuration: Configuration) = KotlinJUnitTestGenerator(
-        StringBuilder(),
-        mockerCodeGeneratorProvider.getGenerator(configuration.mocker),
-        configuration.classUnderTest,
-        configuration.actualValue,
-        configuration.defaultAssertion
-    )
+    fun createTestsGenerator(configuration: Configuration): KotlinJUnitTestGenerator {
+        val mockerCodeGenerator = mockerCodeGeneratorProvider.getGenerator(configuration.mocker)
+        return KotlinJUnitTestGenerator(
+            TestStringBuilder(
+                StringBuilder(),
+                mockerCodeGenerator,
+                configuration.classUnderTest,
+                configuration.actualValue,
+                configuration.defaultAssertion
+            ),
+            mockerCodeGenerator
+        )
+    }
 }
 
 class MockerCodeGeneratorProvider(private val mockableTypeQualifier: MockableTypeQualifier) {
