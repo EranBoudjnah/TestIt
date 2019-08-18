@@ -15,6 +15,7 @@ import com.mitteloupe.testit.model.FileMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
 import com.mitteloupe.testit.parser.KotlinFileParser
+import com.mitteloupe.testit.terminal.mapper.ArgsToRunParameters
 import java.io.File
 
 /**
@@ -33,8 +34,8 @@ class TestIt(
         loadConfiguration()
     }
 
-    fun getTestsForFile(filePath: String) =
-        getFileContents(filePath)?.let { contents -> getTestsForNodes(filePath, contents) } ?: listOf()
+    fun getTestsForFile(filePath: String, parameterized: Boolean) =
+        getFileContents(filePath)?.let { contents -> getTestsForNodes(filePath, contents, parameterized) } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)
@@ -68,24 +69,33 @@ class TestIt(
         return testFilePathFormatter.getTestFilePath(sourceFile.absolutePath)
     }
 
-    private fun getTestsForNodes(filePath: String, fileContents: String) = kotlinFileParser
+    private fun getTestsForNodes(
+        filePath: String,
+        fileContents: String,
+        parameterized: Boolean
+    ) = kotlinFileParser
         .parseFile(fileContents).let { fileMetaData ->
-            fileMetaData.getTestsForClasses(filePath)
+            fileMetaData.getTestsForClasses(filePath, parameterized)
                 .also { tests ->
                     if (fileMetaData.staticFunctions.functions.isNotEmpty()) {
                         tests.plus(
                             fileMetaData.getTestsForStaticFunctions(
                                 filePath,
-                                fileMetaData.staticFunctions.packageName
+                                fileMetaData.staticFunctions.packageName,
+                                parameterized
                             )
                         )
                     }
                 }
         }
 
-    private fun FileMetadata.getTestsForClasses(sourceFilePath: String) = classes
+    private fun FileMetadata.getTestsForClasses(
+        sourceFilePath: String,
+        parameterized: Boolean
+    ) = classes
         .mapNotNull { classUnderTest ->
             if (isFileExisting(sourceFilePath, classUnderTest.className)) {
+                println("File already exists, skipped: ${getTestOutputFile(sourceFilePath, classUnderTest.className)}")
                 null
             } else {
                 val outputTestCode = generateTestsForClassUnderTest(classUnderTest)
@@ -101,7 +111,11 @@ class TestIt(
             }
         }
 
-    private fun FileMetadata.getTestsForStaticFunctions(filePath: String, packageName: String): ClassTestCode {
+    private fun FileMetadata.getTestsForStaticFunctions(
+        filePath: String,
+        packageName: String,
+        parameterized: Boolean
+    ): ClassTestCode {
         val fileName = filePath.getFileName()
         val outputFileName = getStaticFunctionsTestFileName(fileName)
         val testCode = if (isFileExisting(filePath, outputFileName)) {
@@ -183,14 +197,17 @@ fun main(args: Array<String>) {
         testsGeneratorFactory
     )
 
-    if (args.isEmpty()) {
+    val argsToRunParameters = ArgsToRunParameters()
+    val runParameters = argsToRunParameters.toParameters(args)
+
+    if (runParameters.filePath.isNullOrBlank()) {
         testIt.showHelp()
 
     } else {
-        val fileName = args[0].trim()
+        val filePath = runParameters.filePath
 
-        testIt.getTestsForFile(fileName).forEach { classTestCode ->
-            println(testIt.saveTestsToFile(fileName, classTestCode))
+        testIt.getTestsForFile(filePath, runParameters.parameterized).forEach { classTestCode ->
+            println(testIt.saveTestsToFile(filePath, classTestCode))
         }
     }
 }
