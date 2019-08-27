@@ -7,20 +7,21 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.concreteFunctions
 
-class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerCodeGenerator(mockableTypeQualifier) {
+class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
+    MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
 
     private var _hasMockedConstructorParameters = false
 
     private val stringBuilder by lazy { StringBuilder() }
 
-    override val testClassAnnotation: String? = null
+    override val testClassBaseRunnerAnnotation: String? = null
 
     override val knownImports = mapOf(
         "MockKAnnotations" to "io.mockk.MockKAnnotations",
         "MockK" to "io.mockk.impl.annotations.MockK",
         "mockk" to "io.mockk.mockk"
-    )
+    ) + super.knownImports
 
     override val setUpStatements: String?
         get() = if (_hasMockedConstructorParameters) {
@@ -38,7 +39,8 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerC
                 "${INDENT}lateinit var $parameterName: ${parameterType.name}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
-        val arguments = classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
+        val arguments =
+            classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
         stringBuilder.clear()
             .append("object : ${classUnderTest.className}($arguments) {\n")
 
@@ -55,7 +57,7 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerC
 
     override fun getMockedInstance(variableType: DataType) = "mockk<${variableType.name}>()"
 
-    override fun getRequiredImports() = requiredImports
+    override fun getRequiredImports() = requiredImports + super.getRequiredImports()
 
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         _hasMockedConstructorParameters = true

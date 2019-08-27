@@ -35,7 +35,13 @@ class TestIt(
     }
 
     fun getTestsForFile(filePath: String, parameterized: Boolean) =
-        getFileContents(filePath)?.let { contents -> getTestsForNodes(filePath, contents, parameterized) } ?: listOf()
+        getFileContents(filePath)?.let { contents ->
+            getTestsForNodes(
+                filePath,
+                contents,
+                parameterized
+            )
+        } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)
@@ -91,14 +97,19 @@ class TestIt(
 
     private fun FileMetadata.getTestsForClasses(
         sourceFilePath: String,
-        parameterized: Boolean
+        isParameterized: Boolean
     ) = classes
         .mapNotNull { classUnderTest ->
             if (isFileExisting(sourceFilePath, classUnderTest.className)) {
-                println("File already exists, skipped: ${getTestOutputFile(sourceFilePath, classUnderTest.className)}")
+                println(
+                    "File already exists, skipped: ${getTestOutputFile(
+                        sourceFilePath,
+                        classUnderTest.className
+                    )}"
+                )
                 null
             } else {
-                val outputTestCode = generateTestsForClassUnderTest(classUnderTest)
+                val outputTestCode = generateTestsForClassUnderTest(classUnderTest, isParameterized)
                 if (outputTestCode.isBlank()) {
                     null
                 } else {
@@ -114,14 +125,14 @@ class TestIt(
     private fun FileMetadata.getTestsForStaticFunctions(
         filePath: String,
         packageName: String,
-        parameterized: Boolean
+        isParameterized: Boolean
     ): ClassTestCode {
         val fileName = filePath.getFileName()
         val outputFileName = getStaticFunctionsTestFileName(fileName)
         val testCode = if (isFileExisting(filePath, outputFileName)) {
             ""
         } else {
-            generateTestsForStaticFunctions(staticFunctions, outputFileName)
+            generateTestsForStaticFunctions(staticFunctions, outputFileName, isParameterized)
         }
 
         return ClassTestCode(
@@ -136,8 +147,11 @@ class TestIt(
         return "${fileNameWithoutExtension}Statics"
     }
 
-    private fun generateTestsForClassUnderTest(classUnderTest: ClassMetadata): String {
-        testsGenerator.addToTests(classUnderTest)
+    private fun generateTestsForClassUnderTest(
+        classUnderTest: ClassMetadata,
+        isParameterized: Boolean
+    ): String {
+        testsGenerator.addToTests(classUnderTest, isParameterized)
         val result = testsGenerator.generateTests()
         testsGenerator.reset()
         return result
@@ -145,9 +159,10 @@ class TestIt(
 
     private fun generateTestsForStaticFunctions(
         functionsUnderTest: StaticFunctionsMetadata,
-        outputClassName: String
+        outputClassName: String,
+        isParameterized: Boolean
     ): String {
-        testsGenerator.addToTests(functionsUnderTest, outputClassName)
+        testsGenerator.addToTests(functionsUnderTest, outputClassName, isParameterized)
         val result = testsGenerator.generateTests()
         testsGenerator.reset()
         return result
@@ -166,10 +181,16 @@ class TestIt(
 
     private fun KotlinFileParser.parseFile(source: String) = source.parse()
 
-    private fun TestsGenerator.addToTests(classUnderTest: ClassMetadata) = classUnderTest.addToTests()
+    private fun TestsGenerator.addToTests(
+        classUnderTest: ClassMetadata,
+        isParameterized: Boolean
+    ) = classUnderTest.addToTests(isParameterized)
 
-    private fun TestsGenerator.addToTests(functionsUnderTest: StaticFunctionsMetadata, outputClassName: String) =
-        functionsUnderTest.addToTests(outputClassName)
+    private fun TestsGenerator.addToTests(
+        functionsUnderTest: StaticFunctionsMetadata,
+        outputClassName: String,
+        isParameterized: Boolean
+    ) = functionsUnderTest.addToTests(outputClassName, isParameterized)
 
     private fun getFileContents(fileName: String): String? {
         val file = fileProvider.getFile(fileName)
@@ -186,7 +207,8 @@ class TestIt(
 fun main(args: Array<String>) {
     val fileProvider = FileProvider()
 
-    val propertiesReader = PropertiesReader(fileProvider, FileInputStreamProvider(), ConfigurationBuilder())
+    val propertiesReader =
+        PropertiesReader(fileProvider, FileInputStreamProvider(), ConfigurationBuilder())
     val mockerCodeGeneratorProvider = MockerCodeGeneratorProvider(MockableTypeQualifier())
     val testsGeneratorFactory = TestsGeneratorFactory(mockerCodeGeneratorProvider)
     val testIt = TestIt(

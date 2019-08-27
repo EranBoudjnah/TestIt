@@ -20,7 +20,10 @@ class TestStringBuilder(
         val classUnderTest = config.classUnderTest
         return appendPackageName(classUnderTest.packageName)
             .appendImports(config.usedImports)
-            .appendTestClassAnnotation(config.hasMockableConstructorParameters)
+            .appendTestClassAnnotation(
+                config.hasMockableConstructorParameters,
+                config.isParameterized
+            )
             .append("class ${classUnderTest.className}Test {\n")
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
@@ -32,9 +35,11 @@ class TestStringBuilder(
     fun appendFunctionsTestClass(
         functionsUnderTest: StaticFunctionsMetadata,
         usedImports: Set<String>,
-        outputClassName: String
+        outputClassName: String,
+        isParameterized: Boolean
     ) = appendPackageName(functionsUnderTest.packageName)
         .appendImports(usedImports)
+        .appendTestClassAnnotation(false, isParameterized)
         .append("class ${outputClassName}Test {\n")
         .appendTests(true, functionsUnderTest)
         .append("}\n")
@@ -63,10 +68,18 @@ class TestStringBuilder(
         return this
     }
 
-    private fun appendTestClassAnnotation(hasMockableConstructorParameters: Boolean): TestStringBuilder {
-        if (hasMockableConstructorParameters) {
-            mockerCodeGenerator.testClassAnnotation?.let { annotation ->
-                append("$annotation\n")
+    private fun appendTestClassAnnotation(
+        hasMockableConstructorParameters: Boolean,
+        isParameterized: Boolean
+    ): TestStringBuilder {
+        when {
+            hasMockableConstructorParameters -> {
+                mockerCodeGenerator.testClassBaseRunnerAnnotation?.let { annotation ->
+                    append("$annotation\n")
+                }
+            }
+            isParameterized -> {
+                append("${mockerCodeGenerator.testClassParameterizedRunnerAnnotation}\n")
             }
         }
         return this
@@ -96,7 +109,8 @@ class TestStringBuilder(
 
         append("$INDENT_2$classUnderTestVariableName = ")
         if (classUnderTest.isAbstract) {
-            val abstractClassUnderTest = mockerCodeGenerator.getAbstractClassUnderTest(classUnderTest)
+            val abstractClassUnderTest =
+                mockerCodeGenerator.getAbstractClassUnderTest(classUnderTest)
             append("$abstractClassUnderTest\n")
 
         } else {
@@ -178,7 +192,8 @@ class TestStringBuilder(
             ""
         }
         val receiver = function.extensionReceiverType?.let {
-            val classUnderTestWrapperOpen = if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
+            val classUnderTestWrapperOpen =
+                if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
             "${classUnderTestWrapperOpen}receiver."
         } ?: if (isStatic) "" else "$classUnderTestVariableName."
         val output = append("$INDENT_2// When\n")
@@ -216,5 +231,6 @@ class TestStringBuilder(
 data class TestStringBuilderConfiguration(
     val classUnderTest: ClassMetadata,
     val usedImports: Set<String>,
-    val hasMockableConstructorParameters: Boolean
+    val hasMockableConstructorParameters: Boolean,
+    val isParameterized: Boolean
 )

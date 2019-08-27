@@ -9,9 +9,17 @@ import com.mitteloupe.testit.model.TypedParameter
  * Created by Eran Boudjnah on 2019-07-07.
  */
 abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTypeQualifier) {
-    abstract val testClassAnnotation: String?
+    private val _requiredImports = mutableSetOf<String>()
 
-    abstract val knownImports: Map<String, String>
+    abstract val testClassBaseRunnerAnnotation: String?
+
+    val testClassParameterizedRunnerAnnotation = "@RunWith(Parameterized::class)"
+
+    open val knownImports: Map<String, String>
+    get() = mapOf(
+        "RunWith" to "org.junit.runner.RunWith",
+        "Parameterized" to "org.junit.runners.Parameterized"
+    )
 
     abstract val setUpStatements: String?
 
@@ -31,13 +39,18 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
         } ?: getConstructorMock(parameterName, parameterType)
     }
 
+    fun setIsParameterizedTest() {
+        _requiredImports.add("RunWith")
+        _requiredImports.add("Parameterized")
+    }
+
     abstract fun getConstructorMock(parameterName: String, parameterType: DataType): String
 
     protected abstract fun getMockedInstance(variableType: DataType): String
 
     abstract fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String
 
-    abstract fun getRequiredImports(): Set<String>
+    open fun getRequiredImports(): Set<String> = _requiredImports
 
     abstract fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata)
 

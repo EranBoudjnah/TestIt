@@ -4,19 +4,19 @@ import com.mitteloupe.testit.generator.INDENT
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 
-class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : MockerCodeGenerator(mockableTypeQualifier) {
+class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
+    MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
 
-    override val testClassAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
+    override val testClassBaseRunnerAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
 
     override val knownImports = mapOf(
-        "RunWith" to "org.junit.runner.RunWith",
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
         "Mock" to "org.mockito.Mock",
         "mock" to "com.nhaarman.mockitokotlin2.mock",
         "Mockito" to "org.mockito.Mockito",
         "UseConstructor" to "com.nhaarman.mockitokotlin2.UseConstructor"
-    )
+    ) + super.knownImports
 
     override val setUpStatements: String? = null
 
@@ -31,9 +31,11 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : Mocke
     override fun getMockedInstance(variableType: DataType) = "mock<${variableType.name}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
-        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${getConstructorArgumentsForAbstract(classUnderTest)})"
+        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${getConstructorArgumentsForAbstract(
+            classUnderTest
+        )})"
 
-    override fun getRequiredImports() = requiredImports
+    override fun getRequiredImports() = requiredImports + super.getRequiredImports()
 
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         requiredImports.add("RunWith")
@@ -57,7 +59,8 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) : Mocke
         if (classUnderTest.constructorParameters.isEmpty()) {
             ""
         } else {
-            val arguments = classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
+            val arguments =
+                classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
             ", useConstructor = UseConstructor.withArguments($arguments)"
         }
 }

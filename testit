@@ -2,7 +2,7 @@
 run_in_testit_path() {
     path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
     cd $path > /dev/null
-    $1
+    eval "$1"
     cd - > /dev/null
 }
 
@@ -24,8 +24,7 @@ if [ $# -ne 0 ]
     target=`realpath "${@:$#}"`
     all_but_last_args=${*%${!#}}
     args="$(trim " $target $all_but_last_args ")"
-    echo "./gradlew run -q --console=plain --args '$args'"
-    run_in_testit_path "./gradlew run -q --console=plain --args '$args'"
+    run_in_testit_path "./gradlew run -q --console=plain --args=\"${args}\""
   else
     run_in_testit_path "./gradlew run -q --console=plain"
 fi

@@ -22,22 +22,26 @@ class KotlinJUnitTestGenerator(
         reset()
     }
 
-    override fun ClassMetadata.addToTests() {
-        setUpMockGenerator()
+    override fun ClassMetadata.addToTests(isParameterized: Boolean) {
+        setUpMockGenerator(isParameterized)
         evaluateImports()
         stringBuilder.appendTestClass(
             TestStringBuilderConfiguration(
                 this,
                 usedImports.values.toSet(),
-                hasMockableConstructorParameters(constructorParameters)
+                hasMockableConstructorParameters(constructorParameters),
+                isParameterized
             )
         )
     }
 
-    override fun StaticFunctionsMetadata.addToTests(outputClassName: String) {
+    override fun StaticFunctionsMetadata.addToTests(
+        outputClassName: String,
+        isParameterized: Boolean
+    ) {
         setUpMockGenerator()
         evaluateImports()
-        stringBuilder.appendFunctionsTestClass(this, usedImports.values.toSet(), outputClassName)
+        stringBuilder.appendFunctionsTestClass(this, usedImports.values.toSet(), outputClassName, isParameterized)
     }
 
     override fun reset() {
@@ -58,7 +62,11 @@ class KotlinJUnitTestGenerator(
 
     override fun generateTests() = stringBuilder.toString()
 
-    private fun ClassMetadata.setUpMockGenerator() {
+    private fun ClassMetadata.setUpMockGenerator(isParameterized: Boolean) {
+        if (isParameterized) {
+            mockerCodeGenerator.setIsParameterizedTest()
+        }
+
         if (hasMockableConstructorParameters(constructorParameters)) {
             mockerCodeGenerator.setHasMockedConstructorParameters(this)
         }
