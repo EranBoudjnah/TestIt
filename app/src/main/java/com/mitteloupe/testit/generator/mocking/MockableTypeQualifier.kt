@@ -18,6 +18,12 @@ class MockableTypeQualifier {
         ConcreteValue("Long") { _, _ -> "0L" },
         ConcreteValue("Short") { _, _ -> "0.toShort()" },
         ConcreteValue("String") { parameterName, _ -> "\"$parameterName\"" },
+        ConcreteValue("Array") { _, parameterType ->
+            getCodeForListOf(
+                "arrayOf",
+                parameterType
+            )
+        },
         ConcreteValue("List") { _, parameterType ->
             getCodeForListOf(
                 "listOf",

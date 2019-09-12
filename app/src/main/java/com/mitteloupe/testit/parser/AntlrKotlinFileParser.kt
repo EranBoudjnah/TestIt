@@ -65,7 +65,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 "simpleIdentifier" -> className = getNameFromNode(childNode)
                 "primaryConstructor" -> {
                     extractConstructorParametersListFromNode(childNode).let { parameters ->
-                        parameters.forEach { parameter -> addAnyKnownImports (parameter.type) }
+                        parameters.forEach { parameter -> addAnyKnownImports(parameter.type) }
                         classParameters.addAll(parameters)
                     }
                 }
@@ -177,7 +177,8 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "modifiers" -> {
                     if (isPrivateFunction(childNode) ||
-                        isProtectedFunction(childNode)) {
+                        isProtectedFunction(childNode)
+                    ) {
                         return null
                     }
                     if (isAbstractFunction(childNode)) {
@@ -186,7 +187,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "receiverType" -> {
                     extractDataType(childNode)?.let {
-                        extensionReceiverType = it.text?.let { getDataTypeFromString(it) } ?: UNKNOWN_DATA_TYPE
+                        extensionReceiverType =
+                            it.text?.let { text -> getDataTypeFromString(text) }
+                                ?: UNKNOWN_DATA_TYPE
                     }
                 }
                 "functionValueParameters" -> {
@@ -196,7 +199,8 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "type" -> {
                     extractDataType(childNode)?.let {
-                        returnType = it.text?.let { getDataTypeFromString(it) } ?: UNKNOWN_DATA_TYPE
+                        returnType = it.text?.let { text -> getDataTypeFromString(text) }
+                            ?: UNKNOWN_DATA_TYPE
                     }
                 }
                 "functionBody" -> {
@@ -245,7 +249,8 @@ class AntlrKotlinFileParser : KotlinFileParser {
         listOf("expression", "disjunction", "conjunction", "equality")
     )
 
-    private fun getNameFromNode(node: KotlinParseTree) = node.extractChildNode(listOf("Identifier"))?.text
+    private fun getNameFromNode(node: KotlinParseTree) =
+        node.extractChildNode(listOf("Identifier"))?.text
 
     private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String =
         when (node.name) {
@@ -259,15 +264,17 @@ class AntlrKotlinFileParser : KotlinFileParser {
             getNameRecursivelyFromChildren(childNode)
         }
 
-    private fun extractConstructorParametersListFromNode(node: KotlinParseTree) = node.applyToChildNodes(
-        listOf("classParameters", "classParameter"),
-        ::extractTypedParameterFromNode
-    )
+    private fun extractConstructorParametersListFromNode(node: KotlinParseTree) =
+        node.applyToChildNodes(
+            listOf("classParameters", "classParameter"),
+            ::extractTypedParameterFromNode
+        )
 
-    private fun extractFunctionParametersListFromNode(node: KotlinParseTree) = node.applyToChildNodes(
-        listOf("functionValueParameter", "parameter"),
-        ::extractTypedParameterFromNode
-    )
+    private fun extractFunctionParametersListFromNode(node: KotlinParseTree) =
+        node.applyToChildNodes(
+            listOf("functionValueParameter", "parameter"),
+            ::extractTypedParameterFromNode
+        )
 
     private fun extractTypedParameterFromNode(node: KotlinParseTree): TypedParameter? {
         var parameterName: String? = null
@@ -314,7 +321,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
     }
 
     private fun resetUsedImports() {
-        usedImports.forEach { (entityName, qualifiedName) -> knownImports[entityName] = qualifiedName }
+        usedImports.forEach { (entityName, qualifiedName) ->
+            knownImports[entityName] = qualifiedName
+        }
         usedImports.clear()
     }
 
