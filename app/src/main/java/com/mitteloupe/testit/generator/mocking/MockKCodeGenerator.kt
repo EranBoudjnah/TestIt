@@ -16,6 +16,7 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     private val stringBuilder by lazy { StringBuilder() }
 
     override val testClassBaseRunnerAnnotation: String? = null
+    override val mockingRule: String? = null
 
     override val knownImports = mapOf(
         "MockKAnnotations" to "io.mockk.MockKAnnotations",
@@ -66,6 +67,14 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     }
 
     override fun setHasMockedFunctionParameters() {
+        setInstantiatesMocks()
+    }
+
+    override fun setHasMockedFunctionReturnValues() {
+        setInstantiatesMocks()
+    }
+
+    private fun setInstantiatesMocks() {
         requiredImports.add("mockk")
     }
 

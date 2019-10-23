@@ -9,6 +9,7 @@ import com.mitteloupe.testit.model.ImportsContainer
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 import com.mitteloupe.testit.model.concreteFunctions
+import com.mitteloupe.testit.processing.hasReturnValue
 
 class KotlinJUnitTestGenerator(
     private val stringBuilder: TestStringBuilder,
@@ -24,7 +25,7 @@ class KotlinJUnitTestGenerator(
 
     override fun ClassMetadata.addToTests(isParameterized: Boolean) {
         setUpMockGenerator(isParameterized)
-        evaluateImports()
+        evaluateImports(isParameterized)
         stringBuilder.appendTestClass(
             TestStringBuilderConfiguration(
                 this,
@@ -40,8 +41,13 @@ class KotlinJUnitTestGenerator(
         isParameterized: Boolean
     ) {
         setUpMockGenerator()
-        evaluateImports()
-        stringBuilder.appendFunctionsTestClass(this, usedImports.values.toSet(), outputClassName, isParameterized)
+        evaluateImports(isParameterized)
+        stringBuilder.appendFunctionsTestClass(
+            this,
+            usedImports.values.toSet(),
+            outputClassName,
+            isParameterized
+        )
     }
 
     override fun reset() {
@@ -53,7 +59,11 @@ class KotlinJUnitTestGenerator(
             putAll(
                 mutableMapOf(
                     "Before" to "org.junit.Before",
-                    "Test" to "org.junit.Test"
+                    "Test" to "org.junit.Test",
+                    "RunWith" to "org.junit.runner.RunWith",
+                    "Parameterized" to "org.junit.runners.Parameterized",
+                    "Parameters" to "org.junit.runners.Parameterized.Parameters",
+                    "assertEquals" to "org.junit.Assert.assertEquals"
                 )
             )
             putAll(mockerCodeGenerator.knownImports)
@@ -65,6 +75,9 @@ class KotlinJUnitTestGenerator(
     private fun ClassMetadata.setUpMockGenerator(isParameterized: Boolean) {
         if (isParameterized) {
             mockerCodeGenerator.setIsParameterizedTest()
+            if (hasMockableFunctionReturnValues(concreteFunctions)) {
+                mockerCodeGenerator.setHasMockedFunctionReturnValues()
+            }
         }
 
         if (hasMockableConstructorParameters(constructorParameters)) {
@@ -92,18 +105,26 @@ class KotlinJUnitTestGenerator(
     }
 
 
-    private fun ClassMetadata.evaluateImports() {
+    private fun ClassMetadata.evaluateImports(isParameterized: Boolean) {
         evaluateMockCodeGeneratorImports()
 
         addImportIfKnown("Before")
+
+        if (isParameterized) {
+            evaluateParameterizedImports(functions)
+        }
 
         evaluateFunctionImports()
 
         evaluateImportsContainerImports()
     }
 
-    private fun StaticFunctionsMetadata.evaluateImports() {
+    private fun StaticFunctionsMetadata.evaluateImports(isParameterized: Boolean) {
         evaluateMockCodeGeneratorImports()
+
+        if (isParameterized) {
+            evaluateParameterizedImports(functions)
+        }
 
         evaluateFunctionImports()
 
@@ -113,6 +134,15 @@ class KotlinJUnitTestGenerator(
     private fun evaluateMockCodeGeneratorImports() {
         val imports = mockerCodeGenerator.getRequiredImports()
         imports.forEach(::addImportIfKnown)
+    }
+
+    private fun evaluateParameterizedImports(functions: List<FunctionMetadata>) {
+        addImportIfKnown("RunWith")
+        addImportIfKnown("Parameterized")
+        addImportIfKnown("Parameters")
+        if (functions.any { function -> function.hasReturnValue() }) {
+            addImportIfKnown("assertEquals")
+        }
     }
 
     private fun FunctionsMetadataContainer.evaluateFunctionImports() {
@@ -145,6 +175,11 @@ class KotlinJUnitTestGenerator(
             function.extensionReceiverType?.let { dataType ->
                 mockerCodeGenerator.isMockable(dataType)
             } ?: false
+        }
+
+    private fun hasMockableFunctionReturnValues(functions: List<FunctionMetadata>) =
+        functions.any { function ->
+            mockerCodeGenerator.isMockable(function.returnType)
         }
 
     private fun MockerCodeGenerator.isMockable(parameter: TypedParameter) = parameter.isMockable()

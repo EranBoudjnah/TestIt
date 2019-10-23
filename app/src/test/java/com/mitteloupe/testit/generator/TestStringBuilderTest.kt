@@ -294,7 +294,7 @@ class TestStringBuilderTest {
         // Given
         val config = givenTestStringBuilderConfiguration(hasMockableConstructorParameters = true)
         val givenAnnotation = "@Annotation"
-        given { mockerCodeGenerator.testClassAnnotation }.willReturn(givenAnnotation)
+        given { mockerCodeGenerator.testClassBaseRunnerAnnotation }.willReturn(givenAnnotation)
 
         // When
         val actualValue = cut.appendTestClass(config)
@@ -328,9 +328,10 @@ class TestStringBuilderTest {
         )
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
+        val isParameterized = false
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName)
+        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, isParameterized)
 
         // Then
         val outputString = actualValue.toString()
@@ -340,6 +341,40 @@ class TestStringBuilderTest {
                     "import $givenImport1\n" +
                     "import $givenImport2\n" +
                     "\n" +
+                    "class ${outputClassName}Test {\n" +
+                    "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test with static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
+        // Given
+        val givenImport1 = "com.path.to.Class1"
+        val givenImport2 = "com.path.to.Class2"
+        val functionsUnderTest = StaticFunctionsMetadata(
+            PACKAGE_NAME, mapOf(), listOf()
+        )
+        val usedImports = setOf(givenImport1, givenImport2)
+        val outputClassName = "outputClassName"
+        val isParameterized = true
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn("@RunWith(Parameterized::class)")
+
+        // When
+        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName,
+            isParameterized
+        )
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                    "\n" +
+                    "import $givenImport1\n" +
+                    "import $givenImport2\n" +
+                    "\n" +
+                    "@RunWith(Parameterized::class)\n" +
                     "class ${outputClassName}Test {\n" +
                     "}\n",
             outputString
@@ -390,7 +425,7 @@ class TestStringBuilderTest {
         val outputClassName = "outputClassName"
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName)
+        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, false)
 
         // Then
         val outputString = actualValue.toString()
@@ -465,7 +500,8 @@ class TestStringBuilderTest {
         constructorParameters: List<TypedParameter> = listOf(),
         functions: List<FunctionMetadata> = listOf(),
         usedImports: Set<String> = setOf(),
-        hasMockableConstructorParameters: Boolean = false
+        hasMockableConstructorParameters: Boolean = false,
+        isParameterized: Boolean = false
     ) = TestStringBuilderConfiguration(
         classUnderTest = ClassMetadata(
             PACKAGE_NAME,
@@ -476,6 +512,7 @@ class TestStringBuilderTest {
             functions
         ),
         usedImports = usedImports,
-        hasMockableConstructorParameters = hasMockableConstructorParameters
+        hasMockableConstructorParameters = hasMockableConstructorParameters,
+        isParameterized = isParameterized
     )
 }

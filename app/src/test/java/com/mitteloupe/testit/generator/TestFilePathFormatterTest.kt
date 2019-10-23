@@ -4,9 +4,16 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import org.mockito.junit.MockitoJUnit
+import org.junit.Rule
+import org.junit.rules.MethodRule
+
 
 class TestFilePathFormatterTest {
     private lateinit var cut: TestFilePathFormatter
+
+    @get:Rule
+    val rule: MethodRule = MockitoJUnit.rule()
 
     @Before
     fun setUp() {

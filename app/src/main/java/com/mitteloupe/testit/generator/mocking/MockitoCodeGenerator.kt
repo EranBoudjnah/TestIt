@@ -8,10 +8,18 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     MockerCodeGenerator(mockableTypeQualifier) {
     private val requiredImports = mutableSetOf<String>()
 
+    private var hasMockedConstructorParameters = false
+    private var isParameterizedTest = false
+
     override val testClassBaseRunnerAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
+
+    override val mockingRule =
+        "$INDENT@get:Rule\n" +
+                "${INDENT}val rule: MethodRule = MockitoJUnit.rule()"
 
     override val knownImports = mapOf(
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
+        "MockitoJUnit" to "org.mockito.junit.MockitoJUnit",
         "Mock" to "org.mockito.Mock",
         "mock" to "com.nhaarman.mockitokotlin2.mock",
         "Mockito" to "org.mockito.Mockito",
@@ -37,6 +45,13 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
 
     override fun getRequiredImports() = requiredImports + super.getRequiredImports()
 
+    override fun setIsParameterizedTest() {
+        super.setIsParameterizedTest()
+
+        isParameterizedTest = true
+        addMockRuleIfNeeded()
+    }
+
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         requiredImports.add("RunWith")
         requiredImports.add("MockitoJUnitRunner")
@@ -44,15 +59,33 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
         if (classUnderTest.isAbstract && classUnderTest.constructorParameters.isNotEmpty()) {
             requiredImports.add("UseConstructor")
         }
+        hasMockedConstructorParameters = true
+        addMockRuleIfNeeded()
+    }
+
+    private fun addMockRuleIfNeeded() {
+        if (isParameterizedTest && hasMockedConstructorParameters) {
+            requiredImports.add("Rule")
+            requiredImports.add("MethodRule")
+            requiredImports.add("MockitoJUnit")
+        }
     }
 
     override fun setHasMockedFunctionParameters() {
-        requiredImports.add("mock")
+        setInstantiatesMocks()
+    }
+
+    override fun setHasMockedFunctionReturnValues() {
+        setInstantiatesMocks()
     }
 
     override fun setIsAbstractClassUnderTest() {
-        requiredImports.add("mock")
+        setInstantiatesMocks()
         requiredImports.add("Mockito")
+    }
+
+    private fun setInstantiatesMocks() {
+        requiredImports.add("mock")
     }
 
     private fun getConstructorArgumentsForAbstract(classUnderTest: ClassMetadata) =

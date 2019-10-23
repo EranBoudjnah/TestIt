@@ -16,12 +16,15 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
     val testClassParameterizedRunnerAnnotation = "@RunWith(Parameterized::class)"
 
     open val knownImports: Map<String, String>
-    get() = mapOf(
-        "RunWith" to "org.junit.runner.RunWith",
-        "Parameterized" to "org.junit.runners.Parameterized"
-    )
+        get() = mapOf(
+            "RunWith" to "org.junit.runner.RunWith",
+            "Rule" to "org.junit.Rule",
+            "MethodRule" to "org.junit.rules.MethodRule"
+        )
 
     abstract val setUpStatements: String?
+
+    abstract val mockingRule: String?
 
     open fun reset() {
     }
@@ -35,14 +38,14 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
         val parameterName = parameter.name
         val parameterType = parameter.type
         return mockableTypeQualifier.getNonMockableType(parameterType.name)?.let { type ->
-            "${INDENT}private val $parameterName = ${type.defaultValue(parameterName, parameterType)}"
+            "${INDENT}private val $parameterName = ${type.defaultValue(
+                parameterName,
+                parameterType
+            )}"
         } ?: getConstructorMock(parameterName, parameterType)
     }
 
-    fun setIsParameterizedTest() {
-        _requiredImports.add("RunWith")
-        _requiredImports.add("Parameterized")
-    }
+    open fun setIsParameterizedTest() = Unit
 
     abstract fun getConstructorMock(parameterName: String, parameterType: DataType): String
 
@@ -55,6 +58,8 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
     abstract fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata)
 
     abstract fun setHasMockedFunctionParameters()
+
+    abstract fun setHasMockedFunctionReturnValues()
 
     abstract fun setIsAbstractClassUnderTest()
 
