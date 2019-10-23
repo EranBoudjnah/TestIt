@@ -24,6 +24,10 @@ One installed, running TestIt is as simple as
 
 `testit path/to/file.kt`
 
+Or, to generate parameterized tests:
+
+`testit -p path/to/file.kt`
+
 ## Output
 
 TestIt generates a test file in the default expected path.
@@ -118,6 +122,7 @@ class TestItTest {
 * Generates test code for abstract classes
 * Generates test code for extension functions
 * Generates test code for static functions
+* Generates parameterized tests code
 * Configurable
 
 ## Acknowledgments
