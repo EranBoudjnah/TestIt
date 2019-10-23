@@ -358,6 +358,8 @@ class TestStringBuilderTest {
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
         val isParameterized = true
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn("@RunWith(Parameterized::class)")
 
         // When
         val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName,

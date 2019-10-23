@@ -12,7 +12,7 @@ import org.junit.rules.MethodRule
 class TestFilePathFormatterTest {
     private lateinit var cut: TestFilePathFormatter
 
-    @Rule
+    @get:Rule
     val rule: MethodRule = MockitoJUnit.rule()
 
     @Before

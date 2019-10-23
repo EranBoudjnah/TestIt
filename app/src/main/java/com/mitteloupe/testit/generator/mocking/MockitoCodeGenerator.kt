@@ -14,7 +14,7 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     override val testClassBaseRunnerAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
 
     override val mockingRule =
-        "$INDENT@Rule\n" +
+        "$INDENT@get:Rule\n" +
                 "${INDENT}val rule: MethodRule = MockitoJUnit.rule()"
 
     override val knownImports = mapOf(
