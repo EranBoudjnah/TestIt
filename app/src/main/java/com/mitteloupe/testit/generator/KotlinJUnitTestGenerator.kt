@@ -104,7 +104,6 @@ class KotlinJUnitTestGenerator(
         }
     }
 
-
     private fun ClassMetadata.evaluateImports(isParameterized: Boolean) {
         evaluateMockCodeGeneratorImports()
 
