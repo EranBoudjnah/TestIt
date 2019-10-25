@@ -1,5 +1,7 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.formatter.toKotlinString
+import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
@@ -16,7 +18,8 @@ class TestStringBuilder(
     private val mockerCodeGenerator: MockerCodeGenerator,
     private val classUnderTestVariableName: String,
     private val actualValueVariableName: String,
-    private val defaultAssertionStatement: String
+    private val defaultAssertionStatement: String,
+    private val dateTypeToParameterMapper: DateTypeToParameterMapper
 ) {
     fun appendTestClass(config: TestStringBuilderConfiguration): TestStringBuilder {
         val classUnderTest = config.classUnderTest
@@ -118,7 +121,7 @@ class TestStringBuilder(
                     functions.flatMap { function ->
                         function.parameters.map { parameter ->
                             val parameterName =
-                                getFunctionLocalizedParameterName(function, parameter, true)
+                                parameter.toKotlinString(function, true)
                             TypedParameter(parameterName, parameter.type)
                         } + TypedParameter(getExpectedVariableName(function), function.returnType)
                     }
@@ -127,7 +130,7 @@ class TestStringBuilder(
             {
                 append("(\n")
                     .append(parameters.joinToString(",\n") { parameter ->
-                        "${INDENT}private val ${parameter.name}: ${dataTypeToString(parameter.type)}"
+                        "${INDENT}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
                     })
                     .append("\n)")
             }
@@ -139,33 +142,14 @@ class TestStringBuilder(
     private fun getExpectedVariableName(function: FunctionMetadata) =
         "${function.name}Expected"
 
-    private fun getFunctionLocalizedParameterName(
-        function: FunctionMetadata,
-        parameter: TypedParameter,
-        isParameterized: Boolean
-    ) = if (isParameterized) {
-        "${function.name}${parameter.name.capitalize()}"
-    } else {
-        parameter.name
-    }
-
-    private fun dataTypeToString(dataType: DataType) = when (dataType) {
-        is DataType.Specific -> dataType.name
-        is DataType.Generic -> "${dataType.name}<${formatGenericsTypes(dataType.genericTypes)}>"
-    }
-
-    private fun formatGenericsTypes(dataTypes: Array<out DataType>): String =
-        dataTypes.joinToString(", ") { dataType ->
-            dataTypeToString(dataType)
-        }
-
     private fun appendMockingRule(
         hasMockableConstructorParameters: Boolean,
         isParameterized: Boolean
     ): TestStringBuilder {
         if (isParameterized && hasMockableConstructorParameters) {
             mockerCodeGenerator.mockingRule?.let {
-                append("$it\n\n")
+                append(it)
+                    .appendBlankLine()
             }
         }
         return this
@@ -294,7 +278,7 @@ class TestStringBuilder(
         val output = append("$INDENT_2// When\n")
             .append("$INDENT_2$actualVariable$receiver${function.name}(")
             .append(function.parameters.joinToString(", ") { parameter ->
-                getFunctionLocalizedParameterName(function, parameter, isParameterized)
+                parameter.toKotlinString(function, isParameterized)
             })
             .append(")")
 
@@ -330,7 +314,8 @@ class TestStringBuilder(
 
     private fun appendClassVariable(
         className: String
-    ) = append("${INDENT}private lateinit var $classUnderTestVariableName: $className\n\n")
+    ) = append("${INDENT}private lateinit var $classUnderTestVariableName: $className")
+        .appendBlankLine()
 
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
         val returnTypes = classUnderTest.functions.map { it.returnType }
@@ -350,15 +335,12 @@ class TestStringBuilder(
                 "${INDENT_2}fun data(): Collection<Array<*>> = listOf(\n" +
                 "${INDENT_3}arrayOf("
     )
-        .appendParameterValues(parameters + dataTypesToTypedParameters(expectedTypes))
+        .appendParameterValues(parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
         .append(
             ")\n" +
                     "${INDENT_2})\n" +
                     "$INDENT}"
         )
-
-    private fun dataTypesToTypedParameters(expectedTypes: List<DataType>) =
-        expectedTypes.map { TypedParameter(it.name, it) }
 
     private fun appendParameterValues(parameters: List<TypedParameter>) =
         append(
