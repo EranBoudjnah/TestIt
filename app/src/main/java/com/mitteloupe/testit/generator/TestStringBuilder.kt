@@ -97,34 +97,26 @@ class TestStringBuilder(
     private fun appendTestClassRunnerAnnotation(
         hasMockableConstructorParameters: Boolean,
         isParameterized: Boolean
-    ): TestStringBuilder {
-        when {
-            isParameterized -> {
-                append("${mockerCodeGenerator.testClassParameterizedRunnerAnnotation}\n")
-            }
-            hasMockableConstructorParameters -> {
-                mockerCodeGenerator.testClassBaseRunnerAnnotation?.let { annotation ->
-                    append("$annotation\n")
-                }
-            }
+    ) = when {
+        isParameterized -> {
+            append("${mockerCodeGenerator.testClassParameterizedRunnerAnnotation}\n")
         }
-        return this
+        hasMockableConstructorParameters -> {
+            mockerCodeGenerator.testClassBaseRunnerAnnotation?.let { annotation ->
+                append("$annotation\n")
+            }
+            this
+        }
+        else -> this
     }
 
     private fun appendConstructorParameters(
         classUnderTestConstructorParameters: List<TypedParameter>,
         functions: List<FunctionMetadata>,
         isParameterized: Boolean
-    ) = if (isParameterized) {
-        val parameters =
-            classUnderTestConstructorParameters +
-                    functions.flatMap { function ->
-                        function.parameters.map { parameter ->
-                            val parameterName =
-                                parameter.toKotlinString(function, true)
-                            TypedParameter(parameterName, parameter.type)
-                        } + TypedParameter(getExpectedVariableName(function), function.returnType)
-                    }
+    ) = onlyIf({ isParameterized }, {
+        val parameters = classUnderTestConstructorParameters +
+                getFunctionParametersAsConstructorParameters(functions)
         onlyIf(
             { parameters.isNotEmpty() },
             {
@@ -135,8 +127,16 @@ class TestStringBuilder(
                     .append("\n)")
             }
         )
-    } else {
-        this
+    })
+
+    private fun getFunctionParametersAsConstructorParameters(
+        functions: List<FunctionMetadata>
+    ) = functions.flatMap { function ->
+        function.parameters.map { parameter ->
+            val parameterName =
+                parameter.toKotlinString(function, true)
+            TypedParameter(parameterName, parameter.type)
+        } + TypedParameter(getExpectedVariableName(function), function.returnType)
     }
 
     private fun getExpectedVariableName(function: FunctionMetadata) =
@@ -173,9 +173,7 @@ class TestStringBuilder(
         append("$INDENT@Before\n")
             .append("${INDENT}fun setUp() {\n")
 
-        mockerCodeGenerator.setUpStatements?.let {
-            append(it)
-        }
+        mockerCodeGenerator.setUpStatements?.let(::append)
 
         append("$INDENT_2$classUnderTestVariableName = ")
         if (classUnderTest.isAbstract) {
