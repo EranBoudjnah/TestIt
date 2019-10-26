@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.model.Configuration
 import com.mitteloupe.testit.model.Mocker
 import com.nhaarman.mockitokotlin2.given
@@ -18,9 +19,12 @@ class TestsGeneratorFactoryTest {
     @Mock
     lateinit var mockerCodeGeneratorProvider: MockerCodeGeneratorProvider
 
+    @Mock
+    lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
+
     @Before
     fun setUp() {
-        cut = TestsGeneratorFactory(mockerCodeGeneratorProvider)
+        cut = TestsGeneratorFactory(mockerCodeGeneratorProvider, dateTypeToParameterMapper)
     }
 
     @Test

@@ -264,32 +264,41 @@ class TestStringBuilder(
         isStatic: Boolean,
         function: FunctionMetadata,
         isParameterized: Boolean
-    ): TestStringBuilder {
-        val actualVariable = if (function.hasReturnValue()) {
-            "val $actualValueVariableName = "
-        } else {
-            ""
-        }
-        val receiver = function.extensionReceiverType?.let {
-            val classUnderTestWrapperOpen =
-                if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
-            "${classUnderTestWrapperOpen}receiver."
-        } ?: if (isStatic) "" else "$classUnderTestVariableName."
-        val output = append("$INDENT_2// When\n")
-            .append("$INDENT_2$actualVariable$receiver${function.name}(")
-            .append(function.parameters.joinToString(", ") { parameter ->
-                parameter.toKotlinString(function, isParameterized)
-            })
-            .append(")")
+    ) = append("$INDENT_2// When\n")
+        .append(INDENT_2)
+        .appendActualVariable(function)
+        .appendReceiverOpen(function, isStatic)
+        .append("${function.name}(")
+        .append(function.parameters.joinToString(", ") { parameter ->
+            parameter.toKotlinString(function, isParameterized)
+        })
+        .append(")")
+        .appendReceiverClose(function, isStatic)
+        .appendBlankLine()
 
-        if (!isStatic) {
-            function.extensionReceiverType?.let {
-                output.append("\n$INDENT_2}")
-            }
-        }
+    private fun appendActualVariable(
+        function: FunctionMetadata
+    ) = onlyIf({ function.hasReturnValue() }, {
+        append("val $actualValueVariableName = ")
+    })
 
-        return output.appendBlankLine()
-    }
+    private fun appendReceiverOpen(
+        function: FunctionMetadata,
+        isStatic: Boolean
+    ) = append(function.extensionReceiverType?.let {
+        val classUnderTestWrapperOpen =
+            if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
+        "${classUnderTestWrapperOpen}receiver."
+    } ?: if (isStatic) "" else "$classUnderTestVariableName.")
+
+    private fun appendReceiverClose(
+        function: FunctionMetadata,
+        isStatic: Boolean
+    ) = onlyIf({ !isStatic }, {
+        function.extensionReceiverType?.let {
+            append("\n$INDENT_2}")
+        }
+    })
 
     private fun appendThen(
         function: FunctionMetadata,

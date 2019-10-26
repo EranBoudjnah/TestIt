@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
@@ -33,6 +34,9 @@ class TestStringBuilderTest {
     @Mock
     lateinit var mockerCodeGenerator: MockerCodeGenerator
 
+    @Mock
+    lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
+
     @Before
     fun setUp() {
         stringBuilder = spy(StringBuilder())
@@ -42,7 +46,8 @@ class TestStringBuilderTest {
             mockerCodeGenerator,
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
-            DEFAULT_ASSERTION_STATEMENT
+            DEFAULT_ASSERTION_STATEMENT,
+            dateTypeToParameterMapper
         )
     }
 

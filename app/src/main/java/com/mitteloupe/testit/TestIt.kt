@@ -8,6 +8,7 @@ import com.mitteloupe.testit.generator.MockerCodeGeneratorProvider
 import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGenerator
 import com.mitteloupe.testit.generator.TestsGeneratorFactory
+import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.ClassTestCode
@@ -210,7 +211,11 @@ fun main(args: Array<String>) {
     val propertiesReader =
         PropertiesReader(fileProvider, FileInputStreamProvider(), ConfigurationBuilder())
     val mockerCodeGeneratorProvider = MockerCodeGeneratorProvider(MockableTypeQualifier())
-    val testsGeneratorFactory = TestsGeneratorFactory(mockerCodeGeneratorProvider)
+    val dateTypeToParameterMapper = DateTypeToParameterMapper()
+    val testsGeneratorFactory = TestsGeneratorFactory(
+        mockerCodeGeneratorProvider,
+        dateTypeToParameterMapper
+    )
     val testIt = TestIt(
         propertiesReader,
         fileProvider,
