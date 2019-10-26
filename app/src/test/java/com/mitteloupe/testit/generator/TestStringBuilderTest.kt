@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
@@ -32,6 +33,9 @@ class TestStringBuilderTest {
     lateinit var stringBuilder: StringBuilder
 
     @Mock
+    lateinit var formatting: Formatting
+    
+    @Mock
     lateinit var mockerCodeGenerator: MockerCodeGenerator
 
     @Mock
@@ -41,8 +45,16 @@ class TestStringBuilderTest {
     fun setUp() {
         stringBuilder = spy(StringBuilder())
 
+        given { formatting.getIndentation(1) }
+            .willReturn("__")
+        given { formatting.getIndentation(2) }
+            .willReturn("____")
+        given { formatting.getIndentation(3) }
+            .willReturn("______")
+
         cut = TestStringBuilder(
             stringBuilder,
+            formatting,
             mockerCodeGenerator,
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
@@ -65,12 +77,12 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                     "\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        $CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
                     "\n" +
                     "}\n",
             outputString
@@ -96,12 +108,12 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                     "\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        $CLASS_UNDER_TEST_VARIABLE_NAME = $givenAbstractCode\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME = $givenAbstractCode\n" +
+                    "__}\n" +
                     "\n" +
                     "}\n",
             outputString
@@ -129,12 +141,12 @@ class TestStringBuilderTest {
                     "import $givenImport2\n" +
                     "\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        cut = $TEST_CLASS_NAME()\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____cut = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
                     "\n" +
                     "}\n",
             outputString
@@ -151,11 +163,11 @@ class TestStringBuilderTest {
         val config = givenTestStringBuilderConfiguration(
             constructorParameters = listOf(givenParameter1, givenParameter2)
         )
-        val codeForParameter1 = "    private lateinit var mockParam1()"
+        val codeForParameter1 = "__private lateinit var mockParam1()"
         given { mockerCodeGenerator.getMockedVariableDefinition(givenParameter1) }
             .willReturn(codeForParameter1)
 
-        val codeForParameter2 = "    private lateinit var mockParam2()"
+        val codeForParameter2 = "__private lateinit var mockParam2()"
         given { mockerCodeGenerator.getMockedVariableDefinition(givenParameter2) }
             .willReturn(codeForParameter2)
 
@@ -168,16 +180,16 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                     "\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
                     "\n" +
                     "$codeForParameter1\n" +
                     "\n" +
                     "$codeForParameter2\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2)\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2)\n" +
+                    "__}\n" +
                     "\n" +
                     "}\n",
             outputString
@@ -234,61 +246,61 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                     "\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        cut = $TEST_CLASS_NAME()\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____cut = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                    "        // Given\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                    "____// Given\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                    "        // Given\n" +
-                    "        val receiver = mock<${extensionReceiverType.name}>()\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "____val receiver = mock<${extensionReceiverType.name}>()\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = with(cut) {\n" +
-                    "            receiver.${functionMetadata3.name}()\n" +
-                    "        }\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with(cut) {\n" +
+                    "______receiver.${functionMetadata3.name}()\n" +
+                    "____}\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                    "        // Given\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
+                    "____// Given\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()\n" +
+                    "____// When\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                    "        // Given\n" +
-                    "        val ${functionParameter1.name} = $mockedValue1\n" +
-                    "        val ${functionParameter2.name} = $mockedValue2\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "____val ${functionParameter1.name} = $mockedValue1\n" +
+                    "____val ${functionParameter2.name} = $mockedValue2\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "}\n",
             outputString
         )
@@ -311,12 +323,12 @@ class TestStringBuilderTest {
                     "\n" +
                     "$givenAnnotation\n" +
                     "class ${TEST_CLASS_NAME}Test {\n" +
-                    "    private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
                     "\n" +
-                    "    @Before\n" +
-                    "    fun setUp() {\n" +
-                    "        $CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                    "    }\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
                     "\n" +
                     "}\n",
             outputString
@@ -438,52 +450,52 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                     "\n" +
                     "class ${outputClassName}Test {\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                    "        // Given\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                    "____// Given\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata1.name}()\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata1.name}()\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                    "        // Given\n" +
-                    "        val receiver = mock<${extensionReceiverType.name}>()\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "____val receiver = mock<${extensionReceiverType.name}>()\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                    "        // Given\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
+                    "____// Given\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        ${functionMetadata4.name}()\n" +
+                    "____// When\n" +
+                    "____${functionMetadata4.name}()\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "\n" +
-                    "    @Test\n" +
-                    "    fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                    "        // Given\n" +
-                    "        val ${functionParameter1.name} = $mockedValue1\n" +
-                    "        val ${functionParameter2.name} = $mockedValue2\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "____val ${functionParameter1.name} = $mockedValue1\n" +
+                    "____val ${functionParameter2.name} = $mockedValue2\n" +
                     "\n" +
-                    "        // When\n" +
-                    "        val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
                     "\n" +
-                    "        // Then\n" +
-                    "        $DEFAULT_ASSERTION_STATEMENT\n" +
-                    "    }\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
                     "}\n", outputString
         )
     }

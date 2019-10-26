@@ -1,14 +1,14 @@
 package com.mitteloupe.testit.generator.mocking
 
-import com.mitteloupe.testit.generator.INDENT
-import com.mitteloupe.testit.generator.INDENT_2
-import com.mitteloupe.testit.generator.INDENT_3
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.concreteFunctions
 
-class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
-    MockerCodeGenerator(mockableTypeQualifier) {
+class MockKCodeGenerator(
+    mockableTypeQualifier: MockableTypeQualifier,
+    formatting: Formatting
+) : MockerCodeGenerator(mockableTypeQualifier, formatting) {
     private val requiredImports = mutableSetOf<String>()
 
     private var _hasMockedConstructorParameters = false
@@ -26,7 +26,7 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
 
     override val setUpStatements: String?
         get() = if (_hasMockedConstructorParameters) {
-            "${INDENT_2}MockKAnnotations.init(this, relaxUnitFun = true)\n"
+            "${indent(2)}MockKAnnotations.init(this, relaxUnitFun = true)\n"
         } else {
             null
         }
@@ -36,8 +36,8 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
-        "$INDENT@MockK\n" +
-                "${INDENT}lateinit var $parameterName: ${parameterType.name}"
+        "${indent()}@MockK\n" +
+                "${indent()}lateinit var $parameterName: ${parameterType.name}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
         val arguments =
@@ -48,10 +48,10 @@ class MockKCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
         classUnderTest.concreteFunctions
             .forEach { function ->
                 val mockedValue = getMockedValue(function.name, function.returnType)
-                stringBuilder.append("${INDENT_3}override fun test2() = $mockedValue\n")
+                stringBuilder.append("${indent(3)}override fun test2() = $mockedValue\n")
             }
 
-        stringBuilder.append("$INDENT_2}")
+        stringBuilder.append("${indent(2)}}")
 
         return stringBuilder.toString()
     }

@@ -1,4 +1,4 @@
-package com.mitteloupe.testit.generator.formatter
+package com.mitteloupe.testit.generator.formatting
 
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter

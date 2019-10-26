@@ -21,7 +21,7 @@ class MockerCodeGeneratorProviderTest {
         val mocker = Mocker.MOCKITO
 
         // When
-        val actualValue = cut.getGenerator(mocker)
+        val actualValue = cut.getGenerator(mocker, mock())
 
         // Then
         assertTrue(actualValue is MockitoCodeGenerator)
@@ -33,7 +33,7 @@ class MockerCodeGeneratorProviderTest {
         val mocker = Mocker.MOCKK
 
         // When
-        val actualValue = cut.getGenerator(mocker)
+        val actualValue = cut.getGenerator(mocker, mock())
 
         // Then
         assertTrue(actualValue is MockKCodeGenerator)

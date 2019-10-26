@@ -1,11 +1,13 @@
 package com.mitteloupe.testit.generator.mocking
 
-import com.mitteloupe.testit.generator.INDENT
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 
-class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
-    MockerCodeGenerator(mockableTypeQualifier) {
+class MockitoCodeGenerator(
+    mockableTypeQualifier: MockableTypeQualifier,
+    formatting: Formatting
+) : MockerCodeGenerator(mockableTypeQualifier, formatting) {
     private val requiredImports = mutableSetOf<String>()
 
     private var hasMockedConstructorParameters = false
@@ -14,8 +16,8 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     override val testClassBaseRunnerAnnotation: String = "@RunWith(MockitoJUnitRunner::class)"
 
     override val mockingRule =
-        "$INDENT@get:Rule\n" +
-                "${INDENT}val rule: MethodRule = MockitoJUnit.rule()"
+        "${indent()}@get:Rule\n" +
+                "${indent()}val rule: MethodRule = MockitoJUnit.rule()"
 
     override val knownImports = mapOf(
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
@@ -33,8 +35,8 @@ class MockitoCodeGenerator(mockableTypeQualifier: MockableTypeQualifier) :
     }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
-        "$INDENT@Mock\n" +
-                "${INDENT}lateinit var $parameterName: ${parameterType.name}"
+        "${indent()}@Mock\n" +
+                "${indent()}lateinit var $parameterName: ${parameterType.name}"
 
     override fun getMockedInstance(variableType: DataType) = "mock<${variableType.name}>()"
 

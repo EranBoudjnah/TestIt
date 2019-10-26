@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator
 
-import com.mitteloupe.testit.generator.formatter.toKotlinString
+import com.mitteloupe.testit.generator.formatting.Formatting
+import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.backend.common.onlyIf
 
 class TestStringBuilder(
     private val stringBuilder: StringBuilder,
+    private val formatting: Formatting,
     private val mockerCodeGenerator: MockerCodeGenerator,
     private val classUnderTestVariableName: String,
     private val actualValueVariableName: String,
@@ -122,7 +124,7 @@ class TestStringBuilder(
             {
                 append("(\n")
                     .append(parameters.joinToString(",\n") { parameter ->
-                        "${INDENT}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
+                        "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
                     })
                     .append("\n)")
             }
@@ -170,12 +172,12 @@ class TestStringBuilder(
     private fun appendSetUp(
         classUnderTest: ClassMetadata
     ): TestStringBuilder {
-        append("$INDENT@Before\n")
-            .append("${INDENT}fun setUp() {\n")
+        append("${indent()}@Before\n")
+            .append("${indent()}fun setUp() {\n")
 
         mockerCodeGenerator.setUpStatements?.let(::append)
 
-        append("$INDENT_2$classUnderTestVariableName = ")
+        append("${indent(2)}$classUnderTestVariableName = ")
         if (classUnderTest.isAbstract) {
             val abstractClassUnderTest =
                 mockerCodeGenerator.getAbstractClassUnderTest(classUnderTest)
@@ -187,7 +189,7 @@ class TestStringBuilder(
                 .append(")\n")
         }
 
-        append("$INDENT}")
+        append("${indent()}}")
             .appendBlankLine()
 
         return this
@@ -214,10 +216,10 @@ class TestStringBuilder(
         isStatic: Boolean,
         function: FunctionMetadata,
         isParameterized: Boolean
-    ) = append("$INDENT@Test\n")
-        .append("${INDENT}fun `Given _ when ${function.nameForTestFunctionName} then _`() {\n")
+    ) = append("${indent()}@Test\n")
+        .append("${indent()}fun `Given _ when ${function.nameForTestFunctionName} then _`() {\n")
         .appendTestBody(isStatic, function, isParameterized)
-        .append("$INDENT}\n")
+        .append("${indent()}}\n")
 
     private fun appendTestBody(
         isStatic: Boolean,
@@ -230,7 +232,7 @@ class TestStringBuilder(
     private fun appendGiven(
         function: FunctionMetadata,
         isParameterized: Boolean
-    ) = append("$INDENT_2// Given\n")
+    ) = append("${indent(2)}// Given\n")
         .appendFunctionParameterMocks(function, isParameterized)
 
     private fun appendFunctionParameterMocks(
@@ -241,7 +243,7 @@ class TestStringBuilder(
         {
             function.parameters.forEach { parameter ->
                 val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
-                append("${INDENT_2}val ${parameter.name} = $value\n")
+                append("${indent(2)}val ${parameter.name} = $value\n")
             }
             function.extensionReceiverType?.let { receiverType ->
                 if (function.parameters.isNotEmpty()) {
@@ -255,15 +257,15 @@ class TestStringBuilder(
 
     private fun appendExtensionReceiver(receiverType: DataType): TestStringBuilder {
         val receiverValue = mockerCodeGenerator.getMockedValue(receiverType.name, receiverType)
-        return append("${INDENT_2}val receiver = $receiverValue\n")
+        return append("${indent(2)}val receiver = $receiverValue\n")
     }
 
     private fun appendWhen(
         isStatic: Boolean,
         function: FunctionMetadata,
         isParameterized: Boolean
-    ) = append("$INDENT_2// When\n")
-        .append(INDENT_2)
+    ) = append("${indent(2)}// When\n")
+        .append(indent(2))
         .appendActualVariable(function)
         .appendReceiverOpen(function, isStatic)
         .append("${function.name}(")
@@ -285,7 +287,7 @@ class TestStringBuilder(
         isStatic: Boolean
     ) = append(function.extensionReceiverType?.let {
         val classUnderTestWrapperOpen =
-            if (isStatic) "" else "with($classUnderTestVariableName) {\n$INDENT_3"
+            if (isStatic) "" else "with($classUnderTestVariableName) {\n${indent(3)}"
         "${classUnderTestWrapperOpen}receiver."
     } ?: if (isStatic) "" else "$classUnderTestVariableName.")
 
@@ -294,16 +296,16 @@ class TestStringBuilder(
         isStatic: Boolean
     ) = onlyIf({ !isStatic }, {
         function.extensionReceiverType?.let {
-            append("\n$INDENT_2}")
+            append("\n${indent(2)}}")
         }
     })
 
     private fun appendThen(
         function: FunctionMetadata,
         isParameterized: Boolean
-    ) = append("$INDENT_2// Then\n")
+    ) = append("${indent(2)}// Then\n")
         .appendReturnValueAssertion(function, isParameterized)
-        .append("$INDENT_2$defaultAssertionStatement\n")
+        .append("${indent(2)}$defaultAssertionStatement\n")
 
     private fun appendReturnValueAssertion(
         function: FunctionMetadata,
@@ -313,7 +315,7 @@ class TestStringBuilder(
             function.hasReturnValue() && isParameterized
         },
         {
-            append("${INDENT_2}assertEquals(${getExpectedVariableName(function)}, $actualValueVariableName)\n")
+            append("${indent(2)}assertEquals(${getExpectedVariableName(function)}, $actualValueVariableName)\n")
         }
     )
 
@@ -321,7 +323,7 @@ class TestStringBuilder(
 
     private fun appendClassVariable(
         className: String
-    ) = append("${INDENT}private lateinit var $classUnderTestVariableName: $className")
+    ) = append("${indent()}private lateinit var $classUnderTestVariableName: $className")
         .appendBlankLine()
 
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
@@ -336,17 +338,17 @@ class TestStringBuilder(
         parameters: List<TypedParameter>,
         expectedTypes: List<DataType>
     ) = append(
-        "${INDENT}companion object {\n" +
-                "${INDENT_2}@JvmStatic\n" +
-                "${INDENT_2}@Parameters\n" +
-                "${INDENT_2}fun data(): Collection<Array<*>> = listOf(\n" +
-                "${INDENT_3}arrayOf("
+        "${indent()}companion object {\n" +
+                "${indent(2)}@JvmStatic\n" +
+                "${indent(2)}@Parameters\n" +
+                "${indent(2)}fun data(): Collection<Array<*>> = listOf(\n" +
+                "${indent(3)}arrayOf("
     )
         .appendParameterValues(parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
         .append(
             ")\n" +
-                    "${INDENT_2})\n" +
-                    "$INDENT}"
+                    "${indent(2)})\n" +
+                    "${indent()}}"
         )
 
     private fun appendParameterValues(parameters: List<TypedParameter>) =
@@ -360,6 +362,8 @@ class TestStringBuilder(
         stringBuilder.append(string)
         return this
     }
+
+    private fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
 
     private val FunctionMetadata.nameForTestFunctionName
         get() = extensionReceiverType?.let { "${extensionReceiverType.name}#$name" } ?: name

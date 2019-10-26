@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.model.Configuration
 import com.mitteloupe.testit.model.Mocker
@@ -20,11 +21,18 @@ class TestsGeneratorFactoryTest {
     lateinit var mockerCodeGeneratorProvider: MockerCodeGeneratorProvider
 
     @Mock
+    lateinit var formatting: Formatting
+
+    @Mock
     lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
 
     @Before
     fun setUp() {
-        cut = TestsGeneratorFactory(mockerCodeGeneratorProvider, dateTypeToParameterMapper)
+        cut = TestsGeneratorFactory(
+            mockerCodeGeneratorProvider,
+            formatting,
+            dateTypeToParameterMapper
+        )
     }
 
     @Test
@@ -37,12 +45,12 @@ class TestsGeneratorFactoryTest {
             actualValue = "actual",
             defaultAssertion = "default"
         )
-        given { mockerCodeGeneratorProvider.getGenerator(mocker) }.willReturn(mock())
+        given { mockerCodeGeneratorProvider.getGenerator(mocker, formatting) }.willReturn(mock())
 
         // When
         cut.createTestsGenerator(configuration)
 
         // Then
-        verify(mockerCodeGeneratorProvider).getGenerator(mocker)
+        verify(mockerCodeGeneratorProvider).getGenerator(mocker, formatting)
     }
 }

@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator.mocking
 
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 import com.nhaarman.mockitokotlin2.UseConstructor
@@ -16,17 +17,23 @@ import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class MockerCodeGeneratorTest2 {
+class MockerCodeGeneratorTest {
     private lateinit var cut: MockerCodeGenerator
 
     @Mock
     lateinit var mockableTypeQualifier: MockableTypeQualifier
 
+    @Mock
+    lateinit var formatting: Formatting
+
     @Before
     fun setUp() {
+        given { formatting.getIndentation(1) }
+            .willReturn("__")
+
         cut = mock(
             defaultAnswer = Mockito.CALLS_REAL_METHODS,
-            useConstructor = UseConstructor.withArguments(mockableTypeQualifier)
+            useConstructor = UseConstructor.withArguments(mockableTypeQualifier, formatting)
         )
     }
 
@@ -37,7 +44,8 @@ class MockerCodeGeneratorTest2 {
         val variableType = DataType.Specific("non-mockable data type")
         val expected = "default value"
         val concreteValue = getConcreteValue(variableName, variableType, expected)
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(concreteValue)
+        given { mockableTypeQualifier.getNonMockableType(variableType.name) }
+            .willReturn(concreteValue)
 
         // When
         val actualValue = cut.getMockedValue(variableName, variableType)
@@ -53,9 +61,11 @@ class MockerCodeGeneratorTest2 {
         val variableType = DataType.Specific("non-mockable data type")
         val constructorMock = "\"constructor mock\""
         val concreteValue = getConcreteValue(variableName, variableType, constructorMock)
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(concreteValue)
+        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(
+            concreteValue
+        )
         val parameter = TypedParameter(variableName, type = variableType)
-        val expected = "    private val variableName = $constructorMock"
+        val expected = "__private val variableName = $constructorMock"
 
         // When
         val actualValue = cut.getMockedVariableDefinition(parameter)

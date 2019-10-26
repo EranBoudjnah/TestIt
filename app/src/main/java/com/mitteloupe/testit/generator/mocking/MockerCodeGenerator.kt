@@ -1,6 +1,6 @@
 package com.mitteloupe.testit.generator.mocking
 
-import com.mitteloupe.testit.generator.INDENT
+import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
@@ -8,7 +8,10 @@ import com.mitteloupe.testit.model.TypedParameter
 /**
  * Created by Eran Boudjnah on 2019-07-07.
  */
-abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTypeQualifier) {
+abstract class MockerCodeGenerator(
+    private val mockableTypeQualifier: MockableTypeQualifier,
+    private val formatting: Formatting
+) {
     private val _requiredImports = mutableSetOf<String>()
 
     abstract val testClassBaseRunnerAnnotation: String?
@@ -38,7 +41,7 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
         val parameterName = parameter.name
         val parameterType = parameter.type
         return mockableTypeQualifier.getNonMockableType(parameterType.name)?.let { type ->
-            "${INDENT}private val $parameterName = ${type.defaultValue(
+            "${indent()}private val $parameterName = ${type.defaultValue(
                 parameterName,
                 parameterType
             )}"
@@ -66,6 +69,8 @@ abstract class MockerCodeGenerator(private val mockableTypeQualifier: MockableTy
     fun TypedParameter.isMockable() = mockableTypeQualifier.isMockable(this)
 
     fun DataType.isMockable() = mockableTypeQualifier.isMockable(this)
+
+    protected fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
 }
 
 data class ConcreteValue(
