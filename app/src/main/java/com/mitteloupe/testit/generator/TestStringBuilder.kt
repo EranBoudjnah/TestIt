@@ -1,6 +1,8 @@
 package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.generator.formatting.Formatting
+import com.mitteloupe.testit.generator.formatting.expectedReturnValueVariableName
+import com.mitteloupe.testit.generator.formatting.nameInTestFunctionName
 import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
@@ -138,11 +140,8 @@ class TestStringBuilder(
             val parameterName =
                 parameter.toKotlinString(function, true)
             TypedParameter(parameterName, parameter.type)
-        } + TypedParameter(getExpectedVariableName(function), function.returnType)
+        } + TypedParameter(function.expectedReturnValueVariableName, function.returnType)
     }
-
-    private fun getExpectedVariableName(function: FunctionMetadata) =
-        "${function.name}Expected"
 
     private fun appendMockingRule(
         hasMockableConstructorParameters: Boolean,
@@ -217,7 +216,7 @@ class TestStringBuilder(
         function: FunctionMetadata,
         isParameterized: Boolean
     ) = append("${indent()}@Test\n")
-        .append("${indent()}fun `Given _ when ${function.nameForTestFunctionName} then _`() {\n")
+        .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName} then _`() {\n")
         .appendTestBody(isStatic, function, isParameterized)
         .append("${indent()}}\n")
 
@@ -315,7 +314,7 @@ class TestStringBuilder(
             function.hasReturnValue() && isParameterized
         },
         {
-            append("${indent(2)}assertEquals(${getExpectedVariableName(function)}, $actualValueVariableName)\n")
+            append("${indent(2)}assertEquals(${function.expectedReturnValueVariableName}, $actualValueVariableName)\n")
         }
     )
 
@@ -364,14 +363,4 @@ class TestStringBuilder(
     }
 
     private fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
-
-    private val FunctionMetadata.nameForTestFunctionName
-        get() = extensionReceiverType?.let { "${extensionReceiverType.name}#$name" } ?: name
 }
-
-data class TestStringBuilderConfiguration(
-    val classUnderTest: ClassMetadata,
-    val usedImports: Set<String>,
-    val hasMockableConstructorParameters: Boolean,
-    val isParameterized: Boolean
-)
