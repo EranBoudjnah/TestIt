@@ -5,8 +5,8 @@ import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockKCodeGenerator
 import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.generator.mocking.MockitoCodeGenerator
-import com.mitteloupe.testit.model.Configuration
-import com.mitteloupe.testit.model.Mocker
+import com.mitteloupe.testit.config.model.Configuration
+import com.mitteloupe.testit.config.model.Mocker
 
 class TestsGeneratorFactory(
     private val mockerCodeGeneratorProvider: MockerCodeGeneratorProvider,
@@ -24,6 +24,7 @@ class TestsGeneratorFactory(
                 configuration.classUnderTest,
                 configuration.actualValue,
                 configuration.defaultAssertion,
+                configuration.exceptionCaptureMethod,
                 dataTypeToParameterMapper
             ),
             mockerCodeGenerator

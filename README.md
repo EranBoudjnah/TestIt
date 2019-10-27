@@ -123,6 +123,7 @@ class TestItTest {
 * Generates test code for extension functions
 * Generates test code for static functions
 * Generates parameterized tests code
+* Generates test code for exceptions
 * Configurable
 
 ## Acknowledgments

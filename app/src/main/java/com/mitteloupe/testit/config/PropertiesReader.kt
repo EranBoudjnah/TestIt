@@ -1,8 +1,8 @@
 package com.mitteloupe.testit.config
 
+import com.mitteloupe.testit.config.model.Configuration
 import com.mitteloupe.testit.file.FileInputStreamProvider
 import com.mitteloupe.testit.file.FileProvider
-import com.mitteloupe.testit.model.Configuration
 import java.util.Properties
 
 class PropertiesReader(

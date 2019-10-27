@@ -2,8 +2,9 @@ package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
-import com.mitteloupe.testit.model.Configuration
-import com.mitteloupe.testit.model.Mocker
+import com.mitteloupe.testit.config.model.Configuration
+import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
+import com.mitteloupe.testit.config.model.Mocker
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -43,7 +44,8 @@ class TestsGeneratorFactoryTest {
             mocker = mocker,
             classUnderTest = "classUnderTest",
             actualValue = "actual",
-            defaultAssertion = "default"
+            defaultAssertion = "default",
+            exceptionCaptureMethod = ExceptionCaptureMethod.NO_CAPTURE
         )
         given { mockerCodeGeneratorProvider.getGenerator(mocker, formatting) }.willReturn(mock())
 

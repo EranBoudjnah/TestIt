@@ -8,7 +8,6 @@ import org.mockito.junit.MockitoJUnit
 import org.junit.Rule
 import org.junit.rules.MethodRule
 
-
 class TestFilePathFormatterTest {
     private lateinit var cut: TestFilePathFormatter
 

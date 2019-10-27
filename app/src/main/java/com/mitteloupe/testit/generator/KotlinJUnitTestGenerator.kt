@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
@@ -23,9 +24,12 @@ class KotlinJUnitTestGenerator(
         reset()
     }
 
-    override fun ClassMetadata.addToTests(isParameterized: Boolean) {
+    override fun ClassMetadata.addToTests(
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
+    ) {
         setUpMockGenerator(isParameterized)
-        evaluateImports(isParameterized)
+        evaluateImports(isParameterized, exceptionCaptureMethod)
         stringBuilder.appendTestClass(
             TestStringBuilderConfiguration(
                 this,
@@ -38,10 +42,11 @@ class KotlinJUnitTestGenerator(
 
     override fun StaticFunctionsMetadata.addToTests(
         outputClassName: String,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ) {
         setUpMockGenerator()
-        evaluateImports(isParameterized)
+        evaluateImports(isParameterized, exceptionCaptureMethod)
         stringBuilder.appendFunctionsTestClass(
             this,
             usedImports.values.toSet(),
@@ -104,10 +109,18 @@ class KotlinJUnitTestGenerator(
         }
     }
 
-    private fun ClassMetadata.evaluateImports(isParameterized: Boolean) {
+    private fun ClassMetadata.evaluateImports(
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
+    ) {
         evaluateMockCodeGeneratorImports()
 
         addImportIfKnown("Before")
+
+        evaluateExceptionImports(
+            exceptionCaptureMethod,
+            functions
+        )
 
         if (isParameterized) {
             evaluateParameterizedImports(functions)
@@ -118,8 +131,16 @@ class KotlinJUnitTestGenerator(
         evaluateImportsContainerImports()
     }
 
-    private fun StaticFunctionsMetadata.evaluateImports(isParameterized: Boolean) {
+    private fun StaticFunctionsMetadata.evaluateImports(
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
+    ) {
         evaluateMockCodeGeneratorImports()
+
+        evaluateExceptionImports(
+            exceptionCaptureMethod,
+            functions
+        )
 
         if (isParameterized) {
             evaluateParameterizedImports(functions)
@@ -140,6 +161,15 @@ class KotlinJUnitTestGenerator(
         addImportIfKnown("Parameterized")
         addImportIfKnown("Parameters")
         if (functions.any { function -> function.hasReturnValue() }) {
+            addImportIfKnown("assertEquals")
+        }
+    }
+
+    private fun evaluateExceptionImports(
+        exceptionCaptureMethod: ExceptionCaptureMethod,
+        functions: List<FunctionMetadata>
+    ) {
+        if (functions.isNotEmpty()) {
             addImportIfKnown("assertEquals")
         }
     }

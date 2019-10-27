@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
 import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
@@ -25,6 +26,7 @@ private const val TEST_CLASS_NAME = "TestClass"
 private const val CLASS_UNDER_TEST_VARIABLE_NAME = "cut"
 private const val ACTUAL_VALUE_VARIABLE_NAME = "actualTest"
 private const val DEFAULT_ASSERTION_STATEMENT = "defaultAssertion"
+private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
 
 @RunWith(MockitoJUnitRunner::class)
 class TestStringBuilderTest {
@@ -34,7 +36,7 @@ class TestStringBuilderTest {
 
     @Mock
     lateinit var formatting: Formatting
-    
+
     @Mock
     lateinit var mockerCodeGenerator: MockerCodeGenerator
 
@@ -59,6 +61,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
+            EXCEPTION_CAPTURE_METHOD,
             dateTypeToParameterMapper
         )
     }
@@ -205,9 +208,20 @@ class TestStringBuilderTest {
             FunctionMetadata("function2", true, listOf(), null, DataType.Specific("DataType2"))
         val extensionReceiverType = DataType.Specific("ReceiverDataType")
         val functionMetadata3 =
-            FunctionMetadata("function3", false, listOf(), extensionReceiverType, DataType.Specific("DataType3"))
+            FunctionMetadata(
+                "function3",
+                false,
+                listOf(),
+                extensionReceiverType,
+                DataType.Specific("DataType3")
+            )
         val mockedReceiverType = "mock<ReceiverDataType>()"
-        given { mockerCodeGenerator.getMockedValue(extensionReceiverType.name, extensionReceiverType) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType.name,
+                extensionReceiverType
+            )
+        }
             .willReturn(mockedReceiverType)
         val functionMetadata4 =
             FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit"))
@@ -222,10 +236,20 @@ class TestStringBuilderTest {
                 DataType.Specific("DataType5")
             )
         val mockedValue1 = "\"Some value 1\""
-        given { mockerCodeGenerator.getMockedValue(functionParameter1.name, functionParameter1.type) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter1.name,
+                functionParameter1.type
+            )
+        }
             .willReturn(mockedValue1)
         val mockedValue2 = "\"Some value 2\""
-        given { mockerCodeGenerator.getMockedValue(functionParameter2.name, functionParameter2.type) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter2.name,
+                functionParameter2.type
+            )
+        }
             .willReturn(mockedValue2)
         val config = givenTestStringBuilderConfiguration(
             functions = listOf(
@@ -348,7 +372,12 @@ class TestStringBuilderTest {
         val isParameterized = false
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, isParameterized)
+        val actualValue = cut.appendFunctionsTestClass(
+            functionsUnderTest,
+            usedImports,
+            outputClassName,
+            isParameterized
+        )
 
         // Then
         val outputString = actualValue.toString()
@@ -379,7 +408,8 @@ class TestStringBuilderTest {
             .willReturn("@RunWith(Parameterized::class)")
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName,
+        val actualValue = cut.appendFunctionsTestClass(
+            functionsUnderTest, usedImports, outputClassName,
             isParameterized
         )
 
@@ -407,9 +437,20 @@ class TestStringBuilderTest {
             FunctionMetadata("function2", true, listOf(), null, DataType.Specific("DataType2"))
         val extensionReceiverType = DataType.Specific("ReceiverDataType")
         val functionMetadata3 =
-            FunctionMetadata("function3", false, listOf(), extensionReceiverType, DataType.Specific("DataType3"))
+            FunctionMetadata(
+                "function3",
+                false,
+                listOf(),
+                extensionReceiverType,
+                DataType.Specific("DataType3")
+            )
         val mockedReceiverType = "mock<ReceiverDataType>()"
-        given { mockerCodeGenerator.getMockedValue(extensionReceiverType.name, extensionReceiverType) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType.name,
+                extensionReceiverType
+            )
+        }
             .willReturn(mockedReceiverType)
         val functionMetadata4 =
             FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit"))
@@ -424,10 +465,20 @@ class TestStringBuilderTest {
                 DataType.Specific("DataType5")
             )
         val mockedValue1 = "\"Some value 1\""
-        given { mockerCodeGenerator.getMockedValue(functionParameter1.name, functionParameter1.type) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter1.name,
+                functionParameter1.type
+            )
+        }
             .willReturn(mockedValue1)
         val mockedValue2 = "\"Some value 2\""
-        given { mockerCodeGenerator.getMockedValue(functionParameter2.name, functionParameter2.type) }
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter2.name,
+                functionParameter2.type
+            )
+        }
             .willReturn(mockedValue2)
         val functionsUnderTest = StaticFunctionsMetadata(
             PACKAGE_NAME, mapOf(), listOf(
@@ -442,7 +493,8 @@ class TestStringBuilderTest {
         val outputClassName = "outputClassName"
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, false)
+        val actualValue =
+            cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, false)
 
         // Then
         val outputString = actualValue.toString()

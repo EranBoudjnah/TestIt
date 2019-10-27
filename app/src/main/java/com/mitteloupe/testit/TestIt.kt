@@ -2,6 +2,8 @@ package com.mitteloupe.testit
 
 import com.mitteloupe.testit.config.ConfigurationBuilder
 import com.mitteloupe.testit.config.PropertiesReader
+import com.mitteloupe.testit.config.model.Configuration
+import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
 import com.mitteloupe.testit.file.FileInputStreamProvider
 import com.mitteloupe.testit.file.FileProvider
 import com.mitteloupe.testit.generator.MockerCodeGeneratorProvider
@@ -31,19 +33,23 @@ class TestIt(
     private val testsGeneratorFactory: TestsGeneratorFactory
 ) {
     private lateinit var testsGenerator: TestsGenerator
+    private lateinit var configuration: Configuration
 
     init {
         loadConfiguration()
     }
 
-    fun getTestsForFile(filePath: String, parameterized: Boolean) =
-        getFileContents(filePath)?.let { contents ->
-            getTestsForNodes(
-                filePath,
-                contents,
-                parameterized
-            )
-        } ?: listOf()
+    fun getTestsForFile(
+        filePath: String,
+        parameterized: Boolean
+    ) = getFileContents(filePath)?.let { contents ->
+        getTestsForNodes(
+            filePath,
+            contents,
+            parameterized,
+            configuration.exceptionCaptureMethod
+        )
+    } ?: listOf()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)
@@ -80,26 +86,32 @@ class TestIt(
     private fun getTestsForNodes(
         filePath: String,
         fileContents: String,
-        parameterized: Boolean
+        parameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ) = kotlinFileParser
         .parseFile(fileContents).let { fileMetaData ->
-            fileMetaData.getTestsForClasses(filePath, parameterized)
-                .also { tests ->
-                    if (fileMetaData.staticFunctions.functions.isNotEmpty()) {
-                        tests.plus(
-                            fileMetaData.getTestsForStaticFunctions(
-                                filePath,
-                                fileMetaData.staticFunctions.packageName,
-                                parameterized
-                            )
+            fileMetaData.getTestsForClasses(
+                filePath,
+                parameterized,
+                exceptionCaptureMethod
+            ).also { tests ->
+                if (fileMetaData.staticFunctions.functions.isNotEmpty()) {
+                    tests.plus(
+                        fileMetaData.getTestsForStaticFunctions(
+                            filePath,
+                            fileMetaData.staticFunctions.packageName,
+                            parameterized,
+                            exceptionCaptureMethod
                         )
-                    }
+                    )
                 }
+            }
         }
 
     private fun FileMetadata.getTestsForClasses(
         sourceFilePath: String,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ) = classes
         .mapNotNull { classUnderTest ->
             if (isFileExisting(sourceFilePath, classUnderTest.className)) {
@@ -111,7 +123,11 @@ class TestIt(
                 )
                 null
             } else {
-                val outputTestCode = generateTestsForClassUnderTest(classUnderTest, isParameterized)
+                val outputTestCode = generateTestsForClassUnderTest(
+                    classUnderTest,
+                    isParameterized,
+                    exceptionCaptureMethod
+                )
                 if (outputTestCode.isBlank()) {
                     null
                 } else {
@@ -127,14 +143,20 @@ class TestIt(
     private fun FileMetadata.getTestsForStaticFunctions(
         filePath: String,
         packageName: String,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ): ClassTestCode {
         val fileName = filePath.getFileName()
         val outputFileName = getStaticFunctionsTestFileName(fileName)
         val testCode = if (isFileExisting(filePath, outputFileName)) {
             ""
         } else {
-            generateTestsForStaticFunctions(staticFunctions, outputFileName, isParameterized)
+            generateTestsForStaticFunctions(
+                staticFunctions,
+                outputFileName,
+                isParameterized,
+                exceptionCaptureMethod
+            )
         }
 
         return ClassTestCode(
@@ -151,9 +173,14 @@ class TestIt(
 
     private fun generateTestsForClassUnderTest(
         classUnderTest: ClassMetadata,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ): String {
-        testsGenerator.addToTests(classUnderTest, isParameterized)
+        testsGenerator.addToTests(
+            classUnderTest,
+            isParameterized,
+            exceptionCaptureMethod
+        )
         val result = testsGenerator.generateTests()
         testsGenerator.reset()
         return result
@@ -162,9 +189,15 @@ class TestIt(
     private fun generateTestsForStaticFunctions(
         functionsUnderTest: StaticFunctionsMetadata,
         outputClassName: String,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
     ): String {
-        testsGenerator.addToTests(functionsUnderTest, outputClassName, isParameterized)
+        testsGenerator.addToTests(
+            functionsUnderTest,
+            outputClassName,
+            isParameterized,
+            exceptionCaptureMethod
+        )
         val result = testsGenerator.generateTests()
         testsGenerator.reset()
         return result
@@ -172,7 +205,7 @@ class TestIt(
 
     private fun loadConfiguration() {
         val appPath = getApplicationRootPath()
-        val configuration = propertiesReader.readFromFile("$appPath/settings.properties")
+        configuration = propertiesReader.readFromFile("$appPath/settings.properties")
 
         testsGenerator = testsGeneratorFactory.createTestsGenerator(configuration)
     }
@@ -185,14 +218,16 @@ class TestIt(
 
     private fun TestsGenerator.addToTests(
         classUnderTest: ClassMetadata,
-        isParameterized: Boolean
-    ) = classUnderTest.addToTests(isParameterized)
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
+    ) = classUnderTest.addToTests(isParameterized, exceptionCaptureMethod)
 
     private fun TestsGenerator.addToTests(
         functionsUnderTest: StaticFunctionsMetadata,
         outputClassName: String,
-        isParameterized: Boolean
-    ) = functionsUnderTest.addToTests(outputClassName, isParameterized)
+        isParameterized: Boolean,
+        exceptionCaptureMethod: ExceptionCaptureMethod
+    ) = functionsUnderTest.addToTests(outputClassName, isParameterized, exceptionCaptureMethod)
 
     private fun getFileContents(fileName: String): String? {
         val file = fileProvider.getFile(fileName)
@@ -236,7 +271,10 @@ fun main(args: Array<String>) {
     } else {
         val filePath = runParameters.filePath
 
-        testIt.getTestsForFile(filePath, runParameters.parameterized).forEach { classTestCode ->
+        testIt.getTestsForFile(
+            filePath,
+            runParameters.parameterized
+        ).forEach { classTestCode ->
             println(testIt.saveTestsToFile(filePath, classTestCode))
         }
     }
