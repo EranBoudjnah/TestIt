@@ -9,8 +9,6 @@ class MockKCodeGenerator(
     mockableTypeQualifier: MockableTypeQualifier,
     formatting: Formatting
 ) : MockerCodeGenerator(mockableTypeQualifier, formatting) {
-    private val requiredImports = mutableSetOf<String>()
-
     private var _hasMockedConstructorParameters = false
 
     private val stringBuilder by lazy { StringBuilder() }
@@ -32,7 +30,7 @@ class MockKCodeGenerator(
         }
 
     override fun reset() {
-        requiredImports.clear()
+        _requiredImports.clear()
     }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
@@ -58,12 +56,10 @@ class MockKCodeGenerator(
 
     override fun getMockedInstance(variableType: DataType) = "mockk<${variableType.name}>()"
 
-    override fun getRequiredImports() = requiredImports + super.getRequiredImports()
-
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         _hasMockedConstructorParameters = true
-        requiredImports.add("MockKAnnotations")
-        requiredImports.add("MockK")
+        _requiredImports.add("MockKAnnotations")
+        _requiredImports.add("MockK")
     }
 
     override fun setHasMockedFunctionParameters() {
@@ -75,7 +71,7 @@ class MockKCodeGenerator(
     }
 
     private fun setInstantiatesMocks() {
-        requiredImports.add("mockk")
+        _requiredImports.add("mockk")
     }
 
     override fun setIsAbstractClassUnderTest() {

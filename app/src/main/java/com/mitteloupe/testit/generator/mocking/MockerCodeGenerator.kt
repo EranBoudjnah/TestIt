@@ -12,7 +12,10 @@ abstract class MockerCodeGenerator(
     private val mockableTypeQualifier: MockableTypeQualifier,
     private val formatting: Formatting
 ) {
-    private val _requiredImports = mutableSetOf<String>()
+    protected val _requiredImports = mutableSetOf<String>()
+
+    val requiredImports: Set<String>
+        get() = _requiredImports
 
     abstract val testClassBaseRunnerAnnotation: String?
 
@@ -55,8 +58,6 @@ abstract class MockerCodeGenerator(
     protected abstract fun getMockedInstance(variableType: DataType): String
 
     abstract fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String
-
-    open fun getRequiredImports(): Set<String> = _requiredImports
 
     abstract fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata)
 

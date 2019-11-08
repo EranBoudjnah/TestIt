@@ -43,7 +43,7 @@ class MockerCodeGeneratorTest {
         val variableName = "variableName"
         val variableType = DataType.Specific("non-mockable data type")
         val expected = "default value"
-        val concreteValue = getConcreteValue(variableName, variableType, expected)
+        val concreteValue = mockConcreteValue(variableName, variableType, expected)
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }
             .willReturn(concreteValue)
 
@@ -60,7 +60,7 @@ class MockerCodeGeneratorTest {
         val variableName = "variableName"
         val variableType = DataType.Specific("non-mockable data type")
         val constructorMock = "\"constructor mock\""
-        val concreteValue = getConcreteValue(variableName, variableType, constructorMock)
+        val concreteValue = mockConcreteValue(variableName, variableType, constructorMock)
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(
             concreteValue
         )
@@ -150,14 +150,14 @@ class MockerCodeGeneratorTest {
         // Then
         assertTrue(actualValue)
     }
+}
 
-    private fun getConcreteValue(
-        variableName: String,
-        variableType: DataType.Specific,
-        expected: String
-    ) = ConcreteValue("") { name, type ->
-        assertEquals(variableName, name)
-        assertEquals(variableType, type)
-        expected
-    }
+private fun mockConcreteValue(
+    variableName: String,
+    variableType: DataType.Specific,
+    expected: String
+) = ConcreteValue("") { name, type ->
+    assertEquals(variableName, name)
+    assertEquals(variableType, type)
+    expected
 }

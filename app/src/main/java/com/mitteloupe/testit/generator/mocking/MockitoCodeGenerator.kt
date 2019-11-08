@@ -8,8 +8,6 @@ class MockitoCodeGenerator(
     mockableTypeQualifier: MockableTypeQualifier,
     formatting: Formatting
 ) : MockerCodeGenerator(mockableTypeQualifier, formatting) {
-    private val requiredImports = mutableSetOf<String>()
-
     private var hasMockedConstructorParameters = false
     private var isParameterizedTest = false
 
@@ -31,7 +29,7 @@ class MockitoCodeGenerator(
     override val setUpStatements: String? = null
 
     override fun reset() {
-        requiredImports.clear()
+        _requiredImports.clear()
     }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
@@ -45,8 +43,6 @@ class MockitoCodeGenerator(
             classUnderTest
         )})"
 
-    override fun getRequiredImports() = requiredImports + super.getRequiredImports()
-
     override fun setIsParameterizedTest() {
         super.setIsParameterizedTest()
 
@@ -55,11 +51,11 @@ class MockitoCodeGenerator(
     }
 
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
-        requiredImports.add("RunWith")
-        requiredImports.add("MockitoJUnitRunner")
-        requiredImports.add("Mock")
+        _requiredImports.add("RunWith")
+        _requiredImports.add("MockitoJUnitRunner")
+        _requiredImports.add("Mock")
         if (classUnderTest.isAbstract && classUnderTest.constructorParameters.isNotEmpty()) {
-            requiredImports.add("UseConstructor")
+            _requiredImports.add("UseConstructor")
         }
         hasMockedConstructorParameters = true
         addMockRuleIfNeeded()
@@ -67,9 +63,9 @@ class MockitoCodeGenerator(
 
     private fun addMockRuleIfNeeded() {
         if (isParameterizedTest && hasMockedConstructorParameters) {
-            requiredImports.add("Rule")
-            requiredImports.add("MethodRule")
-            requiredImports.add("MockitoJUnit")
+            _requiredImports.add("Rule")
+            _requiredImports.add("MethodRule")
+            _requiredImports.add("MockitoJUnit")
         }
     }
 
@@ -83,11 +79,11 @@ class MockitoCodeGenerator(
 
     override fun setIsAbstractClassUnderTest() {
         setInstantiatesMocks()
-        requiredImports.add("Mockito")
+        _requiredImports.add("Mockito")
     }
 
     private fun setInstantiatesMocks() {
-        requiredImports.add("mock")
+        _requiredImports.add("mock")
     }
 
     private fun getConstructorArgumentsForAbstract(classUnderTest: ClassMetadata) =

@@ -151,10 +151,8 @@ class KotlinJUnitTestGenerator(
         evaluateImportsContainerImports()
     }
 
-    private fun evaluateMockCodeGeneratorImports() {
-        val imports = mockerCodeGenerator.getRequiredImports()
-        imports.forEach(::addImportIfKnown)
-    }
+    private fun evaluateMockCodeGeneratorImports() =
+        mockerCodeGenerator.requiredImports.forEach(::addImportIfKnown)
 
     private fun evaluateParameterizedImports(functions: List<FunctionMetadata>) {
         addImportIfKnown("RunWith")
