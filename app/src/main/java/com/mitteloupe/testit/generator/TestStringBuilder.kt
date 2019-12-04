@@ -211,7 +211,7 @@ class TestStringBuilder(
                 .onlyIf(
                     { exceptionCaptureMethod != ExceptionCaptureMethod.NO_CAPTURE },
                     {
-                        appendBlankLine()
+                        append("\n")
                             .appendExceptionTest(
                                 isStatic,
                                 function,

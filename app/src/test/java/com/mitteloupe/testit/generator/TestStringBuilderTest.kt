@@ -32,7 +32,7 @@ private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
 class TestStringBuilderTest {
     private lateinit var cut: TestStringBuilder
 
-    lateinit var stringBuilder: StringBuilder
+    private lateinit var stringBuilder: StringBuilder
 
     @Mock
     lateinit var formatting: Formatting
@@ -204,27 +204,29 @@ class TestStringBuilderTest {
         // Given
         val functionMetadata1 =
             FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+
         val functionMetadata2 =
             FunctionMetadata("function2", true, listOf(), null, DataType.Specific("DataType2"))
+
         val extensionReceiverType = DataType.Specific("ReceiverDataType")
-        val functionMetadata3 =
-            FunctionMetadata(
-                "function3",
-                false,
-                listOf(),
-                extensionReceiverType,
-                DataType.Specific("DataType3")
-            )
+        val functionMetadata3 = FunctionMetadata(
+            "function3",
+            false,
+            listOf(),
+            extensionReceiverType,
+            DataType.Specific("DataType3")
+        )
         val mockedReceiverType = "mock<ReceiverDataType>()"
         given {
             mockerCodeGenerator.getMockedValue(
                 extensionReceiverType.name,
                 extensionReceiverType
             )
-        }
-            .willReturn(mockedReceiverType)
+        }.willReturn(mockedReceiverType)
+
         val functionMetadata4 =
             FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit"))
+
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
         val functionMetadata5 =
@@ -241,16 +243,15 @@ class TestStringBuilderTest {
                 functionParameter1.name,
                 functionParameter1.type
             )
-        }
-            .willReturn(mockedValue1)
+        }.willReturn(mockedValue1)
         val mockedValue2 = "\"Some value 2\""
         given {
             mockerCodeGenerator.getMockedValue(
                 functionParameter2.name,
                 functionParameter2.type
             )
-        }
-            .willReturn(mockedValue2)
+        }.willReturn(mockedValue2)
+
         val config = givenTestStringBuilderConfiguration(
             functions = listOf(
                 functionMetadata1,
@@ -324,6 +325,140 @@ class TestStringBuilderTest {
                     "\n" +
                     "____// Then\n" +
                     "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given class data with function and annotation exception when appendTestClass then returns expected output`() {
+        // Given
+        val functionMetadata1 =
+            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(
+                functionMetadata1
+            )
+        )
+
+        val cut = TestStringBuilder(
+            stringBuilder,
+            formatting,
+            mockerCodeGenerator,
+            CLASS_UNDER_TEST_VARIABLE_NAME,
+            ACTUAL_VALUE_VARIABLE_NAME,
+            DEFAULT_ASSERTION_STATEMENT,
+            ExceptionCaptureMethod.ANNOTATION_EXPECTS,
+            dateTypeToParameterMapper
+        )
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                    "\n" +
+                    "class ${TEST_CLASS_NAME}Test {\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____cut = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test(expected = Exception::class)\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
+                    "____// Given\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____// Exception is thrown\n" +
+                    "__}\n" +
+                    "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given class data with function and try-catch exception when appendTestClass then returns expected output`() {
+        // Given
+        val functionMetadata1 =
+            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(
+                functionMetadata1
+            )
+        )
+
+        val cut = TestStringBuilder(
+            stringBuilder,
+            formatting,
+            mockerCodeGenerator,
+            CLASS_UNDER_TEST_VARIABLE_NAME,
+            ACTUAL_VALUE_VARIABLE_NAME,
+            DEFAULT_ASSERTION_STATEMENT,
+            ExceptionCaptureMethod.TRY_CATCH,
+            dateTypeToParameterMapper
+        )
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                    "\n" +
+                    "class ${TEST_CLASS_NAME}Test {\n" +
+                    "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                    "\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____cut = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                    "____// Given\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
+                    "____// Given\n" +
+                    "____val expectedException = Exception()\n" +
+                    "____lateinit var actualException: Exception\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____try {\n" +
+                    "______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "____} catch (exception: Exception) {\n" +
+                    "______actualException = exception\n" +
+                    "____}\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____assertEquals(expectedException, actualException)\n" +
                     "__}\n" +
                     "}\n",
             outputString
