@@ -237,7 +237,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    fun `Given _ when setIsAbstractClassUnderTest then _`() {
+    fun `When setIsAbstractClassUnderTest then adds expected imports`() {
         // Given
         val expected1 = "mock"
         val expected2 = "Mockito"
@@ -278,7 +278,7 @@ class MockitoCodeGeneratorTest {
             ),
             DataType.Specific("another type", false)
         )
-        val expected = "mock<data type<nested type<deeply nested>?, another type>>()"
+        val expected = "mock<data type<nested type<deeply nested>, another type>>()"
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }
             .willReturn(null)
 

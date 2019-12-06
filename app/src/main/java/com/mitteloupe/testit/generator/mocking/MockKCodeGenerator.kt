@@ -2,6 +2,7 @@ package com.mitteloupe.testit.generator.mocking
 
 import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.formatting.toKotlinString
+import com.mitteloupe.testit.generator.formatting.toNonNullableKotlinString
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.concreteFunctions
@@ -36,7 +37,7 @@ class MockKCodeGenerator(
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "${indent()}@MockK\n" +
-                "${indent()}lateinit var $parameterName: ${parameterType.toKotlinString()}"
+                "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
         val arguments =
@@ -55,7 +56,8 @@ class MockKCodeGenerator(
         return stringBuilder.toString()
     }
 
-    override fun getMockedInstance(variableType: DataType) = "mockk<${variableType.toKotlinString()}>()"
+    override fun getMockedInstance(variableType: DataType) =
+        "mockk<${variableType.toKotlinString()}>()"
 
     override fun setHasMockedConstructorParameters(classUnderTest: ClassMetadata) {
         _hasMockedConstructorParameters = true
