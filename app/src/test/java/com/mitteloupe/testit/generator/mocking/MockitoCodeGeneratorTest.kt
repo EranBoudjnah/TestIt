@@ -254,8 +254,31 @@ class MockitoCodeGeneratorTest {
     fun `Given mockable data type when getMockedValue then returns expected value`() {
         // Given
         val variableName = "variableName"
-        val variableType = DataType.Specific("non-mockable data type", false)
-        val expected = "mock<non-mockable data type>()"
+        val variableType = DataType.Specific("mockable data type", false)
+        val expected = "mock<mockable data type>()"
+        given { mockableTypeQualifier.getNonMockableType(variableType.name) }
+            .willReturn(null)
+
+        // When
+        val actualValue = cut.getMockedValue(variableName, variableType)
+
+        // Then
+        assertEquals(expected, actualValue)
+    }
+
+    @Test
+    fun `Given mockable generic data type when getMockedValue then returns expected value`() {
+        // Given
+        val variableName = "variableName"
+        val variableType = DataType.Generic(
+            "data type", false,
+            DataType.Generic(
+                "nested type", true,
+                DataType.Specific("deeply nested", false)
+            ),
+            DataType.Specific("another type", false)
+        )
+        val expected = "mock<data type<nested type<deeply nested>?, another type>>()"
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }
             .willReturn(null)
 

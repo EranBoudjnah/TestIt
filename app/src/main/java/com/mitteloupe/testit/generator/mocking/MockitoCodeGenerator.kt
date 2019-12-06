@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator.mocking
 
 import com.mitteloupe.testit.generator.formatting.Formatting
+import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 
@@ -34,9 +35,9 @@ class MockitoCodeGenerator(
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "${indent()}@Mock\n" +
-                "${indent()}lateinit var $parameterName: ${parameterType.name}"
+                "${indent()}lateinit var $parameterName: ${parameterType.toKotlinString()}"
 
-    override fun getMockedInstance(variableType: DataType) = "mock<${variableType.name}>()"
+    override fun getMockedInstance(variableType: DataType) = "mock<${variableType.toKotlinString()}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
         "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${getConstructorArgumentsForAbstract(
