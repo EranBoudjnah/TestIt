@@ -18,6 +18,7 @@ import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.model.FileMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.parser.AntlrKotlinFileParser
+import com.mitteloupe.testit.parser.DataTypeParser
 import com.mitteloupe.testit.parser.KotlinFileParser
 import com.mitteloupe.testit.terminal.mapper.ArgsToRunParameters
 import java.io.File
@@ -257,7 +258,7 @@ fun main(args: Array<String>) {
     val testIt = TestIt(
         propertiesReader,
         fileProvider,
-        AntlrKotlinFileParser(),
+        AntlrKotlinFileParser(DataTypeParser()),
         TestFilePathFormatter(),
         testsGeneratorFactory
     )

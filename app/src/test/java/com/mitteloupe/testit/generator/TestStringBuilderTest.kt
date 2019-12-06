@@ -203,18 +203,30 @@ class TestStringBuilderTest {
     fun `Given class data with functions when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
-            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+            FunctionMetadata(
+                "function1",
+                false,
+                listOf(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
 
         val functionMetadata2 =
-            FunctionMetadata("function2", true, listOf(), null, DataType.Specific("DataType2"))
+            FunctionMetadata(
+                "function2",
+                true,
+                listOf(),
+                null,
+                DataType.Specific("DataType2", false)
+            )
 
-        val extensionReceiverType = DataType.Specific("ReceiverDataType")
+        val extensionReceiverType = DataType.Specific("ReceiverDataType", false)
         val functionMetadata3 = FunctionMetadata(
             "function3",
             false,
             listOf(),
             extensionReceiverType,
-            DataType.Specific("DataType3")
+            DataType.Specific("DataType3", false)
         )
         val mockedReceiverType = "mock<ReceiverDataType>()"
         given {
@@ -225,7 +237,7 @@ class TestStringBuilderTest {
         }.willReturn(mockedReceiverType)
 
         val functionMetadata4 =
-            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit"))
+            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit", false))
 
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
@@ -235,7 +247,7 @@ class TestStringBuilderTest {
                 false,
                 listOf(functionParameter1, functionParameter2),
                 null,
-                DataType.Specific("DataType5")
+                DataType.Specific("DataType5", false)
             )
         val mockedValue1 = "\"Some value 1\""
         given {
@@ -335,7 +347,13 @@ class TestStringBuilderTest {
     fun `Given class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
-            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+            FunctionMetadata(
+                "function1",
+                false,
+                listOf(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
         val config = givenTestStringBuilderConfiguration(
             functions = listOf(
                 functionMetadata1
@@ -399,7 +417,13 @@ class TestStringBuilderTest {
     fun `Given class data with function and try-catch exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
-            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+            FunctionMetadata(
+                "function1",
+                false,
+                listOf(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
         val config = givenTestStringBuilderConfiguration(
             functions = listOf(
                 functionMetadata1
@@ -567,17 +591,29 @@ class TestStringBuilderTest {
     fun `Given static functions metadata when appendFunctionsTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
-            FunctionMetadata("function1", false, listOf(), null, DataType.Specific("DataType1"))
+            FunctionMetadata(
+                "function1",
+                false,
+                listOf(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
         val functionMetadata2 =
-            FunctionMetadata("function2", true, listOf(), null, DataType.Specific("DataType2"))
-        val extensionReceiverType = DataType.Specific("ReceiverDataType")
+            FunctionMetadata(
+                "function2",
+                true,
+                listOf(),
+                null,
+                DataType.Specific("DataType2", false)
+            )
+        val extensionReceiverType = DataType.Specific("ReceiverDataType", false)
         val functionMetadata3 =
             FunctionMetadata(
                 "function3",
                 false,
                 listOf(),
                 extensionReceiverType,
-                DataType.Specific("DataType3")
+                DataType.Specific("DataType3", false)
             )
         val mockedReceiverType = "mock<ReceiverDataType>()"
         given {
@@ -588,7 +624,7 @@ class TestStringBuilderTest {
         }
             .willReturn(mockedReceiverType)
         val functionMetadata4 =
-            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit"))
+            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit", false))
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
         val functionMetadata5 =
@@ -597,7 +633,7 @@ class TestStringBuilderTest {
                 false,
                 listOf(functionParameter1, functionParameter2),
                 null,
-                DataType.Specific("DataType5")
+                DataType.Specific("DataType5", false)
             )
         val mockedValue1 = "\"Some value 1\""
         given {

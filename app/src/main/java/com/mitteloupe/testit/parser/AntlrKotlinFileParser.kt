@@ -9,15 +9,15 @@ import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
-private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown")
-private val UNIT_DATA_TYPE = DataType.Specific("Unit")
+private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown", false)
+private val UNIT_DATA_TYPE = DataType.Specific("Unit", false)
 
 /**
  * Created by Eran Boudjnah on 2019-07-05.
  */
-class AntlrKotlinFileParser : KotlinFileParser {
-    private val genericsRegex by lazy { Regex("<(.+)>") }
-
+class AntlrKotlinFileParser(
+    private val dataTypeParser: DataTypeParser
+) : KotlinFileParser {
     private var packageName: String = ""
 
     private val usedImports = mutableMapOf<String, String>()
@@ -199,8 +199,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
                 }
                 "type" -> {
                     extractDataType(childNode)?.let {
-                        returnType = it.text?.let { text -> getDataTypeFromString(text) }
-                            ?: UNKNOWN_DATA_TYPE
+                        returnType = it.text?.let { text ->
+                            getDataTypeFromString(text.appendNullableIfNeeded(childNode))
+                        } ?: UNKNOWN_DATA_TYPE
                     }
                 }
                 "functionBody" -> {
@@ -216,6 +217,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
         return functionName?.let { validFunctionName ->
             if (!isAbstract) {
                 functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
+            }
+
+            returnType?.let {
+                addImportIfKnown(it.name)
             }
 
             extensionReceiverType?.let {
@@ -243,6 +248,8 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private fun extractDataType(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
+    ) ?: childNode.extractChildNode(
+        listOf("nullableType", "typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
     )
 
     private fun extractTypeByAssignment(childNode: KotlinParseTree) = childNode.extractChildNode(
@@ -258,6 +265,7 @@ class AntlrKotlinFileParser : KotlinFileParser {
             "DOT" -> "."
             "LANGLE" -> "<"
             "RANGLE" -> ">"
+            "QUEST_NO_WS" -> "?"
             in Regex("[A-Z]+") -> node.text ?: ""
             else -> null
         } ?: node.children.joinToString("") { childNode ->
@@ -292,10 +300,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
             }
         }
 
-        return if (parameterName != null && parameterType != null) {
-            TypedParameter(parameterName!!, parameterType!!)
-        } else {
-            null
+        return parameterName?.let { nonNullParameterName ->
+            parameterType?.let { nonNullParameterType ->
+                TypedParameter(nonNullParameterName, nonNullParameterType)
+            }
         }
     }
 
@@ -327,15 +335,9 @@ class AntlrKotlinFileParser : KotlinFileParser {
         usedImports.clear()
     }
 
-    private fun getDataTypeFromString(parameterType: String): DataType {
-        val genericsType = genericsRegex.find(parameterType)?.groupValues
-        val typeWithoutGenerics = parameterType.replace(genericsRegex, "")
-        return if (genericsType != null) {
-            DataType.Generic(typeWithoutGenerics, DataType.Specific(genericsType[1]))
-        } else {
-            DataType.Specific(typeWithoutGenerics)
-        }
-    }
+    private fun getDataTypeFromString(
+        parameterType: String
+    ) = dataTypeParser.parse(parameterType)
 
     private fun <T : Any> KotlinParseTree.applyToChildNodes(
         nodeNames: List<String>,
@@ -364,3 +366,10 @@ class AntlrKotlinFileParser : KotlinFileParser {
 
     private operator fun Regex.contains(text: CharSequence): Boolean = this.matches(text)
 }
+
+private fun String.appendNullableIfNeeded(childNode: KotlinParseTree) =
+    if (childNode.children.first().name == "nullableType") {
+        "$this?"
+    } else {
+        this
+    }

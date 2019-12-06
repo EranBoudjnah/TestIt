@@ -52,7 +52,7 @@ class MockitoCodeGeneratorTest {
     fun `Given parameter when getConstructorMock then returns expected mocking code`() {
         // Given
         val parameterName = "parameterName"
-        val parameterType = DataType.Specific("testing")
+        val parameterType = DataType.Specific("testing", false)
         val expected = "_@Mock\n" +
                 "_lateinit var parameterName: testing"
 
@@ -81,8 +81,8 @@ class MockitoCodeGeneratorTest {
         // Given
         val classUnderTest = mockClassMetadata(
             constructorParameters = listOf(
-                TypedParameter("param1", DataType.Specific("type1")),
-                TypedParameter("param2", DataType.Generic("type2"))
+                TypedParameter("param1", DataType.Specific("type1", false)),
+                TypedParameter("param2", DataType.Generic("type2", false))
             )
         )
         val expected =
@@ -254,7 +254,7 @@ class MockitoCodeGeneratorTest {
     fun `Given mockable data type when getMockedValue then returns expected value`() {
         // Given
         val variableName = "variableName"
-        val variableType = DataType.Specific("non-mockable data type")
+        val variableType = DataType.Specific("non-mockable data type", false)
         val expected = "mock<non-mockable data type>()"
         given { mockableTypeQualifier.getNonMockableType(variableType.name) }
             .willReturn(null)
