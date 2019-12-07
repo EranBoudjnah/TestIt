@@ -145,7 +145,7 @@ class AntlrKotlinFileParserTest {
         val expected = getExpectedFileMetadata(
             listOf(
                 getExpectedClassMetadata(
-                    imports = singleImport,
+                    imports = emptyMap(),
                     functions = listOf(
                         FunctionMetadata(
                             "doIt",
@@ -221,7 +221,7 @@ class AntlrKotlinFileParserTest {
         val expected = getExpectedFileMetadata(
             listOf(
                 getExpectedClassMetadata(
-                    imports = singleImport,
+                    imports = emptyMap(),
                     functions = listOf(
                         FunctionMetadata(
                             "doIt",
