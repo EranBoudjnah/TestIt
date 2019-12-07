@@ -323,9 +323,10 @@ class AntlrKotlinFileParser(
         }
 
     private fun addImportIfKnown(entityName: String) {
-        knownImports[entityName]?.let { qualifiedName ->
-            usedImports[entityName] = qualifiedName
-            knownImports.remove(entityName)
+        val baseEntity = entityName.substringBefore(".")
+        knownImports[baseEntity]?.let { qualifiedName ->
+            usedImports[baseEntity] = qualifiedName
+            knownImports.remove(baseEntity)
         }
     }
 

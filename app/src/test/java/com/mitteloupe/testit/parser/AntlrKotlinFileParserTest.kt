@@ -90,6 +90,47 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
+    fun `Given child dependency when String#parse then returns expected metadata`() {
+        // Given
+        val receiver = "package $PACKAGE_NAME\n" +
+                "import com.import.ClassName\n" +
+                "class Test {" +
+                "override fun onTest(dependency: ClassName.ChildDependency) {}\n" +
+                "}\n"
+
+        val expectedParameterDataType = DataType.Specific("ClassName.ChildDependency", false)
+        given { dataTypeParser.parse("ClassName.ChildDependency") }
+            .willReturn(expectedParameterDataType)
+
+        val expected = getExpectedFileMetadata(
+            listOf(
+                ClassMetadata(
+                    PACKAGE_NAME,
+                    mapOf("ClassName" to "com.import.ClassName"),
+                    "Test", false, listOf(),
+                    listOf(
+                        FunctionMetadata(
+                            "onTest",
+                            false,
+                            listOf(TypedParameter("dependency", expectedParameterDataType)),
+                            null,
+                            DataType.Specific("Unit", false)
+                        )
+                    )
+                )
+            )
+        )
+
+        // When
+        val actualValue = with(cut) {
+            receiver.parse()
+        }
+
+        // Then
+        assertEquals(expected, actualValue)
+    }
+
+    @Test
     fun `Given class with function returning value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
