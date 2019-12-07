@@ -52,6 +52,44 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
+    fun `Given function with reserved name when String#parse then returns expected metadata`() {
+        // Given
+        val receiver = "package $PACKAGE_NAME\n" +
+                "class Test {" +
+                "override fun onTest(data: List<Data>) {}\n" +
+                "}\n"
+
+        val expectedParameterDataType = DataType.Specific("ListOfData", false)
+        given { dataTypeParser.parse("List<Data>") }
+            .willReturn(expectedParameterDataType)
+
+        val expected = getExpectedFileMetadata(
+            listOf(
+                ClassMetadata(
+                    PACKAGE_NAME, mapOf(), "Test", false, listOf(),
+                    listOf(
+                        FunctionMetadata(
+                            "onTest",
+                            false,
+                            listOf(TypedParameter("data", expectedParameterDataType)),
+                            null,
+                            DataType.Specific("Unit", false)
+                        )
+                    )
+                )
+            )
+        )
+
+        // When
+        val actualValue = with(cut) {
+            receiver.parse()
+        }
+
+        // Then
+        assertEquals(expected, actualValue)
+    }
+
+    @Test
     fun `Given class with function returning value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
