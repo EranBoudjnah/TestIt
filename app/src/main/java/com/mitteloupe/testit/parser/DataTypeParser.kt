@@ -10,15 +10,6 @@ class DataTypeParser {
         return token.toDataType()
     }
 
-    private fun makeRootNullable(tokensTree: List<ParsingToken>) = tokensTree
-        .first().let { rootToken ->
-            if (rootToken.name.take(1) == "?") {
-                rootToken
-            } else {
-                ParsingToken(rootToken.name + "?", rootToken.children)
-            }
-        }
-
     private fun parseToTree(sourceData: String): TokenParsingResult {
         val tokens = mutableListOf<ParsingToken>()
 
@@ -78,8 +69,12 @@ private fun MutableList<ParsingToken>.addOrAppendIfNullable(tokenName: String) {
 }
 
 private fun ParsingToken.toDataType(): DataType {
-    val isNullable = name.takeLast(1) == "?"
-    val dataTypeName = name.replace("?", "")
+    val isNullable = name.endsWith("?")
+    val dataTypeName = if (isNullable) {
+        name.dropLast(1)
+    } else {
+        name
+    }
     return if (children.isEmpty()) {
         DataType.Specific(dataTypeName, isNullable)
     } else {
