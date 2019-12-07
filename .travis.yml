@@ -1,0 +1,22 @@
+language: android
+android:
+  components:
+    - tools
+    - platform-tools-28.0.2
+    - build-tools-28.0.3
+    - android-28
+    - extra-google-google_play_services
+    - extra-google-m2repository
+    - extra-android-m2repository
+
+  licenses:
+    - 'android-sdk-preview-license-52d11cd2'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
+
+notifications:
+  email:
+    - eranbou@gmail.com
+
+script:
+- ./gradlew clean assemble test ktlintCheck
