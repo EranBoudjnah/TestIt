@@ -10,4 +10,3 @@ data class Configuration(
     val defaultAssertion: String,
     val exceptionCaptureMethod: ExceptionCaptureMethod
 )
-

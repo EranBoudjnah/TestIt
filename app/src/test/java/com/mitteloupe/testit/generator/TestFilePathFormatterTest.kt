@@ -3,10 +3,10 @@ package com.mitteloupe.testit.generator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
-import org.junit.Test
-import org.mockito.junit.MockitoJUnit
 import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.MethodRule
+import org.mockito.junit.MockitoJUnit
 
 class TestFilePathFormatterTest {
     private lateinit var cut: TestFilePathFormatter

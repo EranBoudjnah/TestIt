@@ -268,7 +268,6 @@ fun main(args: Array<String>) {
 
     if (runParameters.filePath.isNullOrBlank()) {
         testIt.showHelp()
-
     } else {
         val filePath = runParameters.filePath
 

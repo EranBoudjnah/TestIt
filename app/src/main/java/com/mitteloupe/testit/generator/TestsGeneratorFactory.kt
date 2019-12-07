@@ -1,12 +1,12 @@
 package com.mitteloupe.testit.generator
 
+import com.mitteloupe.testit.config.model.Configuration
+import com.mitteloupe.testit.config.model.Mocker
 import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockKCodeGenerator
 import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.generator.mocking.MockitoCodeGenerator
-import com.mitteloupe.testit.config.model.Configuration
-import com.mitteloupe.testit.config.model.Mocker
 
 class TestsGeneratorFactory(
     private val mockerCodeGeneratorProvider: MockerCodeGeneratorProvider,

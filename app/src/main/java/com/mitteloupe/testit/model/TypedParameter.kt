@@ -45,6 +45,4 @@ sealed class DataType(open val name: String, open val isNullable: Boolean) {
         result = 31 * result + isNullable.hashCode()
         return result
     }
-
-
 }

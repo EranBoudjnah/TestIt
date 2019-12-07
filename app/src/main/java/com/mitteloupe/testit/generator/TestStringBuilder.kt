@@ -188,7 +188,6 @@ class TestStringBuilder(
                     val abstractClassUnderTest =
                         mockerCodeGenerator.getAbstractClassUnderTest(classUnderTest)
                     "$abstractClassUnderTest\n"
-
                 },
                 {
                     "${classUnderTest.className}(" +

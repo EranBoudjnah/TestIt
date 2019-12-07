@@ -6,6 +6,8 @@ import com.mitteloupe.testit.grammer.KotlinParseTreeNodeType
 import com.mitteloupe.testit.grammer.KotlinParserException
 import com.mitteloupe.testit.grammer.KotlinToken
 import com.mitteloupe.testit.grammer.KotlinTokensList
+import java.io.ByteArrayInputStream
+import java.nio.charset.StandardCharsets
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonToken
@@ -20,8 +22,6 @@ import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNodeImpl
 import org.jetbrains.kotlin.spec.grammar.KotlinLexer
 import org.jetbrains.kotlin.spec.grammar.KotlinParser
-import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 
 internal object Parser {
     private val errorLexerListener = object : BaseErrorListener() {

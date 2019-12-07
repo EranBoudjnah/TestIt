@@ -13,7 +13,7 @@ class KotlinToken(
     override fun toString() = "$type(\"${text.replace(System.lineSeparator(), "\\n")}\")"
 }
 
-class KotlinTokensList(list: List<KotlinToken>): ArrayList<KotlinToken>(list) {
+class KotlinTokensList(list: List<KotlinToken>) : ArrayList<KotlinToken>(list) {
     override fun toString() = joinToString(System.lineSeparator())
 }
 

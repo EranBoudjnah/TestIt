@@ -253,8 +253,8 @@ class AntlrKotlinFileParser(
     )
 
     private fun getNameFromNode(node: KotlinParseTree) =
-        node.extractChildNode(listOf("Identifier"))?.text ?:
-            node.children.firstOrNull()?.text
+        node.extractChildNode(listOf("Identifier"))?.text
+            ?: node.children.firstOrNull()?.text
 
     private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String =
         when (node.name) {
