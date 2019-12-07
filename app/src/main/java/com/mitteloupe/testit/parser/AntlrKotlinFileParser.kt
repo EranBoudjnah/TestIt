@@ -219,10 +219,6 @@ class AntlrKotlinFileParser(
                 functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
             }
 
-            returnType?.let {
-                addImportIfKnown(it.name)
-            }
-
             extensionReceiverType?.let {
                 addImportIfKnown(it.name)
             }
