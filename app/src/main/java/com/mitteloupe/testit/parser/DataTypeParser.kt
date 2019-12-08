@@ -103,7 +103,7 @@ private fun ParsingToken.toDataType(): DataType {
         name.dropLast(1)
     } else {
         name
-    }
+    }.substringAfter(":")
     return if (children.isEmpty()) {
         DataType.Specific(dataTypeName, isNullable)
     } else {

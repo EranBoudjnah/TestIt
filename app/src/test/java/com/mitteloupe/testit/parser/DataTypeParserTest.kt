@@ -40,6 +40,10 @@ class DataTypeParserTest(
                     )
                 )
             ),
+            arrayOf("(name:Value?)->Result", DataType.Lambda(
+            "Result", false,
+                DataType.Specific("Value", true)
+            )),
             arrayOf(
                 "(ABC<DEF>?)->G123", DataType.Lambda(
                     "G123", false,
