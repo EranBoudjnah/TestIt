@@ -206,7 +206,12 @@ class TestStringBuilder(
         val concreteFunctions = functionsMetadataContainer.concreteFunctions
         val lastIndex = concreteFunctions.size - 1
         concreteFunctions.forEachIndexed { index, function ->
-            appendTest(isStatic, function, isParameterized)
+            val isOverloaded = !concreteFunctions.isSingle { functionMetadata ->
+                functionMetadata.name == function.name &&
+                        functionMetadata.extensionReceiverType ==
+                        function.extensionReceiverType
+            }
+            appendTest(isStatic, function, isOverloaded, isParameterized)
                 .onlyIf(
                     { exceptionCaptureMethod != ExceptionCaptureMethod.NO_CAPTURE },
                     {
@@ -214,6 +219,7 @@ class TestStringBuilder(
                             .appendExceptionTest(
                                 isStatic,
                                 function,
+                                isOverloaded,
                                 isParameterized,
                                 exceptionCaptureMethod
                             )
@@ -230,15 +236,22 @@ class TestStringBuilder(
     private fun appendTest(
         isStatic: Boolean,
         function: FunctionMetadata,
+        isOverloaded: Boolean,
         isParameterized: Boolean
     ) = append("${indent()}@Test\n")
-        .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName} then _`() {\n")
+        .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName}")
+        .onlyIf(
+            { isOverloaded },
+            { appendFunctionParameterTypes(function.parameters) }
+        )
+        .append(" then _`() {\n")
         .appendTestBody(isStatic, function, isParameterized, ExceptionCaptureMethod.NO_CAPTURE)
         .append("${indent()}}\n")
 
     private fun appendExceptionTest(
         isStatic: Boolean,
         function: FunctionMetadata,
+        isOverloaded: Boolean,
         isParameterized: Boolean,
         exceptionCaptureMethod: ExceptionCaptureMethod
     ) = append("${indent()}@Test")
@@ -247,9 +260,21 @@ class TestStringBuilder(
             { append("(expected = Exception::class)") }
         )
         .append("\n")
-        .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName} then throws exception`() {\n")
+        .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName}")
+        .onlyIf(
+            { isOverloaded },
+            { appendFunctionParameterTypes(function.parameters) }
+        )
+        .append(" then throws exception`() {\n")
         .appendTestBody(isStatic, function, isParameterized, exceptionCaptureMethod)
         .append("${indent()}}\n")
+
+    private fun appendFunctionParameterTypes(parameters: List<TypedParameter>) =
+        append("(" +
+                parameters.joinToString(", ") { parameter ->
+                    parameter.type.toKotlinString()
+                } +
+                ")")
 
     private fun appendTestBody(
         isStatic: Boolean,
@@ -449,3 +474,6 @@ class TestStringBuilder(
 
     private fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
 }
+
+private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetadata) -> Boolean) =
+    singleOrNull { function -> predicate(function) } != null

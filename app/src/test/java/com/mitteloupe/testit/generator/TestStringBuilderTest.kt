@@ -304,10 +304,10 @@ class TestStringBuilderTest {
                     "__@Test\n" +
                     "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
                     "____// Given\n" +
-                    "____val receiver = mock<${extensionReceiverType.name}>()\n" +
+                    "____val receiver = $mockedReceiverType\n" +
                     "\n" +
                     "____// When\n" +
-                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with(cut) {\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
                     "______receiver.${functionMetadata3.name}()\n" +
                     "____}\n" +
                     "\n" +
@@ -334,6 +334,192 @@ class TestStringBuilderTest {
                     "\n" +
                     "____// When\n" +
                     "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given class data with overloaded functions when appendTestClass then returns expected output`() {
+        // Given
+        val overloadedFunctionName = "function1"
+        val functionMetadata1 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
+
+        val parameterDataType2 = "Param2"
+        val parameterName2 = "param2"
+        val functionMetadata2 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(
+                    TypedParameter(
+                        parameterName2,
+                        DataType.Specific(parameterDataType2, false)
+                    )
+                ),
+                null,
+                DataType.Specific("DataType2", false)
+            )
+
+        val commonReceiverName = "Receiver"
+        val extensionReceiverType3 = DataType.Specific(commonReceiverName, false)
+        val functionMetadata3 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(),
+                extensionReceiverType3,
+                DataType.Specific("DataType1", false)
+            )
+        val mockedReceiverType = "mock<Receiver>()"
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType3.name,
+                extensionReceiverType3
+            )
+        }.willReturn(mockedReceiverType)
+
+        val parameterDataType4 = "Param4"
+        val parameterName4 = "param4"
+        val extensionReceiverType4 = DataType.Specific(commonReceiverName, false)
+        val functionMetadata4 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(
+                    TypedParameter(
+                        parameterName4,
+                        DataType.Specific(parameterDataType4, false)
+                    )
+                ),
+                extensionReceiverType4,
+                DataType.Specific("DataType2", false)
+            )
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType4.name,
+                extensionReceiverType4
+            )
+        }.willReturn(mockedReceiverType)
+
+        val parameterName5 = "param5"
+        val extensionReceiverType5 = DataType.Specific("Receiver2", false)
+        val functionMetadata5 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(TypedParameter(parameterName5, DataType.Specific("Param", false))),
+                extensionReceiverType5,
+                DataType.Specific("DataType2", false)
+            )
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType5.name,
+                extensionReceiverType5
+            )
+        }.willReturn(mockedReceiverType)
+
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(
+                functionMetadata1,
+                functionMetadata2,
+                functionMetadata3,
+                functionMetadata4,
+                functionMetadata5
+            )
+        )
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                    "\n" +
+                    "class ${TEST_CLASS_NAME}Test {\n" +
+                    "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                    "\n" +
+                    "__@Before\n" +
+                    "__fun setUp() {\n" +
+                    "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when $overloadedFunctionName() then _`() {\n" +
+                    "____// Given\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {\n" +
+                    "____// Given\n" +
+                    "____val $parameterName2 = null\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($parameterName2)\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {\n" +
+                    "____// Given\n" +
+                    "____val receiver = $mockedReceiverType\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                    "______receiver.${functionMetadata3.name}()\n" +
+                    "____}\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {\n" +
+                    "____// Given\n" +
+                    "____val $parameterName4 = null\n" +
+                    "\n" +
+                    "____val receiver = $mockedReceiverType\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                    "______receiver.${functionMetadata4.name}($parameterName4)\n" +
+                    "____}\n" +
+                    "\n" +
+                    "____// Then\n" +
+                    "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                    "__}\n" +
+                    "\n" +
+                    "__@Test\n" +
+                    "__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {\n" +
+                    "____// Given\n" +
+                    "____val $parameterName5 = null\n" +
+                    "\n" +
+                    "____val receiver = $mockedReceiverType\n" +
+                    "\n" +
+                    "____// When\n" +
+                    "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                    "______receiver.${functionMetadata5.name}($parameterName5)\n" +
+                    "____}\n" +
                     "\n" +
                     "____// Then\n" +
                     "____$DEFAULT_ASSERTION_STATEMENT\n" +
