@@ -245,7 +245,14 @@ class AntlrKotlinFileParser(
     private fun extractDataType(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
     ) ?: childNode.extractChildNode(
-        listOf("nullableType", "typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
+        listOf(
+            "nullableType",
+            "typeReference",
+            "userType",
+            "simpleUserType",
+            "simpleIdentifier",
+            "Identifier"
+        )
     )
 
     private fun extractTypeByAssignment(childNode: KotlinParseTree) = childNode.extractChildNode(
@@ -313,8 +320,9 @@ class AntlrKotlinFileParser(
     private fun getAllSpecificTypes(vararg dataTypes: DataType): List<String> =
         dataTypes.flatMap { dataType ->
             when (dataType) {
-                is DataType.Generic -> getAllSpecificTypes(*dataType.genericTypes)
                 is DataType.Specific -> listOf(dataType.name)
+                is DataType.Generic -> getAllSpecificTypes(*dataType.genericTypes) + dataType.name
+                is DataType.Lambda -> getAllSpecificTypes(*dataType.inputParameterTypes) + dataType.name
             }
         }
 

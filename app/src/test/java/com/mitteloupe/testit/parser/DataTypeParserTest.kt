@@ -39,6 +39,15 @@ class DataTypeParserTest(
                         DataType.Specific("G", false)
                     )
                 )
+            ),
+            arrayOf(
+                "(ABC<DEF>?)->G123", DataType.Lambda(
+                    "G123", false,
+                    DataType.Generic(
+                        "ABC", true,
+                        DataType.Specific("DEF", false)
+                    )
+                )
             )
         )
     }

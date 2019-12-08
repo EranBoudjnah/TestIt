@@ -3,52 +3,67 @@ package com.mitteloupe.testit.parser
 import com.mitteloupe.testit.model.DataType
 
 class DataTypeParser {
-    fun parse(dataType: String): DataType {
-        val parsedTreeResult = parseToTree(dataType)
-        val token = parsedTreeResult.tokens.firstOrNull()
-            ?: throw IllegalArgumentException("Input could not be parsed: $dataType")
-        return token.toDataType()
+    fun parse(dataTypeToParse: String): DataType {
+        val parsedTreeResult = parseToTree(dataTypeToParse)
+        val dataType = tokenParsingResultToDataType(parsedTreeResult)
+        if (dataType.name.isEmpty()) {
+            throw IllegalArgumentException("Input could not be parsed")
+        }
+        return dataType
     }
+
+    private fun tokenParsingResultToDataType(result: TokenParsingResult) =
+        when (result.tokens.size) {
+            1 -> result.tokens.first().toDataType()
+            3 -> result.tokens.toDataType()
+            else -> throw IllegalArgumentException("Input could not be parsed")
+        }
 
     private fun parseToTree(sourceData: String): TokenParsingResult {
         val tokens = mutableListOf<ParsingToken>()
 
-        val totalCharacter = sourceData.length
+        val charactersCount = sourceData.length
         var position = 0
         var tokenStartPosition = 0
+        var lastCharacter = ""
         do {
-            when (sourceData.substring(position, position + 1)) {
-                "<" -> {
+            val currentCharacter = sourceData.substring(position, position + 1)
+            when (currentCharacter) {
+                "<", "(" -> {
                     val childrenParsingResult = parseToTree(sourceData.substring(position + 1))
-                    if (position != tokenStartPosition) {
-                        val tokenName = sourceData.take(position)
-                        tokens.add(ParsingToken(tokenName, childrenParsingResult.tokens))
+                    val tokenName = if (position != tokenStartPosition) {
+                        sourceData.take(position)
+                    } else {
+                        ""
                     }
+                    tokens.add(ParsingToken(tokenName, childrenParsingResult.tokens))
                     position += childrenParsingResult.charactersParsed + 1
                     tokenStartPosition = position
                 }
                 "," -> {
-                    if (position != 0) {
-                        val tokenName = sourceData.substring(tokenStartPosition, position)
-                        tokens.addOrAppendIfNullable(tokenName)
-                    }
-                    val siblingsParsingResult = parseToTree(sourceData.substring(position + 1))
-                    tokens.addAll(siblingsParsingResult.tokens)
-                    position += siblingsParsingResult.charactersParsed
+                    position = handleDivider(position, sourceData, tokenStartPosition, tokens)
                     tokenStartPosition = position
                 }
-                ">" -> {
-                    if (tokenStartPosition != position) {
-                        val tokenName = sourceData.substring(tokenStartPosition, position)
-                        tokens.add(ParsingToken(tokenName))
+                ">", ")" -> {
+                    if (lastCharacter == "-") {
+                        position =
+                            handleDivider(position, sourceData, tokenStartPosition, tokens) + 1
+                        tokenStartPosition = position
+
+                    } else {
+                        if (tokenStartPosition != position) {
+                            val tokenName = sourceData.substring(tokenStartPosition, position)
+                            tokens.addOrAppendIfNullable(tokenName)
+                        }
+                        return TokenParsingResult(tokens, position + 1)
                     }
-                    return TokenParsingResult(tokens, position + 1)
                 }
                 else -> {
                     position++
                 }
             }
-        } while (position < totalCharacter)
+            lastCharacter = currentCharacter
+        } while (position < charactersCount)
 
         if (position != tokenStartPosition) {
             val tokenName = sourceData.substring(tokenStartPosition, position)
@@ -56,6 +71,21 @@ class DataTypeParser {
         }
 
         return TokenParsingResult(tokens, position)
+    }
+
+    private fun handleDivider(
+        position: Int,
+        sourceData: String,
+        tokenStartPosition: Int,
+        tokens: MutableList<ParsingToken>
+    ): Int {
+        if (position != 0) {
+            val tokenName = sourceData.substring(tokenStartPosition, position)
+            tokens.addOrAppendIfNullable(tokenName)
+        }
+        val siblingsParsingResult = parseToTree(sourceData.substring(position + 1))
+        tokens.addAll(siblingsParsingResult.tokens)
+        return position + siblingsParsingResult.charactersParsed
     }
 }
 
@@ -84,6 +114,15 @@ private fun ParsingToken.toDataType(): DataType {
             *children.map { token -> token.toDataType() }.toTypedArray()
         )
     }
+}
+
+private fun List<ParsingToken>.toDataType(): DataType {
+    val returnType = get(2).toDataType()
+    return DataType.Lambda(
+        returnType.name,
+        returnType.isNullable,
+        *get(0).children.map { token -> token.toDataType() }.toTypedArray()
+    )
 }
 
 private data class ParsingToken(

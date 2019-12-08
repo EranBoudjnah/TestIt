@@ -1,5 +1,6 @@
 package com.mitteloupe.testit.generator.mocking
 
+import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 
@@ -19,43 +20,43 @@ class MockableTypeQualifier {
         ConcreteValue("Short") { _, _ -> "0.toShort()" },
         ConcreteValue("String") { parameterName, _ -> "\"$parameterName\"" },
         ConcreteValue("Array") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "arrayOf",
                 parameterType
             )
         },
         ConcreteValue("List") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "listOf",
                 parameterType
             )
         },
         ConcreteValue("MutableList") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "mutableListOf",
                 parameterType
             )
         },
         ConcreteValue("Map") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "mapOf",
                 parameterType
             )
         },
         ConcreteValue("MutableMap") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "mutableMapOf",
                 parameterType
             )
         },
         ConcreteValue("Set") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "setOf",
                 parameterType
             )
         },
         ConcreteValue("MutableSet") { _, parameterType ->
-            getCodeForListOf(
+            getCodeForCollectionOf(
                 "mutableSetOf",
                 parameterType
             )
@@ -72,13 +73,12 @@ class MockableTypeQualifier {
         type.name == mockableType.dataType
     }
 
-    private fun getCodeForListOf(functionName: String, parameterType: DataType): String {
+    private fun getCodeForCollectionOf(functionName: String, parameterType: DataType): String {
         val genericType = when (parameterType) {
             is DataType.Specific -> "Any"
-            is DataType.Generic -> formatGenericsType(parameterType.genericTypes[0].name)
+            is DataType.Generic -> parameterType.toKotlinString()
+            is DataType.Lambda -> parameterType.toKotlinString()
         }
         return "$functionName<$genericType>()"
     }
-
-    private fun formatGenericsType(genericsType: String) = genericsType.replace(",", ", ")
 }

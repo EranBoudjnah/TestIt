@@ -28,6 +28,26 @@ sealed class DataType(open val name: String, open val isNullable: Boolean) {
         }
     }
 
+    class Lambda(
+        override val name: String,
+        override val isNullable: Boolean,
+        vararg val inputParameterTypes: DataType
+    ) : DataType(name, isNullable) {
+        override fun equals(other: Any?): Boolean {
+            if (!super.equals(other)) return false
+
+            other as Lambda
+
+            return inputParameterTypes.contentEquals(other.inputParameterTypes)
+        }
+
+        override fun hashCode(): Int {
+            var result = super.hashCode()
+            result = 31 * result + inputParameterTypes.contentHashCode()
+            return result
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
