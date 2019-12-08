@@ -3,9 +3,6 @@ language: java
 jdk:
   - openjdk11
 
-addons:
-  ssh_known_hosts: kotlin.link
-
 notifications:
   email:
     - eranbou@gmail.com
