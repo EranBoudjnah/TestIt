@@ -44,7 +44,7 @@ class MockerCodeGeneratorTest {
         val variableType = DataType.Specific("non-mockable data type", false)
         val expected = "default value"
         val concreteValue = mockConcreteValue(variableName, variableType, expected)
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }
+        given { mockableTypeQualifier.getNonMockableType(variableType) }
             .willReturn(concreteValue)
 
         // When
@@ -61,7 +61,7 @@ class MockerCodeGeneratorTest {
         val variableType = DataType.Specific("non-mockable data type", false)
         val constructorMock = "\"constructor mock\""
         val concreteValue = mockConcreteValue(variableName, variableType, constructorMock)
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(
+        given { mockableTypeQualifier.getNonMockableType(variableType) }.willReturn(
             concreteValue
         )
         val parameter = TypedParameter(variableName, type = variableType)
@@ -79,7 +79,7 @@ class MockerCodeGeneratorTest {
         // Given
         val variableName = "variableName"
         val variableType = DataType.Specific("mockable data type", false)
-        given { mockableTypeQualifier.getNonMockableType(variableType.name) }.willReturn(null)
+        given { mockableTypeQualifier.getNonMockableType(variableType) }.willReturn(null)
         val expected = "constructor mock"
         given { cut.getConstructorMock(variableName, variableType) }.willReturn(expected)
         val parameter = TypedParameter(variableName, type = variableType)
