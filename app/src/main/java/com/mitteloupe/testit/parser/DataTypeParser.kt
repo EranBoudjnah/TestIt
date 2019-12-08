@@ -49,7 +49,6 @@ class DataTypeParser {
                         position =
                             handleDivider(position, sourceData, tokenStartPosition, tokens) + 1
                         tokenStartPosition = position
-
                     } else {
                         if (tokenStartPosition != position) {
                             val tokenName = sourceData.substring(tokenStartPosition, position)
