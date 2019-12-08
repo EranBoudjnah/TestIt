@@ -64,8 +64,11 @@ class MockableTypeQualifier {
         ConcreteValue("Unit") { _, _ -> "Unit" }
     )
 
-    fun getNonMockableType(variableType: String) =
-        nonMockableTypes.firstOrNull { type -> type.dataType == variableType }
+    fun getNonMockableType(dataType: DataType) = if (dataType is DataType.Lambda) {
+        null
+    } else {
+        nonMockableTypes.firstOrNull { type -> type.dataType == dataType.name }
+    }
 
     fun isMockable(typedParameter: TypedParameter): Boolean = isMockable(typedParameter.type)
 

@@ -1,6 +1,7 @@
 package com.mitteloupe.testit.generator.mocking
 
 import com.mitteloupe.testit.generator.formatting.Formatting
+import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.generator.formatting.toNonNullableKotlinString
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType

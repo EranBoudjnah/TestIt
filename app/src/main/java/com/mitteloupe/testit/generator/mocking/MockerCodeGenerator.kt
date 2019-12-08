@@ -36,14 +36,14 @@ abstract class MockerCodeGenerator(
     }
 
     fun getMockedValue(variableName: String, variableType: DataType) =
-        mockableTypeQualifier.getNonMockableType(variableType.name)?.let { type ->
+        mockableTypeQualifier.getNonMockableType(variableType)?.let { type ->
             type.defaultValue(variableName, variableType)
         } ?: getMockedInstance(variableType)
 
     fun getMockedVariableDefinition(parameter: TypedParameter): String {
         val parameterName = parameter.name
         val parameterType = parameter.type
-        return mockableTypeQualifier.getNonMockableType(parameterType.name)?.let { type ->
+        return mockableTypeQualifier.getNonMockableType(parameterType)?.let { type ->
             "${indent()}private val $parameterName = ${type.defaultValue(
                 parameterName,
                 parameterType
