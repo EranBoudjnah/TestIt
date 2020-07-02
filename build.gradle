@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 buildscript {
     ext.kotlin_version = '1.3.72'
     repositories {
@@ -25,6 +27,24 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+task installGitHook(type: Copy) {
+    def suffix = "macos"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        suffix = "windows"
+    }
+    from new File(rootProject.rootDir, "automation/scripts/pre-commit-$suffix")
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    rename("pre-commit-$suffix", 'pre-commit')
+    fileMode 0775
+}
+
+task installCodeStyle(type: Copy) {
+    from new File(rootProject.rootDir, 'automation/codeStyles/Project.xml')
+    into { new File(rootProject.rootDir, '.idea/codeStyles') }
+}
+
+tasks.getByPath(':app:compileKotlin').dependsOn installGitHook, installCodeStyle
 
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 

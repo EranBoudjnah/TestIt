@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Running lint..."
+
+git diff --name-only --cached | grep ".kt" | while read fn; do ktlint "${fn}"; done
+RESULT_KTLINT=$?
+
+[ $RESULT_KTLINT -ne 0 ] && exit 1
+exit 0
