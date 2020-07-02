@@ -5,7 +5,7 @@ import java.io.File
 class TestFilePathFormatter {
     private val pathRegex by lazy {
         val separator = Regex.escape(File.separator)
-        Regex("${separator}src${separator}[a-z]+${separator}(java|kotlin)$separator")
+        Regex("${separator}src$separator[a-z]+$separator(java|kotlin)$separator")
     }
 
     fun getTestFilePath(sourceFileName: String) =
