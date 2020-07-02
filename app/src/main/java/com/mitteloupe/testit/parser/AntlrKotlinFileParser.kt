@@ -75,8 +75,7 @@ class AntlrKotlinFileParser(
                     }
                 }
                 "modifiers" -> {
-                    if (isDataClass(childNode) ||
-                        isEnumClass(childNode) ||
+                    if (isEnumClass(childNode) ||
                         isSealedClass(childNode) ||
                         isPrivateClass(childNode)
                     ) {
@@ -107,9 +106,6 @@ class AntlrKotlinFileParser(
 
     private fun isClassType(node: KotlinParseTree) =
         node.children.any { childNode -> childNode.name == "CLASS" }
-
-    private fun isDataClass(childNode: KotlinParseTree) =
-        childNode.hasClassModifier("DATA")
 
     private fun isEnumClass(childNode: KotlinParseTree) =
         childNode.hasClassModifier("ENUM")
