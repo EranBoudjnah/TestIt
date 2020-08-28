@@ -2,18 +2,19 @@ package com.mitteloupe.testit.generator
 
 import java.io.File
 
-class TestFilePathFormatter {
+class TestFilePathFormatter(
+    private val fileSeparator: String = File.separator
+) {
     private val pathRegex by lazy {
-        val separator = Regex.escape(File.separator)
+        val separator = Regex.escape(fileSeparator)
         Regex("${separator}src$separator[a-z]+$separator(java|kotlin)$separator")
     }
 
     fun getTestFilePath(sourceFileName: String) =
         if (pathRegex.containsMatchIn(sourceFileName)) {
-            val separator = File.separator
-            val sourcePath = sourceFileName.substringBeforeLast(separator) + separator
+            val sourcePath = sourceFileName.substringBeforeLast(fileSeparator) + fileSeparator
             pathRegex.replace(sourcePath) { matchResult ->
-                "${separator}src${separator}test${separator}${matchResult.groupValues[1]}$separator"
+                "${fileSeparator}src${fileSeparator}test$fileSeparator${matchResult.groupValues[1]}$fileSeparator"
             }
         } else {
             null

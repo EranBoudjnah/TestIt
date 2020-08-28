@@ -1,6 +1,11 @@
 #!/bin/bash
 run_in_testit_path() {
-    path=`dirname "$(greadlink -f "${BASH_SOURCE%/*}/testit")"`
+    if [ `uname` == Darwin ]; then
+        READLINK=greadlink
+    else
+        READLINK=readlink
+    fi
+    path=`dirname "$($READLINK -f "${BASH_SOURCE%/*}/testit")"`
     cd $path > /dev/null
     eval "$1"
     cd - > /dev/null

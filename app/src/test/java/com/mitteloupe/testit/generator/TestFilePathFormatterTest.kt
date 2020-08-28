@@ -16,7 +16,7 @@ class TestFilePathFormatterTest {
 
     @Before
     fun setUp() {
-        cut = TestFilePathFormatter()
+        cut = TestFilePathFormatter("/")
     }
 
     @Test
