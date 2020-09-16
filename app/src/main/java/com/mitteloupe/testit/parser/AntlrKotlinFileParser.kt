@@ -183,9 +183,8 @@ class AntlrKotlinFileParser(
                 }
                 "receiverType" -> {
                     extractDataType(childNode)?.let {
-                        extensionReceiverType =
-                            it.text?.let { text -> getDataTypeFromString(text) }
-                                ?: UNKNOWN_DATA_TYPE
+                        extensionReceiverType = it.text?.let { text -> getDataTypeFromString(text) }
+                            ?: UNKNOWN_DATA_TYPE
                     }
                 }
                 "functionValueParameters" -> {
