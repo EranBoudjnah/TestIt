@@ -127,20 +127,25 @@ class TestStringBuilder(
         classUnderTestConstructorParameters: List<TypedParameter>,
         functions: List<FunctionMetadata>,
         isParameterized: Boolean
-    ) = onlyIf({ isParameterized }, {
-        val parameters = classUnderTestConstructorParameters +
+    ) = onlyIf(
+        { isParameterized },
+        {
+            val parameters = classUnderTestConstructorParameters +
                 getFunctionParametersAsConstructorParameters(functions)
-        onlyIf(
-            { parameters.isNotEmpty() },
-            {
-                append("(\n")
-                    .append(parameters.joinToString(",\n") { parameter ->
-                        "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
-                    })
-                    .append("\n)")
-            }
-        )
-    })
+            onlyIf(
+                { parameters.isNotEmpty() },
+                {
+                    append("(\n")
+                        .append(
+                            parameters.joinToString(",\n") { parameter ->
+                                "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
+                            }
+                        )
+                        .append("\n)")
+                }
+            )
+        }
+    )
 
     private fun getFunctionParametersAsConstructorParameters(
         functions: List<FunctionMetadata>
@@ -166,9 +171,11 @@ class TestStringBuilder(
     )
 
     private fun appendMocks(classParameters: List<TypedParameter>) =
-        append(classParameters.joinToString("\n\n") { parameter ->
-            mockerCodeGenerator.getMockedVariableDefinition(parameter)
-        }).onlyIf(
+        append(
+            classParameters.joinToString("\n\n") { parameter ->
+                mockerCodeGenerator.getMockedVariableDefinition(parameter)
+            }
+        ).onlyIf(
             { classParameters.isNotEmpty() },
             { appendBlankLine() }
         )
@@ -191,8 +198,8 @@ class TestStringBuilder(
                 },
                 {
                     "${classUnderTest.className}(" +
-                            classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name } +
-                            ")\n"
+                        classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name } +
+                        ")\n"
                 }
             ).append("${indent()}}")
             .appendBlankLine()
@@ -208,8 +215,8 @@ class TestStringBuilder(
         concreteFunctions.forEachIndexed { index, function ->
             val isOverloaded = !concreteFunctions.isSingle { functionMetadata ->
                 functionMetadata.name == function.name &&
-                        functionMetadata.extensionReceiverType ==
-                        function.extensionReceiverType
+                    functionMetadata.extensionReceiverType ==
+                    function.extensionReceiverType
             }
             appendTest(isStatic, function, isOverloaded, isParameterized)
                 .onlyIf(
@@ -223,7 +230,8 @@ class TestStringBuilder(
                                 isParameterized,
                                 exceptionCaptureMethod
                             )
-                    })
+                    }
+                )
                 .onlyIf(
                     { index != lastIndex },
                     { append("\n") }
@@ -270,11 +278,13 @@ class TestStringBuilder(
         .append("${indent()}}\n")
 
     private fun appendFunctionParameterTypes(parameters: List<TypedParameter>) =
-        append("(" +
+        append(
+            "(" +
                 parameters.joinToString(", ") { parameter ->
                     parameter.type.toKotlinString()
                 } +
-                ")")
+                ")"
+        )
 
     private fun appendTestBody(
         isStatic: Boolean,
@@ -344,12 +354,15 @@ class TestStringBuilder(
         .append(indent(2))
         .onlyIf(
             { expectsException == ExceptionCaptureMethod.NO_CAPTURE },
-            { appendActualVariable(function) })
+            { appendActualVariable(function) }
+        )
         .appendReceiverOpen(function, isStatic)
         .append("${function.name}(")
-        .append(function.parameters.joinToString(", ") { parameter ->
-            parameter.toKotlinString(function, isParameterized)
-        })
+        .append(
+            function.parameters.joinToString(", ") { parameter ->
+                parameter.toKotlinString(function, isParameterized)
+            }
+        )
         .append(")")
         .appendReceiverClose(function, isStatic)
         .onlyIf(
@@ -365,27 +378,35 @@ class TestStringBuilder(
 
     private fun appendActualVariable(
         function: FunctionMetadata
-    ) = onlyIf({ function.hasReturnValue() }, {
-        append("val $actualValueVariableName = ")
-    })
+    ) = onlyIf(
+        { function.hasReturnValue() },
+        {
+            append("val $actualValueVariableName = ")
+        }
+    )
 
     private fun appendReceiverOpen(
         function: FunctionMetadata,
         isStatic: Boolean
-    ) = append(function.extensionReceiverType?.let {
-        val classUnderTestWrapperOpen =
-            if (isStatic) "" else "with($classUnderTestVariableName) {\n${indent(3)}"
-        "${classUnderTestWrapperOpen}receiver."
-    } ?: if (isStatic) "" else "$classUnderTestVariableName.")
+    ) = append(
+        function.extensionReceiverType?.let {
+            val classUnderTestWrapperOpen =
+                if (isStatic) "" else "with($classUnderTestVariableName) {\n${indent(3)}"
+            "${classUnderTestWrapperOpen}receiver."
+        } ?: if (isStatic) "" else "$classUnderTestVariableName."
+    )
 
     private fun appendReceiverClose(
         function: FunctionMetadata,
         isStatic: Boolean
-    ) = onlyIf({ !isStatic }, {
-        function.extensionReceiverType?.let {
-            append("\n${indent(2)}}")
+    ) = onlyIf(
+        { !isStatic },
+        {
+            function.extensionReceiverType?.let {
+                append("\n${indent(2)}}")
+            }
         }
-    })
+    )
 
     private fun appendThen(
         function: FunctionMetadata,
@@ -425,7 +446,8 @@ class TestStringBuilder(
         val returnTypes = classUnderTest.functions.map { it.returnType }
         return appendParameterizedCompanionObject(
             classUnderTest.constructorParameters +
-                    classUnderTest.functions.flatMap { it.parameters }, returnTypes
+                classUnderTest.functions.flatMap { it.parameters },
+            returnTypes
         )
     }
 
@@ -434,16 +456,16 @@ class TestStringBuilder(
         expectedTypes: List<DataType>
     ) = append(
         "${indent()}companion object {\n" +
-                "${indent(2)}@JvmStatic\n" +
-                "${indent(2)}@Parameters\n" +
-                "${indent(2)}fun data(): Collection<Array<*>> = listOf(\n" +
-                "${indent(3)}arrayOf("
+            "${indent(2)}@JvmStatic\n" +
+            "${indent(2)}@Parameters\n" +
+            "${indent(2)}fun data(): Collection<Array<*>> = listOf(\n" +
+            "${indent(3)}arrayOf("
     )
         .appendParameterValues(parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
         .append(
             ")\n" +
-                    "${indent(2)})\n" +
-                    "${indent()}}"
+                "${indent(2)})\n" +
+                "${indent()}}"
         )
 
     private fun appendParameterValues(parameters: List<TypedParameter>) =

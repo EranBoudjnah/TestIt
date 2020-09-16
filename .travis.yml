@@ -15,4 +15,4 @@ notifications:
     - eranbou@gmail.com
 
 script:
-- ./gradlew clean assemble test ktlintCheck
+- ./gradlew ktlintCheck clean assemble test
