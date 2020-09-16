@@ -709,9 +709,7 @@ class TestStringBuilderTest {
         // Given
         val givenImport1 = "com.path.to.Class1"
         val givenImport2 = "com.path.to.Class2"
-        val functionsUnderTest = StaticFunctionsMetadata(
-            PACKAGE_NAME, mapOf(), listOf()
-        )
+        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, mapOf(), listOf())
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
         val isParameterized = false
@@ -743,9 +741,7 @@ class TestStringBuilderTest {
         // Given
         val givenImport1 = "com.path.to.Class1"
         val givenImport2 = "com.path.to.Class2"
-        val functionsUnderTest = StaticFunctionsMetadata(
-            PACKAGE_NAME, mapOf(), listOf()
-        )
+        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, mapOf(), listOf())
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
         val isParameterized = true
@@ -754,8 +750,7 @@ class TestStringBuilderTest {
 
         // When
         val actualValue = cut.appendFunctionsTestClass(
-            functionsUnderTest, usedImports, outputClassName,
-            isParameterized
+            functionsUnderTest, usedImports, outputClassName, isParameterized
         )
 
         // Then
