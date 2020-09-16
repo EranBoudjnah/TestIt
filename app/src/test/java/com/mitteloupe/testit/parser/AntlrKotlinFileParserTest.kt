@@ -34,7 +34,7 @@ class AntlrKotlinFileParserTest {
     fun `Given minimal class when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package $PACKAGE_NAME\n" +
-                "class Test {}\n"
+            "class Test {}\n"
 
         val expected = getExpectedFileMetadata(
             listOf(
@@ -55,9 +55,9 @@ class AntlrKotlinFileParserTest {
     fun `Given function with reserved name when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package $PACKAGE_NAME\n" +
-                "class Test {" +
-                "override fun onTest(data: List<Data>) {}\n" +
-                "}\n"
+            "class Test {" +
+            "override fun onTest(data: List<Data>) {}\n" +
+            "}\n"
 
         val expectedParameterDataType = DataType.Specific("ListOfData", false)
         given { dataTypeParser.parse("List<Data>") }
@@ -93,10 +93,10 @@ class AntlrKotlinFileParserTest {
     fun `Given child dependency when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package $PACKAGE_NAME\n" +
-                "import com.import.ClassName\n" +
-                "class Test {" +
-                "override fun onTest(dependency: ClassName.ChildDependency) {}\n" +
-                "}\n"
+            "import com.import.ClassName\n" +
+            "class Test {" +
+            "override fun onTest(dependency: ClassName.ChildDependency) {}\n" +
+            "}\n"
 
         val expectedParameterDataType = DataType.Specific("ClassName.ChildDependency", false)
         given { dataTypeParser.parse("ClassName.ChildDependency") }
@@ -134,10 +134,10 @@ class AntlrKotlinFileParserTest {
     fun `Given class with function returning value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
-                "import com.import.ClassName\n" +
-                "class Test {\n" +
-                "fun doIt():ClassName{}\n" +
-                "}\n"
+            "import com.import.ClassName\n" +
+            "class Test {\n" +
+            "fun doIt():ClassName{}\n" +
+            "}\n"
 
         given { dataTypeParser.parse("ClassName") }
             .willReturn(DataType.Specific("ClassName", false))
@@ -172,10 +172,10 @@ class AntlrKotlinFileParserTest {
     fun `Given class with function returning nullable value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
-                "import com.import.ClassName\n" +
-                "class Test {\n" +
-                "fun doIt():ClassName?{}\n" +
-                "}\n"
+            "import com.import.ClassName\n" +
+            "class Test {\n" +
+            "fun doIt():ClassName?{}\n" +
+            "}\n"
 
         given { dataTypeParser.parse("ClassName?") }
             .willReturn(DataType.Specific("ClassName", true))
@@ -210,10 +210,10 @@ class AntlrKotlinFileParserTest {
     fun `Given class with function with parameter when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
-                "import com.import.ClassName\n" +
-                "class Test {\n" +
-                "fun doIt(className:ClassName){}\n" +
-                "}\n"
+            "import com.import.ClassName\n" +
+            "class Test {\n" +
+            "fun doIt(className:ClassName){}\n" +
+            "}\n"
 
         given { dataTypeParser.parse("ClassName") }
             .willReturn(DataType.Specific("ClassName", false))
@@ -250,10 +250,10 @@ class AntlrKotlinFileParserTest {
     fun `Given class with function with nullable parameter when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
-                "import com.import.ClassName\n" +
-                "class Test {\n" +
-                "fun doIt(className:ClassName<Type?>?){}\n" +
-                "}\n"
+            "import com.import.ClassName\n" +
+            "class Test {\n" +
+            "fun doIt(className:ClassName<Type?>?){}\n" +
+            "}\n"
 
         given { dataTypeParser.parse("ClassName<Type?>?") }
             .willReturn(DataType.Specific("ClassName", true))

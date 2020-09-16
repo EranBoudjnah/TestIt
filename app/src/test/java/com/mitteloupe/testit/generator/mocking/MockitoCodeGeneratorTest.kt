@@ -54,7 +54,7 @@ class MockitoCodeGeneratorTest {
         val parameterName = "parameterName"
         val parameterType = DataType.Specific("testing", false)
         val expected = "_@Mock\n" +
-                "_lateinit var parameterName: testing"
+            "_lateinit var parameterName: testing"
 
         // When
         val actualValue = cut.getConstructorMock(parameterName, parameterType)
@@ -302,7 +302,7 @@ class MockitoCodeGeneratorTest {
     fun `When getting mockingRule then returns expected code`() {
         // Given
         val expectedValue = "_@get:Rule\n" +
-                "_val rule: MethodRule = MockitoJUnit.rule()"
+            "_val rule: MethodRule = MockitoJUnit.rule()"
 
         // When
         val actualValue = cut.mockingRule

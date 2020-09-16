@@ -20,13 +20,15 @@ class DataTypeParserTest(
             arrayOf("ABC", DataType.Specific("ABC", false)),
             arrayOf("ABC?", DataType.Specific("ABC", true)),
             arrayOf(
-                "ABC<DEF>?", DataType.Generic(
+                "ABC<DEF>?",
+                DataType.Generic(
                     "ABC", true,
                     DataType.Specific("DEF", false)
                 )
             ),
             arrayOf(
-                "A<B?,C<D,E>?,F<G>>", DataType.Generic(
+                "A<B?,C<D,E>?,F<G>>",
+                DataType.Generic(
                     "A", false,
                     DataType.Specific("B", true),
                     DataType.Generic(
@@ -40,12 +42,16 @@ class DataTypeParserTest(
                     )
                 )
             ),
-            arrayOf("(name:Value?)->Result", DataType.Lambda(
-            "Result", false,
-                DataType.Specific("Value", true)
-            )),
             arrayOf(
-                "(ABC<DEF>?)->G123", DataType.Lambda(
+                "(name:Value?)->Result",
+                DataType.Lambda(
+                    "Result", false,
+                    DataType.Specific("Value", true)
+                )
+            ),
+            arrayOf(
+                "(ABC<DEF>?)->G123",
+                DataType.Lambda(
                     "G123", false,
                     DataType.Generic(
                         "ABC", true,
