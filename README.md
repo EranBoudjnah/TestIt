@@ -23,7 +23,7 @@ Note: your project would need to include [mockito 2](https://site.mockito.org/) 
 
 ## Usage
 
-One installed, running TestIt is as simple as
+Once installed, running TestIt is as simple as
 
 `testit path/to/file.kt`
 
