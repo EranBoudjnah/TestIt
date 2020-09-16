@@ -16,7 +16,7 @@ class MockitoCodeGenerator(
 
     override val mockingRule =
         "${indent()}@get:Rule\n" +
-                "${indent()}val rule: MethodRule = MockitoJUnit.rule()"
+            "${indent()}val rule: MethodRule = MockitoJUnit.rule()"
 
     override val knownImports = mapOf(
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
@@ -35,15 +35,13 @@ class MockitoCodeGenerator(
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "${indent()}@Mock\n" +
-                "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
+            "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
 
     override fun getMockedInstance(variableType: DataType) =
         "mock<${variableType.toNonNullableKotlinString()}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
-        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${getConstructorArgumentsForAbstract(
-            classUnderTest
-        )})"
+        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${constructorArgumentsForAbstract(classUnderTest)})"
 
     override fun setIsParameterizedTest() {
         super.setIsParameterizedTest()
@@ -88,7 +86,7 @@ class MockitoCodeGenerator(
         _requiredImports.add("mock")
     }
 
-    private fun getConstructorArgumentsForAbstract(classUnderTest: ClassMetadata) =
+    private fun constructorArgumentsForAbstract(classUnderTest: ClassMetadata) =
         if (classUnderTest.constructorParameters.isEmpty()) {
             ""
         } else {

@@ -37,7 +37,7 @@ class MockKCodeGenerator(
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "${indent()}@MockK\n" +
-                "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
+            "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata): String {
         val arguments =
