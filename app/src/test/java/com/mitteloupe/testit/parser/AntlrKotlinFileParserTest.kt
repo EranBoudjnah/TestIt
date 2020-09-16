@@ -66,7 +66,11 @@ class AntlrKotlinFileParserTest {
         val expected = getExpectedFileMetadata(
             listOf(
                 ClassMetadata(
-                    PACKAGE_NAME, mapOf(), "Test", false, listOf(),
+                    PACKAGE_NAME,
+                    mapOf(),
+                    "Test",
+                    false,
+                    listOf(),
                     listOf(
                         FunctionMetadata(
                             "onTest",
@@ -107,7 +111,9 @@ class AntlrKotlinFileParserTest {
                 ClassMetadata(
                     PACKAGE_NAME,
                     mapOf("ClassName" to "com.import.ClassName"),
-                    "Test", false, listOf(),
+                    "Test",
+                    false,
+                    listOf(),
                     listOf(
                         FunctionMetadata(
                             "onTest",

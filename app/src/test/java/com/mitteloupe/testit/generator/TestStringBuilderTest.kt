@@ -750,7 +750,10 @@ class TestStringBuilderTest {
 
         // When
         val actualValue = cut.appendFunctionsTestClass(
-            functionsUnderTest, usedImports, outputClassName, isParameterized
+            functionsUnderTest,
+            usedImports,
+            outputClassName,
+            isParameterized
         )
 
         // Then

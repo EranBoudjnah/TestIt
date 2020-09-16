@@ -271,9 +271,11 @@ class MockitoCodeGeneratorTest {
         // Given
         val variableName = "variableName"
         val variableType = DataType.Generic(
-            "data type", false,
+            "data type",
+            false,
             DataType.Generic(
-                "nested type", true,
+                "nested type",
+                true,
                 DataType.Specific("deeply nested", false)
             ),
             DataType.Specific("another type", false)
