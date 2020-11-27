@@ -206,7 +206,7 @@ class TestIt(
 
     private fun loadConfiguration() {
         val appPath = getApplicationRootPath()
-        configuration = propertiesReader.readFromFile("$appPath/settings.properties")
+        configuration = propertiesReader.readFromFile("$appPath/../settings.properties")
 
         testsGenerator = testsGeneratorFactory.createTestsGenerator(configuration)
     }

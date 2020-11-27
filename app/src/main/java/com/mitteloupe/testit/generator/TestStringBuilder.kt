@@ -15,7 +15,6 @@ import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 import com.mitteloupe.testit.model.concreteFunctions
 import com.mitteloupe.testit.processing.hasReturnValue
-import org.jetbrains.kotlin.backend.common.onlyIf
 
 class TestStringBuilder(
     private val stringBuilder: StringBuilder,
@@ -499,3 +498,10 @@ class TestStringBuilder(
 
 private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetadata) -> Boolean) =
     singleOrNull { function -> predicate(function) } != null
+
+private fun <T : Any> T.onlyIf(predicate: () -> Boolean, action: () -> T?) =
+    if (predicate()) {
+        action() ?: this
+    } else {
+        this
+    }
