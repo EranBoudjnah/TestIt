@@ -37,7 +37,6 @@ class TestStringBuilder(
             )
             .append("class ${classUnderTest.className}Test")
             .appendConstructorParameters(
-                classUnderTest.constructorParameters,
                 classUnderTest.functions,
                 isParameterized
             )
@@ -71,7 +70,6 @@ class TestStringBuilder(
         .appendTestClassRunnerAnnotation(false, isParameterized)
         .append("class ${outputClassName}Test")
         .appendConstructorParameters(
-            emptyList(),
             functionsUnderTest.functions,
             isParameterized
         )
@@ -123,13 +121,12 @@ class TestStringBuilder(
     }
 
     private fun appendConstructorParameters(
-        classUnderTestConstructorParameters: List<TypedParameter>,
         functions: List<FunctionMetadata>,
         isParameterized: Boolean
     ) = onlyIf(
         { isParameterized },
         {
-            val parameters = classUnderTestConstructorParameters +
+            val parameters =
                 getFunctionParametersAsConstructorParameters(functions)
             onlyIf(
                 { parameters.isNotEmpty() },
@@ -444,7 +441,6 @@ class TestStringBuilder(
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
         val returnTypes = classUnderTest.functions.map { it.returnType }
         return appendParameterizedCompanionObject(
-            classUnderTest.constructorParameters +
                 classUnderTest.functions.flatMap { it.parameters },
             returnTypes
         )

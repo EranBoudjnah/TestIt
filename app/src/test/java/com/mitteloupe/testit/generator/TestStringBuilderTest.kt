@@ -27,6 +27,7 @@ private const val CLASS_UNDER_TEST_VARIABLE_NAME = "cut"
 private const val ACTUAL_VALUE_VARIABLE_NAME = "actualTest"
 private const val DEFAULT_ASSERTION_STATEMENT = "defaultAssertion"
 private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
+private const val PARAMETERIZED_RUNNER_ANNOTATION = "@Parameterized"
 
 @RunWith(MockitoJUnitRunner::class)
 class TestStringBuilderTest {
@@ -80,6 +81,43 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                 "\n" +
                 "class ${TEST_CLASS_NAME}Test {\n" +
+                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                "__}\n" +
+                "\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test and minimal class data when appendTestClass then returns expected output`() {
+        // Given
+        val config = givenTestStringBuilderConfiguration(isParameterized = true)
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf()\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
                 "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
                 "\n" +
                 "__@Before\n" +
@@ -183,7 +221,7 @@ class TestStringBuilderTest {
             "package $PACKAGE_NAME\n" +
                 "\n" +
                 "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
                 "\n" +
                 "$codeForParameter1\n" +
                 "\n" +
@@ -192,6 +230,74 @@ class TestStringBuilderTest {
                 "__@Before\n" +
                 "__fun setUp() {\n" +
                 "____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2)\n" +
+                "__}\n" +
+                "\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test and class data with constructor parameters when appendTestClass then returns expected output`() {
+        // Given
+        val givenParameterName1 = "paramName1"
+        val givenParameter1 =
+            TypedParameter(givenParameterName1, DataType.Specific("String", false))
+        val givenParameterName2 = "paramName2"
+        val givenParameter2 = TypedParameter(
+            givenParameterName2,
+            DataType.Generic("Array", false, DataType.Specific("Int", false))
+        )
+        val givenParameterName3 = "paramName3"
+        val givenParameter3 = TypedParameter(givenParameterName3, DataType.Lambda("Lambda", false))
+        val config = givenTestStringBuilderConfiguration(
+            constructorParameters = listOf(givenParameter1, givenParameter2, givenParameter3),
+            isParameterized = true
+        )
+        val codeForParameter1 = "__private lateinit var mockParam1()"
+        given { mockerCodeGenerator.getMockedVariableDefinition(givenParameter1) }
+            .willReturn(codeForParameter1)
+
+        val codeForParameter2 = "__private lateinit var mockParam2()"
+        given { mockerCodeGenerator.getMockedVariableDefinition(givenParameter2) }
+            .willReturn(codeForParameter2)
+
+        val codeForParameter3 = "__private lateinit var mockParam3()"
+        given { mockerCodeGenerator.getMockedVariableDefinition(givenParameter3) }
+            .willReturn(codeForParameter3)
+
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf()\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
+                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "$codeForParameter1\n" +
+                "\n" +
+                "$codeForParameter2\n" +
+                "\n" +
+                "$codeForParameter3\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2, $givenParameterName3)\n" +
                 "__}\n" +
                 "\n" +
                 "}\n",
@@ -237,7 +343,13 @@ class TestStringBuilderTest {
         }.willReturn(mockedReceiverType)
 
         val functionMetadata4 =
-            FunctionMetadata("function4", false, emptyList(), null, DataType.Specific("Unit", false))
+            FunctionMetadata(
+                "function4",
+                false,
+                emptyList(),
+                null,
+                DataType.Specific("Unit", false)
+            )
 
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
@@ -808,7 +920,13 @@ class TestStringBuilderTest {
         }
             .willReturn(mockedReceiverType)
         val functionMetadata4 =
-            FunctionMetadata("function4", false, emptyList(), null, DataType.Specific("Unit", false))
+            FunctionMetadata(
+                "function4",
+                false,
+                emptyList(),
+                null,
+                DataType.Specific("Unit", false)
+            )
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
         val functionMetadata5 =
