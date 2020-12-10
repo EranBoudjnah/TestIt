@@ -45,12 +45,19 @@ class KotlinParseTree(
         private val ls = System.lineSeparator()
     }
 
-    private fun stringifyTree(builder: StringBuilder, node: KotlinParseTree, depth: Int = 0): StringBuilder =
+    private fun stringifyTree(
+        builder: StringBuilder,
+        node: KotlinParseTree,
+        depth: Int = 0
+    ): StringBuilder =
         builder.apply {
             node.children.forEach { child ->
                 when (child.type) {
                     KotlinParseTreeNodeType.RULE -> append(" ".repeat(depth) + child.name + ls)
-                    KotlinParseTreeNodeType.TERMINAL -> append(" ".repeat(depth) + "${child.name}(\"${child.text!!.replace(ls, "\\n")}\")" + ls)
+                    KotlinParseTreeNodeType.TERMINAL -> append(
+                        (" " x depth) +
+                            "${child.name}(\"${child.text!!.replace(ls, "\\n")}\")" + ls
+                    )
                 }
                 stringifyTree(builder, child, depth + 1)
             }
@@ -63,6 +70,8 @@ fun parseKotlinCode(tokens: List<KotlinToken>) = Parser.parse(tokens)
 
 fun parseKotlinCode(sourceCode: String) = parseKotlinCode(tokenizeKotlinCode(sourceCode.sanitize()))
 
-private fun String.sanitize() = replace(TRAILING_COMMA_REGEX,"$1")
+private fun String.sanitize() = replace(TRAILING_COMMA_REGEX, "$1")
 
 fun tokenizeKotlinCode(sourceCode: String) = Parser.tokenize(sourceCode)
+
+private infix fun String.x(times: Int) = repeat(times)
