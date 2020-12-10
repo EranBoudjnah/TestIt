@@ -12,9 +12,6 @@ import com.mitteloupe.testit.model.TypedParameter
 private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown", false)
 private val UNIT_DATA_TYPE = DataType.Specific("Unit", false)
 
-/**
- * Created by Eran Boudjnah on 2019-07-05.
- */
 class AntlrKotlinFileParser(
     private val dataTypeParser: DataTypeParser
 ) : KotlinFileParser {

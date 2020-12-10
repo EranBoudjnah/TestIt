@@ -5,9 +5,6 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 
-/**
- * Created by Eran Boudjnah on 2019-07-07.
- */
 abstract class MockerCodeGenerator(
     private val mockableTypeQualifier: MockableTypeQualifier,
     private val formatting: Formatting
