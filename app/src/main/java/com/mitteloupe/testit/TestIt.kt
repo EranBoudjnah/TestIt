@@ -23,9 +23,6 @@ import com.mitteloupe.testit.parser.KotlinFileParser
 import com.mitteloupe.testit.terminal.mapper.ArgsToRunParameters
 import java.io.File
 
-/**
- * Created by Eran Boudjnah on 2019-07-04.
- */
 class TestIt(
     private val propertiesReader: PropertiesReader,
     private val fileProvider: FileProvider,

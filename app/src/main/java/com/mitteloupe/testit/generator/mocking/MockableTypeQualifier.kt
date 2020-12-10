@@ -4,9 +4,6 @@ import com.mitteloupe.testit.generator.formatting.toKotlinString
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
 
-/**
- * Created by Eran Boudjnah on 2019-08-03.
- */
 class MockableTypeQualifier {
     private val nonMockableTypes = listOf(
         ConcreteValue("Boolean") { _, _ -> "false" },
