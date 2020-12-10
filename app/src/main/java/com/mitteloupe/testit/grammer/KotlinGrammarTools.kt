@@ -5,6 +5,8 @@ package com.mitteloupe.testit.grammer
  */
 import com.mitteloupe.testit.grammer.parsing.Parser
 
+private val TRAILING_COMMA_REGEX = ",\\s*(\\)|->)".toRegex(RegexOption.MULTILINE)
+
 class KotlinToken(
     val type: String,
     val text: String,
@@ -59,6 +61,8 @@ class KotlinParseTree(
 
 fun parseKotlinCode(tokens: List<KotlinToken>) = Parser.parse(tokens)
 
-fun parseKotlinCode(sourceCode: String) = parseKotlinCode(tokenizeKotlinCode(sourceCode))
+fun parseKotlinCode(sourceCode: String) = parseKotlinCode(tokenizeKotlinCode(sourceCode.sanitize()))
+
+private fun String.sanitize() = replace(TRAILING_COMMA_REGEX,"$1")
 
 fun tokenizeKotlinCode(sourceCode: String) = Parser.tokenize(sourceCode)

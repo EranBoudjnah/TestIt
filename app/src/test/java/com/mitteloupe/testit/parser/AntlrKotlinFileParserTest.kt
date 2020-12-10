@@ -94,6 +94,52 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
+    fun `Given code with trailing commas when String#parse then returns valid result`() {
+        // Given
+        val receiver = "package $PACKAGE_NAME\n" +
+            "class Test {\n" +
+            "    fun onTest(data: List<Data>,) {\n" +
+            "        val list = listOf()\n" +
+            "        val lambda = { argument: String, ->\n" +
+            "        }" +
+            "    }\n" +
+            "}\n"
+
+        val expectedParameterDataType = DataType.Specific("ListOfData", false)
+        given { dataTypeParser.parse("List<Data>") }
+            .willReturn(expectedParameterDataType)
+
+        val expected = getExpectedFileMetadata(
+            listOf(
+                ClassMetadata(
+                    PACKAGE_NAME,
+                    mapOf(),
+                    "Test",
+                    false,
+                    listOf(),
+                    listOf(
+                        FunctionMetadata(
+                            "onTest",
+                            false,
+                            listOf(TypedParameter("data", expectedParameterDataType)),
+                            null,
+                            DataType.Specific("Unit", false)
+                        )
+                    )
+                )
+            )
+        )
+
+        // When
+        val actualValue = with(cut) {
+            receiver.parse()
+        }
+
+        // Then
+        assertEquals(expected, actualValue)
+    }
+
+    @Test
     fun `Given child dependency when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package $PACKAGE_NAME\n" +
