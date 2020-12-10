@@ -38,7 +38,7 @@ class AntlrKotlinFileParserTest {
 
         val expected = getExpectedFileMetadata(
             listOf(
-                ClassMetadata(PACKAGE_NAME, mapOf(), "Test", false, listOf(), listOf())
+                ClassMetadata(PACKAGE_NAME, emptyMap(), "Test", false, emptyList(), emptyList())
             )
         )
 
@@ -67,10 +67,10 @@ class AntlrKotlinFileParserTest {
             listOf(
                 ClassMetadata(
                     PACKAGE_NAME,
-                    mapOf(),
+                    emptyMap(),
                     "Test",
                     false,
-                    listOf(),
+                    emptyList(),
                     listOf(
                         FunctionMetadata(
                             "onTest",
@@ -113,10 +113,10 @@ class AntlrKotlinFileParserTest {
             listOf(
                 ClassMetadata(
                     PACKAGE_NAME,
-                    mapOf(),
+                    emptyMap(),
                     "Test",
                     false,
-                    listOf(),
+                    emptyList(),
                     listOf(
                         FunctionMetadata(
                             "onTest",
@@ -159,7 +159,7 @@ class AntlrKotlinFileParserTest {
                     mapOf("ClassName" to "com.import.ClassName"),
                     "Test",
                     false,
-                    listOf(),
+                    emptyList(),
                     listOf(
                         FunctionMetadata(
                             "onTest",
@@ -202,7 +202,7 @@ class AntlrKotlinFileParserTest {
                         FunctionMetadata(
                             "doIt",
                             false,
-                            listOf(),
+                            emptyList(),
                             null,
                             DataType.Specific("ClassName", false)
                         )
@@ -240,7 +240,7 @@ class AntlrKotlinFileParserTest {
                         FunctionMetadata(
                             "doIt",
                             false,
-                            listOf(),
+                            emptyList(),
                             null,
                             DataType.Specific("ClassName", true)
                         )
@@ -367,9 +367,9 @@ class AntlrKotlinFileParserTest {
     )
 
     private fun getExpectedFileMetadata(
-        classMetaDatas: List<ClassMetadata> = listOf(),
+        classMetaDatas: List<ClassMetadata> = emptyList(),
         staticFunctionsMetadata: StaticFunctionsMetadata =
-            StaticFunctionsMetadata(PACKAGE_NAME, mapOf(), listOf())
+            StaticFunctionsMetadata(PACKAGE_NAME, emptyMap(), emptyList())
     ) = FileMetadata(
         classMetaDatas,
         staticFunctionsMetadata

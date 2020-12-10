@@ -47,7 +47,7 @@ class TestIt(
             parameterized,
             configuration.exceptionCaptureMethod
         )
-    } ?: listOf()
+    } ?: emptyList()
 
     fun saveTestsToFile(sourceFileName: String, classTestCode: ClassTestCode): String {
         val outputFile = getTestOutputFile(sourceFileName, classTestCode.className)

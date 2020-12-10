@@ -206,7 +206,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function1",
                 false,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType1", false)
             )
@@ -215,7 +215,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function2",
                 true,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType2", false)
             )
@@ -224,7 +224,7 @@ class TestStringBuilderTest {
         val functionMetadata3 = FunctionMetadata(
             "function3",
             false,
-            listOf(),
+            emptyList(),
             extensionReceiverType,
             DataType.Specific("DataType3", false)
         )
@@ -237,7 +237,7 @@ class TestStringBuilderTest {
         }.willReturn(mockedReceiverType)
 
         val functionMetadata4 =
-            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit", false))
+            FunctionMetadata("function4", false, emptyList(), null, DataType.Specific("Unit", false))
 
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
@@ -351,7 +351,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 overloadedFunctionName,
                 false,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType1", false)
             )
@@ -378,7 +378,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 overloadedFunctionName,
                 false,
-                listOf(),
+                emptyList(),
                 extensionReceiverType3,
                 DataType.Specific("DataType1", false)
             )
@@ -536,7 +536,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function1",
                 false,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType1", false)
             )
@@ -606,7 +606,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function1",
                 false,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType1", false)
             )
@@ -709,7 +709,7 @@ class TestStringBuilderTest {
         // Given
         val givenImport1 = "com.path.to.Class1"
         val givenImport2 = "com.path.to.Class2"
-        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, mapOf(), listOf())
+        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, emptyMap(), emptyList())
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
         val isParameterized = false
@@ -741,7 +741,7 @@ class TestStringBuilderTest {
         // Given
         val givenImport1 = "com.path.to.Class1"
         val givenImport2 = "com.path.to.Class2"
-        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, mapOf(), listOf())
+        val functionsUnderTest = StaticFunctionsMetadata(PACKAGE_NAME, emptyMap(), emptyList())
         val usedImports = setOf(givenImport1, givenImport2)
         val outputClassName = "outputClassName"
         val isParameterized = true
@@ -778,7 +778,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function1",
                 false,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType1", false)
             )
@@ -786,7 +786,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function2",
                 true,
-                listOf(),
+                emptyList(),
                 null,
                 DataType.Specific("DataType2", false)
             )
@@ -795,7 +795,7 @@ class TestStringBuilderTest {
             FunctionMetadata(
                 "function3",
                 false,
-                listOf(),
+                emptyList(),
                 extensionReceiverType,
                 DataType.Specific("DataType3", false)
             )
@@ -808,7 +808,7 @@ class TestStringBuilderTest {
         }
             .willReturn(mockedReceiverType)
         val functionMetadata4 =
-            FunctionMetadata("function4", false, listOf(), null, DataType.Specific("Unit", false))
+            FunctionMetadata("function4", false, emptyList(), null, DataType.Specific("Unit", false))
         val functionParameter1 = TypedParameter("functionParameterName1", mock())
         val functionParameter2 = TypedParameter("functionParameterName2", mock())
         val functionMetadata5 =
@@ -837,7 +837,7 @@ class TestStringBuilderTest {
             .willReturn(mockedValue2)
         val functionsUnderTest = StaticFunctionsMetadata(
             PACKAGE_NAME,
-            mapOf(),
+            emptyMap(),
             listOf(
                 functionMetadata1,
                 functionMetadata2,
@@ -924,15 +924,15 @@ class TestStringBuilderTest {
 
     private fun givenTestStringBuilderConfiguration(
         isAbstract: Boolean = false,
-        constructorParameters: List<TypedParameter> = listOf(),
-        functions: List<FunctionMetadata> = listOf(),
-        usedImports: Set<String> = setOf(),
+        constructorParameters: List<TypedParameter> = emptyList(),
+        functions: List<FunctionMetadata> = emptyList(),
+        usedImports: Set<String> = emptySet(),
         hasMockableConstructorParameters: Boolean = false,
         isParameterized: Boolean = false
     ) = TestStringBuilderConfiguration(
         classUnderTest = ClassMetadata(
             PACKAGE_NAME,
-            mapOf(),
+            emptyMap(),
             TEST_CLASS_NAME,
             isAbstract,
             constructorParameters,

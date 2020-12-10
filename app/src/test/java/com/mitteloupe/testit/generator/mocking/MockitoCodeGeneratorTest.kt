@@ -316,9 +316,9 @@ class MockitoCodeGeneratorTest {
 
 private fun mockClassMetadata(
     packageName: String = "packageName",
-    imports: Map<String, String> = mapOf(),
+    imports: Map<String, String> = emptyMap(),
     className: String = "className",
     isAbstract: Boolean = false,
-    constructorParameters: List<TypedParameter> = listOf(),
-    functions: List<FunctionMetadata> = listOf()
+    constructorParameters: List<TypedParameter> = emptyList(),
+    functions: List<FunctionMetadata> = emptyList()
 ) = ClassMetadata(packageName, imports, className, isAbstract, constructorParameters, functions)
