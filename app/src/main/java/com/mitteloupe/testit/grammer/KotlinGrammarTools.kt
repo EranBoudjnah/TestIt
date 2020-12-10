@@ -53,7 +53,7 @@ class KotlinParseTree(
         builder.apply {
             node.children.forEach { child ->
                 when (child.type) {
-                    KotlinParseTreeNodeType.RULE -> append(" ".repeat(depth) + child.name + ls)
+                    KotlinParseTreeNodeType.RULE -> append((" " x depth) + child.name + ls)
                     KotlinParseTreeNodeType.TERMINAL -> append(
                         (" " x depth) +
                             "${child.name}(\"${child.text!!.replace(ls, "\\n")}\")" + ls
