@@ -29,7 +29,7 @@ class KotlinJUnitTestGenerator(
         exceptionCaptureMethod: ExceptionCaptureMethod
     ) {
         setUpMockGenerator(isParameterized)
-        evaluateImports(isParameterized, exceptionCaptureMethod)
+        evaluateImports(isParameterized)
         stringBuilder.appendTestClass(
             TestStringBuilderConfiguration(
                 this,
@@ -46,7 +46,7 @@ class KotlinJUnitTestGenerator(
         exceptionCaptureMethod: ExceptionCaptureMethod
     ) {
         setUpMockGenerator()
-        evaluateImports(isParameterized, exceptionCaptureMethod)
+        evaluateImports(isParameterized)
         stringBuilder.appendFunctionsTestClass(
             this,
             usedImports.values.toSet(),
@@ -109,18 +109,12 @@ class KotlinJUnitTestGenerator(
         }
     }
 
-    private fun ClassMetadata.evaluateImports(
-        isParameterized: Boolean,
-        exceptionCaptureMethod: ExceptionCaptureMethod
-    ) {
+    private fun ClassMetadata.evaluateImports(isParameterized: Boolean) {
         evaluateMockCodeGeneratorImports()
 
         addImportIfKnown("Before")
 
-        evaluateExceptionImports(
-            exceptionCaptureMethod,
-            functions
-        )
+        evaluateExceptionImports(functions)
 
         if (isParameterized) {
             evaluateParameterizedImports(functions)
@@ -131,16 +125,10 @@ class KotlinJUnitTestGenerator(
         evaluateImportsContainerImports()
     }
 
-    private fun StaticFunctionsMetadata.evaluateImports(
-        isParameterized: Boolean,
-        exceptionCaptureMethod: ExceptionCaptureMethod
-    ) {
+    private fun StaticFunctionsMetadata.evaluateImports(isParameterized: Boolean) {
         evaluateMockCodeGeneratorImports()
 
-        evaluateExceptionImports(
-            exceptionCaptureMethod,
-            functions
-        )
+        evaluateExceptionImports(functions)
 
         if (isParameterized) {
             evaluateParameterizedImports(functions)
@@ -164,7 +152,6 @@ class KotlinJUnitTestGenerator(
     }
 
     private fun evaluateExceptionImports(
-        exceptionCaptureMethod: ExceptionCaptureMethod,
         functions: List<FunctionMetadata>
     ) {
         if (functions.isNotEmpty()) {
