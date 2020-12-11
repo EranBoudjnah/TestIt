@@ -30,6 +30,8 @@ private const val DEFAULT_ASSERTION_STATEMENT = "defaultAssertion"
 private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
 private const val PARAMETERIZED_RUNNER_ANNOTATION = "@Parameterized"
 
+private val unitDataType = DataType.Specific("Unit", false)
+
 @RunWith(MockitoJUnitRunner::class)
 class TestStringBuilderTest {
     private lateinit var cut: TestStringBuilder
@@ -214,9 +216,9 @@ class TestStringBuilderTest {
     fun `Given class data with constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val givenParameterName1 = "paramName1"
-        val givenParameter1 = TypedParameter(givenParameterName1, mock())
+        val givenParameter1 = TypedParameter(givenParameterName1, unitDataType)
         val givenParameterName2 = "paramName2"
-        val givenParameter2 = TypedParameter(givenParameterName2, mock())
+        val givenParameter2 = TypedParameter(givenParameterName2, unitDataType)
         val config = givenTestStringBuilderConfiguration(
             constructorParameters = listOf(givenParameter1, givenParameter2)
         )
@@ -354,16 +356,10 @@ class TestStringBuilderTest {
         givenMockedValue(extensionReceiverType, mockedReceiverType)
 
         val functionMetadata4 =
-            FunctionMetadata(
-                "function4",
-                false,
-                emptyList(),
-                null,
-                DataType.Specific("Unit", false)
-            )
+            FunctionMetadata("function4", false, emptyList(), null, unitDataType)
 
-        val functionParameter1 = TypedParameter("functionParameterName1", mock())
-        val functionParameter2 = TypedParameter("functionParameterName2", mock())
+        val functionParameter1 = TypedParameter("functionParameterName1", unitDataType)
+        val functionParameter2 = TypedParameter("functionParameterName2", unitDataType)
         val functionMetadata5 =
             FunctionMetadata(
                 "function5",
@@ -493,13 +489,7 @@ class TestStringBuilderTest {
 
         val functionName4 = "function4"
         val functionMetadata4 =
-            FunctionMetadata(
-                functionName4,
-                false,
-                emptyList(),
-                null,
-                DataType.Specific("Unit", false)
-            )
+            FunctionMetadata(functionName4, false, emptyList(), null, unitDataType)
 
         val functionParameter1 =
             TypedParameter("functionParameterName1", DataType.Specific("Boolean", true))
@@ -884,9 +874,7 @@ class TestStringBuilderTest {
                 DataType.Specific("DataType1", false)
             )
         val config = givenTestStringBuilderConfiguration(
-            functions = listOf(
-                functionMetadata1
-            )
+            functions = listOf(functionMetadata1)
         )
 
         val cut = TestStringBuilder(
@@ -1075,15 +1063,9 @@ class TestStringBuilderTest {
         val mockedReceiverType = "mock<ReceiverDataType>()"
         givenMockedValue(extensionReceiverType, mockedReceiverType)
         val functionMetadata4 =
-            FunctionMetadata(
-                "function4",
-                false,
-                emptyList(),
-                null,
-                DataType.Specific("Unit", false)
-            )
-        val functionParameter1 = TypedParameter("functionParameterName1", mock())
-        val functionParameter2 = TypedParameter("functionParameterName2", mock())
+            FunctionMetadata("function4", false, emptyList(), null, unitDataType)
+        val functionParameter1 = TypedParameter("functionParameterName1", unitDataType)
+        val functionParameter2 = TypedParameter("functionParameterName2", unitDataType)
         val functionMetadata5 =
             FunctionMetadata(
                 "function5",
@@ -1187,18 +1169,16 @@ class TestStringBuilderTest {
         receiverType: DataType.Specific,
         mockedValue: String
     ) {
-        given {
-            mockerCodeGenerator.getMockedValue(receiverType.name, receiverType)
-        }.willReturn(mockedValue)
+        given { mockerCodeGenerator.getMockedValue(receiverType.name, receiverType) }
+            .willReturn(mockedValue)
     }
 
     private fun givenMockedValue(
         receiverType: TypedParameter,
         mockedValue: String
     ) {
-        given {
-            mockerCodeGenerator.getMockedValue(receiverType.name, receiverType.type)
-        }.willReturn(mockedValue)
+        given { mockerCodeGenerator.getMockedValue(receiverType.name, receiverType.type) }
+            .willReturn(mockedValue)
     }
 
     private fun givenTestStringBuilderConfiguration(
