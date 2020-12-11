@@ -16,6 +16,8 @@ import com.mitteloupe.testit.model.TypedParameter
 import com.mitteloupe.testit.model.concreteFunctions
 import com.mitteloupe.testit.processing.hasReturnValue
 
+private val unitDataType = DataType.Specific("Unit", false)
+
 class TestStringBuilder(
     private val stringBuilder: StringBuilder,
     private val formatting: Formatting,
@@ -150,7 +152,9 @@ class TestStringBuilder(
             val parameterName =
                 parameter.toKotlinString(function, true)
             TypedParameter(parameterName, parameter.type)
-        } + TypedParameter(function.expectedReturnValueVariableName, function.returnType)
+        } + emptyList<TypedParameter>().onlyIf(function.returnType != unitDataType) {
+            listOf(TypedParameter(function.expectedReturnValueVariableName, function.returnType))
+        }
     }
 
     private fun appendMockingRule(
@@ -304,10 +308,7 @@ class TestStringBuilder(
                     .append("${indent(2)}lateinit var actualException: Exception\n")
             }
         )
-        .onlyIf(
-            { exceptionCaptureMethod == ExceptionCaptureMethod.TRY_CATCH || !isParameterized },
-            { append("\n") }
-        )
+        .append("\n")
 
     private fun appendFunctionParameterMocks(
         function: FunctionMetadata,
@@ -319,14 +320,16 @@ class TestStringBuilder(
                 val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
                 append("${indent(2)}val ${parameter.name} = $value\n")
             }
-            function.extensionReceiverType?.let { receiverType ->
-                if (function.parameters.isNotEmpty()) {
-                    append("\n")
-                }
-                appendExtensionReceiver(receiverType)
-            }
+            this
         }
-    )
+    ).also {
+        function.extensionReceiverType?.let { receiverType ->
+            if (function.parameters.isNotEmpty()) {
+                append("\n")
+            }
+            appendExtensionReceiver(receiverType)
+        }
+    }
 
     private fun appendExtensionReceiver(receiverType: DataType): TestStringBuilder {
         val receiverValue = mockerCodeGenerator.getMockedValue(receiverType.name, receiverType)
@@ -441,7 +444,7 @@ class TestStringBuilder(
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
         val returnTypes = classUnderTest.functions.map { it.returnType }
         return appendParameterizedCompanionObject(
-                classUnderTest.functions.flatMap { it.parameters },
+            classUnderTest.functions.flatMap { it.parameters },
             returnTypes
         )
     }
@@ -494,6 +497,9 @@ class TestStringBuilder(
 
 private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetadata) -> Boolean) =
     singleOrNull { function -> predicate(function) } != null
+
+private fun <T : Any> T.onlyIf(isTrue: Boolean, action: () -> T?) =
+    onlyIf({ isTrue }, action)
 
 private fun <T : Any> T.onlyIf(predicate: () -> Boolean, action: () -> T?) =
     if (predicate()) {

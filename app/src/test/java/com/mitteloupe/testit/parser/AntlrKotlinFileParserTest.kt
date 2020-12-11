@@ -18,6 +18,8 @@ import org.mockito.junit.MockitoJUnitRunner
 private const val PACKAGE_NAME = "com.test.String"
 private val singleImport = mapOf("ClassName" to "com.import.ClassName")
 
+private val unitDataType = DataType.Specific("Unit", false)
+
 @RunWith(MockitoJUnitRunner::class)
 class AntlrKotlinFileParserTest {
     private lateinit var cut: AntlrKotlinFileParser
@@ -77,7 +79,7 @@ class AntlrKotlinFileParserTest {
                             false,
                             listOf(TypedParameter("data", expectedParameterDataType)),
                             null,
-                            DataType.Specific("Unit", false)
+                            unitDataType
                         )
                     )
                 )
@@ -123,7 +125,7 @@ class AntlrKotlinFileParserTest {
                             false,
                             listOf(TypedParameter("data", expectedParameterDataType)),
                             null,
-                            DataType.Specific("Unit", false)
+                            unitDataType
                         )
                     )
                 )
@@ -166,7 +168,7 @@ class AntlrKotlinFileParserTest {
                             false,
                             listOf(TypedParameter("dependency", expectedParameterDataType)),
                             null,
-                            DataType.Specific("Unit", false)
+                            unitDataType
                         )
                     )
                 )
@@ -282,7 +284,7 @@ class AntlrKotlinFileParserTest {
                                 TypedParameter("className", DataType.Specific("ClassName", false))
                             ),
                             null,
-                            DataType.Specific("Unit", false)
+                            unitDataType
                         )
                     )
                 )
@@ -322,7 +324,7 @@ class AntlrKotlinFileParserTest {
                                 TypedParameter("className", DataType.Specific("ClassName", true))
                             ),
                             null,
-                            DataType.Specific("Unit", false)
+                            unitDataType
                         )
                     )
                 )

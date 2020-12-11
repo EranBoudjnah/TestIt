@@ -9,11 +9,12 @@ import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.given
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -36,17 +37,27 @@ class TestStringBuilderTest {
     private lateinit var stringBuilder: StringBuilder
 
     @Mock
-    lateinit var formatting: Formatting
+    private lateinit var formatting: Formatting
 
     @Mock
-    lateinit var mockerCodeGenerator: MockerCodeGenerator
+    private lateinit var mockerCodeGenerator: MockerCodeGenerator
 
     @Mock
-    lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
+    private lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
+
+    private val outString = mutableListOf<String>()
 
     @Before
     fun setUp() {
-        stringBuilder = spy(StringBuilder())
+        stringBuilder = mock {
+            on { append(any<String>()) }.thenAnswer { invocation ->
+                outString.add(invocation.getArgument(0))
+                stringBuilder
+            }
+            on { toString() }.thenAnswer {
+                outString.joinToString("")
+            }
+        }
 
         given { formatting.getIndentation(1) }
             .willReturn("__")
@@ -56,7 +67,7 @@ class TestStringBuilderTest {
             .willReturn("______")
 
         cut = TestStringBuilder(
-            stringBuilder,
+            this.stringBuilder,
             formatting,
             mockerCodeGenerator,
             CLASS_UNDER_TEST_VARIABLE_NAME,
@@ -65,6 +76,11 @@ class TestStringBuilderTest {
             EXCEPTION_CAPTURE_METHOD,
             dateTypeToParameterMapper
         )
+    }
+
+    @After
+    fun tearDown() {
+        outString.clear()
     }
 
     @Test
@@ -448,6 +464,201 @@ class TestStringBuilderTest {
                 "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
                 "\n" +
                 "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test and class data with functions when appendTestClass then returns expected output`() {
+        // Given
+        val functionName1 = "function1"
+        val functionMetadata1 =
+            FunctionMetadata(
+                functionName1,
+                false,
+                emptyList(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
+
+        val functionName2 = "function2"
+        val functionMetadata2 =
+            FunctionMetadata(
+                functionName2,
+                true,
+                emptyList(),
+                null,
+                DataType.Specific("DataType2", false)
+            )
+
+        val extensionReceiverType = DataType.Specific("ReceiverDataType", false)
+        val functionName3 = "function3"
+        val functionMetadata3 = FunctionMetadata(
+            functionName3,
+            false,
+            emptyList(),
+            extensionReceiverType,
+            DataType.Specific("DataType3", false)
+        )
+        val mockedReceiverType = "mock<ReceiverDataType>()"
+        given {
+            mockerCodeGenerator.getMockedValue(
+                extensionReceiverType.name,
+                extensionReceiverType
+            )
+        }.willReturn(mockedReceiverType)
+
+        val functionName4 = "function4"
+        val functionMetadata4 =
+            FunctionMetadata(
+                functionName4,
+                false,
+                emptyList(),
+                null,
+                DataType.Specific("Unit", false)
+            )
+
+        val functionParameter1 =
+            TypedParameter("functionParameterName1", DataType.Specific("Boolean", true))
+        val functionParameter2 = TypedParameter(
+            "functionParameterName2",
+            DataType.Generic("List", true, DataType.Specific("String", false))
+        )
+        val functionParameter3 = TypedParameter(
+            "functionParameterName3",
+            DataType.Lambda("Unit", false, DataType.Specific("Double", false))
+        )
+        val functionName5 = "function5"
+        val functionMetadata5 =
+            FunctionMetadata(
+                functionName5,
+                false,
+                listOf(functionParameter1, functionParameter2, functionParameter3),
+                null,
+                DataType.Specific("DataType5", false)
+            )
+        val mockedValue1 = "\"Some value 1\""
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter1.name,
+                functionParameter1.type
+            )
+        }.willReturn(mockedValue1)
+        val mockedValue2 = "\"Some value 2\""
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter2.name,
+                functionParameter2.type
+            )
+        }.willReturn(mockedValue2)
+        val mockedValue3 = "\"Some value 3\""
+        given {
+            mockerCodeGenerator.getMockedValue(
+                functionParameter3.name,
+                functionParameter3.type
+            )
+        }.willReturn(mockedValue3)
+
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(
+                functionMetadata1,
+                functionMetadata2,
+                functionMetadata3,
+                functionMetadata4,
+                functionMetadata5
+            ),
+            isParameterized = true
+        )
+
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        val capitalizedParameterName1 = "FunctionParameterName1"
+        val capitalizedParameterName2 = "FunctionParameterName2"
+        val capitalizedParameterName3 = "FunctionParameterName3"
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test(\n" +
+                "__private val ${functionName1}Expected: DataType1,\n" +
+                "__private val ${functionName2}Expected: DataType2,\n" +
+                "__private val ${functionName3}Expected: DataType3,\n" +
+                "__private val ${functionName5}$capitalizedParameterName1: Boolean?,\n" +
+                "__private val ${functionName5}$capitalizedParameterName2: List<String>?,\n" +
+                "__private val ${functionName5}$capitalizedParameterName3: (Double) -> Unit,\n" +
+                "__private val ${functionName5}Expected: DataType5\n" +
+                ") {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf(\"Some value 1\", \"Some value 2\", \"Some value 3\")\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
+                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____cut = $TEST_CLASS_NAME()\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(${functionName1}Expected, actualTest)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
+                "____// Given\n" +
+                "____val receiver = $mockedReceiverType\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                "______receiver.${functionMetadata3.name}()\n" +
+                "____}\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(${functionName3}Expected, actualTest)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}($functionName5$capitalizedParameterName1, $functionName5$capitalizedParameterName2, $functionName5$capitalizedParameterName3)\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(${functionName5}Expected, actualTest)\n" +
                 "____$DEFAULT_ASSERTION_STATEMENT\n" +
                 "__}\n" +
                 "}\n",
