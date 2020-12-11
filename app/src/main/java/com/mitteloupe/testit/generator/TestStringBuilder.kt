@@ -432,7 +432,9 @@ class TestStringBuilder(
         exceptionCaptureMethod: ExceptionCaptureMethod,
         expectedSuffix: String
     ) = append("${indent(2)}// Then\n")
-        .appendReturnValueAssertion(function, isParameterized, expectedSuffix)
+        .onlyIf(exceptionCaptureMethod == ExceptionCaptureMethod.NO_CAPTURE) {
+            appendReturnValueAssertion(function, isParameterized, expectedSuffix)
+        }
         .append(indent(2))
         .append {
             when (exceptionCaptureMethod) {
@@ -542,10 +544,10 @@ class FunctionNameSuffixProvider(private val functions: Collection<FunctionMetad
 private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetadata) -> Boolean) =
     singleOrNull { function -> predicate(function) } != null
 
-private fun <T : Any> T.onlyIf(isTrue: Boolean, action: () -> T?) =
+private fun <T : Any> T.onlyIf(isTrue: Boolean, action: T.() -> T?) =
     onlyIf({ isTrue }, action)
 
-private fun <T : Any> T.onlyIf(predicate: () -> Boolean, action: () -> T?) =
+private fun <T : Any> T.onlyIf(predicate: () -> Boolean, action: T.() -> T?) =
     if (predicate()) {
         action() ?: this
     } else {
