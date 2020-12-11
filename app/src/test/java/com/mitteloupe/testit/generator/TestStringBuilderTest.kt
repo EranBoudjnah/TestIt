@@ -1092,13 +1092,14 @@ class TestStringBuilderTest {
     fun `Given parameterized test, class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionName = "function1"
+        val returnType = "DataType1"
         val functionMetadata1 =
             FunctionMetadata(
                 functionName,
                 false,
                 emptyList(),
                 null,
-                DataType.Specific("DataType1", false)
+                DataType.Specific(returnType, false)
             )
 
         given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
@@ -1130,7 +1131,7 @@ class TestStringBuilderTest {
                 "\n" +
                 "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
                 "class ${TEST_CLASS_NAME}Test(\n" +
-                "__private val ${functionName}Expected: DataType1\n" +
+                "__private val ${functionName}Expected: $returnType\n" +
                 ") {\n" +
                 "__companion object {\n" +
                 "____@JvmStatic\n" +
@@ -1224,6 +1225,99 @@ class TestStringBuilderTest {
                 "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
                 "\n" +
                 "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
+                "____// Given\n" +
+                "____val expectedException = Exception()\n" +
+                "____lateinit var actualException: Exception\n" +
+                "\n" +
+                "____// When\n" +
+                "____try {\n" +
+                "______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                "____} catch (exception: Exception) {\n" +
+                "______actualException = exception\n" +
+                "____}\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(expectedException, actualException)\n" +
+                "__}\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test, class data with function and try-catch exception when appendTestClass then returns expected output`() {
+        // Given
+        val functionName = "function1"
+        val returnType = "DataType1"
+        val functionMetadata1 =
+            FunctionMetadata(
+                functionName,
+                false,
+                emptyList(),
+                null,
+                DataType.Specific(returnType, false)
+            )
+
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(functionMetadata1),
+            isParameterized = true
+        )
+
+        val cut = TestStringBuilder(
+            stringBuilder,
+            formatting,
+            mockerCodeGenerator,
+            CLASS_UNDER_TEST_VARIABLE_NAME,
+            ACTUAL_VALUE_VARIABLE_NAME,
+            DEFAULT_ASSERTION_STATEMENT,
+            ExceptionCaptureMethod.TRY_CATCH,
+            dateTypeToParameterMapper
+        )
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test(\n" +
+                "__private val ${functionName}Expected: $returnType\n" +
+                ") {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf(null)\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
+                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____cut = $TEST_CLASS_NAME()\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(${functionName}Expected, actualTest)\n" +
                 "____$DEFAULT_ASSERTION_STATEMENT\n" +
                 "__}\n" +
                 "\n" +
