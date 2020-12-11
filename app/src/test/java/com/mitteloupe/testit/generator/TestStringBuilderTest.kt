@@ -61,12 +61,10 @@ class TestStringBuilderTest {
             }
         }
 
-        given { formatting.getIndentation(1) }
-            .willReturn("__")
-        given { formatting.getIndentation(2) }
-            .willReturn("____")
-        given { formatting.getIndentation(3) }
-            .willReturn("______")
+        (1..3).forEach { indentation ->
+            given { formatting.getIndentation(indentation) }
+                .willReturn("__" * indentation)
+        }
 
         cut = TestStringBuilder(
             this.stringBuilder,
@@ -1202,3 +1200,5 @@ class TestStringBuilderTest {
         isParameterized = isParameterized
     )
 }
+
+private operator fun String.times(times: Int) = Array(times) { this }.joinToString("")
