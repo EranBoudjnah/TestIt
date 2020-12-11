@@ -454,33 +454,36 @@ class TestStringBuilderTest {
     fun `Given parameterized test and class data with functions when appendTestClass then returns expected output`() {
         // Given
         val functionName1 = "function1"
+        val function1ReturnDataType = DataType.Specific("DataType1", false)
         val functionMetadata1 =
             FunctionMetadata(
                 functionName1,
                 false,
                 emptyList(),
                 null,
-                DataType.Specific("DataType1", false)
+                function1ReturnDataType
             )
 
         val functionName2 = "function2"
+        val function2ReturnDataType = DataType.Specific("DataType2", false)
         val functionMetadata2 =
             FunctionMetadata(
                 functionName2,
                 true,
                 emptyList(),
                 null,
-                DataType.Specific("DataType2", false)
+                function2ReturnDataType
             )
 
         val extensionReceiverType = DataType.Specific("ReceiverDataType", false)
         val functionName3 = "function3"
+        val function3ReturnDataType = DataType.Specific("DataType3", false)
         val functionMetadata3 = FunctionMetadata(
             functionName3,
             false,
             emptyList(),
             extensionReceiverType,
-            DataType.Specific("DataType3", false)
+            function3ReturnDataType
         )
         val mockedReceiverType = "mock<ReceiverDataType>()"
         givenMockedValue(extensionReceiverType, mockedReceiverType)
@@ -489,24 +492,26 @@ class TestStringBuilderTest {
         val functionMetadata4 =
             FunctionMetadata(functionName4, false, emptyList(), null, unitDataType)
 
+        val functionParameter1DataType = DataType.Specific("Boolean", true)
         val functionParameter1 =
-            TypedParameter("functionParameterName1", DataType.Specific("Boolean", true))
-        val functionParameter2 = TypedParameter(
-            "functionParameterName2",
+            TypedParameter("functionParameterName1", functionParameter1DataType)
+        val functionParameter2DataType =
             DataType.Generic("List", true, DataType.Specific("String", false))
-        )
-        val functionParameter3 = TypedParameter(
-            "functionParameterName3",
+        val functionParameter2 =
+            TypedParameter("functionParameterName2", functionParameter2DataType)
+        val functionParameter3DataType =
             DataType.Lambda("Unit", false, DataType.Specific("Double", false))
-        )
+        val functionParameter3 =
+            TypedParameter("functionParameterName3", functionParameter3DataType)
         val functionName5 = "function5"
+        val function5ReturnDataType = DataType.Specific("DataType5", false)
         val functionMetadata5 =
             FunctionMetadata(
                 functionName5,
                 false,
                 listOf(functionParameter1, functionParameter2, functionParameter3),
                 null,
-                DataType.Specific("DataType5", false)
+                function5ReturnDataType
             )
         val mockedValue1 = "\"Some value 1\""
         givenMockedValue(functionParameter1, mockedValue1)
@@ -514,6 +519,29 @@ class TestStringBuilderTest {
         givenMockedValue(functionParameter2, mockedValue2)
         val mockedValue3 = "\"Some value 3\""
         givenMockedValue(functionParameter3, mockedValue3)
+        givenMockedValue(TypedParameter("function1Expected", function1ReturnDataType), mockedValue1)
+        givenMockedValue(TypedParameter("function2Expected", function2ReturnDataType), mockedValue2)
+        givenMockedValue(TypedParameter("function3Expected", function3ReturnDataType), mockedValue3)
+        val expectedFunction5Parameter1 = "false"
+        givenMockedValue(
+            TypedParameter("function5FunctionParameterName1", functionParameter1DataType),
+            expectedFunction5Parameter1
+        )
+        val expectedFunction5Parameter2 = "emptyList<String>()"
+        givenMockedValue(
+            TypedParameter("function5FunctionParameterName2", functionParameter2DataType),
+            expectedFunction5Parameter2
+        )
+        val expectedFunction5Parameter3 = "{}"
+        givenMockedValue(
+            TypedParameter("function5FunctionParameterName3", functionParameter3DataType),
+            expectedFunction5Parameter3
+        )
+        val mockedValue5 = "\"Some value 5\""
+        givenMockedValue(TypedParameter("function5Expected", function5ReturnDataType), mockedValue5)
+
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         val config = givenTestStringBuilderConfiguration(
             functions = listOf(
@@ -525,9 +553,6 @@ class TestStringBuilderTest {
             ),
             isParameterized = true
         )
-
-        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
-            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         // When
         val actualValue = cut.appendTestClass(config)
@@ -554,7 +579,7 @@ class TestStringBuilderTest {
                 "____@JvmStatic\n" +
                 "____@Parameters\n" +
                 "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf(\"Some value 1\", \"Some value 2\", \"Some value 3\")\n" +
+                "______arrayOf($mockedValue1, $mockedValue2, $mockedValue3, $expectedFunction5Parameter1, $expectedFunction5Parameter2, $expectedFunction5Parameter3, $mockedValue5)\n" +
                 "____)\n" +
                 "__}\n" +
                 "\n" +
@@ -783,6 +808,211 @@ class TestStringBuilderTest {
                 "____}\n" +
                 "\n" +
                 "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test and class data with overloaded functions when appendTestClass then returns expected output`() {
+        // Given
+        val overloadedFunctionName = "function1"
+        val dataType1 = "DataType1"
+        val functionMetadata1 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                emptyList(),
+                null,
+                DataType.Specific(dataType1, false)
+            )
+
+        val parameterDataType2 = "Param2"
+        val parameterName2 = "param2"
+        val functionMetadata2 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(
+                    TypedParameter(
+                        parameterName2,
+                        DataType.Specific(parameterDataType2, false)
+                    )
+                ),
+                null,
+                DataType.Specific("DataType2", false)
+            )
+
+        val commonReceiverName = "Receiver"
+        val extensionReceiverType3 = DataType.Specific(commonReceiverName, false)
+        val functionMetadata3 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                emptyList(),
+                extensionReceiverType3,
+                DataType.Specific(dataType1, false)
+            )
+        val mockedReceiverType = "mock<Receiver>()"
+        givenMockedValue(extensionReceiverType3, mockedReceiverType)
+
+        val parameterDataType4 = "Param4"
+        val parameterName4 = "param4"
+        val extensionReceiverType4 = DataType.Specific(commonReceiverName, false)
+        val functionMetadata4 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(
+                    TypedParameter(
+                        parameterName4,
+                        DataType.Specific(parameterDataType4, false)
+                    )
+                ),
+                extensionReceiverType4,
+                DataType.Specific("DataType2", false)
+            )
+        givenMockedValue(extensionReceiverType4, mockedReceiverType)
+
+        val parameterName5 = "param5"
+        val extensionReceiverType5 = DataType.Specific("Receiver2", false)
+        val functionMetadata5 =
+            FunctionMetadata(
+                overloadedFunctionName,
+                false,
+                listOf(TypedParameter(parameterName5, DataType.Specific("Param5", false))),
+                extensionReceiverType5,
+                DataType.Specific("DataType2", false)
+            )
+        givenMockedValue(extensionReceiverType5, mockedReceiverType)
+
+        val constructorExpected1 = "Expected1"
+        val constructorParameterName2 = "Param2"
+        val constructorExpected2 = "Expected2"
+        val constructorExpected3 = "Expected3"
+        val constructorParameterName4 = "Param4"
+        val constructorExpected4 = "Expected4"
+        val constructorParameterName5 = "Param5"
+        val constructorExpected5 = "Expected5"
+
+        val config = givenTestStringBuilderConfiguration(
+            functions = listOf(
+                functionMetadata1,
+                functionMetadata2,
+                functionMetadata3,
+                functionMetadata4,
+                functionMetadata5
+            ),
+            isParameterized = true
+        )
+
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test(\n" +
+                "__private val $overloadedFunctionName$constructorExpected1: $dataType1,\n" +
+                "__private val $overloadedFunctionName$constructorParameterName2: $parameterDataType2,\n" +
+                "__private val $overloadedFunctionName$constructorExpected2: DataType2,\n" +
+                "__private val $overloadedFunctionName$constructorExpected3: $dataType1,\n" +
+                "__private val $overloadedFunctionName$constructorParameterName4: Param4,\n" +
+                "__private val $overloadedFunctionName$constructorExpected4: DataType2,\n" +
+                "__private val $overloadedFunctionName$constructorParameterName5: Param5,\n" +
+                "__private val $overloadedFunctionName$constructorExpected5: DataType2\n" +
+                ") {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf(null, null, null, null, null, null, null, null)\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
+                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when $overloadedFunctionName() then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals($overloadedFunctionName$constructorExpected1, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($overloadedFunctionName$constructorParameterName2)\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals($overloadedFunctionName$constructorExpected2, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {\n" +
+                "____// Given\n" +
+                "____val receiver = $mockedReceiverType\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                "______receiver.${functionMetadata3.name}()\n" +
+                "____}\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals($overloadedFunctionName$constructorExpected3, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____val receiver = $mockedReceiverType\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                "______receiver.${functionMetadata4.name}($overloadedFunctionName$constructorParameterName4)\n" +
+                "____}\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals($overloadedFunctionName$constructorExpected4, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____val receiver = $mockedReceiverType\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
+                "______receiver.${functionMetadata5.name}($overloadedFunctionName$constructorParameterName5)\n" +
+                "____}\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals($overloadedFunctionName$constructorExpected5, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
                 "____$DEFAULT_ASSERTION_STATEMENT\n" +
                 "__}\n" +
                 "}\n",

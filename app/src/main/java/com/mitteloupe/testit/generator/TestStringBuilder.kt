@@ -128,8 +128,7 @@ class TestStringBuilder(
     ) = onlyIf(
         { isParameterized },
         {
-            val parameters =
-                getFunctionParametersAsConstructorParameters(functions)
+            val parameters = getFunctionParametersAsConstructorParameters(functions)
             onlyIf(
                 { parameters.isNotEmpty() },
                 {
@@ -147,13 +146,21 @@ class TestStringBuilder(
 
     private fun getFunctionParametersAsConstructorParameters(
         functions: List<FunctionMetadata>
-    ) = functions.flatMap { function ->
-        function.parameters.map { parameter ->
-            val parameterName =
-                parameter.toKotlinString(function, true)
-            TypedParameter(parameterName, parameter.type)
-        } + emptyList<TypedParameter>().onlyIf(function.returnType != unitDataType) {
-            listOf(TypedParameter(function.expectedReturnValueVariableName, function.returnType))
+    ): List<TypedParameter> {
+        val functionNameSuffixProvider = FunctionNameSuffixProvider(functions)
+        return functions.flatMap { function ->
+            function.parameters.map { parameter ->
+                val parameterName = parameter.toKotlinString(function, true)
+                TypedParameter(parameterName, parameter.type)
+            } + emptyList<TypedParameter>().onlyIf(function.returnType != unitDataType) {
+                val suffix = functionNameSuffixProvider.suffix(function)
+                listOf(
+                    TypedParameter(
+                        function.expectedReturnValueVariableName(suffix),
+                        function.returnType
+                    )
+                )
+            }
         }
     }
 
@@ -212,13 +219,15 @@ class TestStringBuilder(
     ): TestStringBuilder {
         val concreteFunctions = functionsMetadataContainer.concreteFunctions
         val lastIndex = concreteFunctions.size - 1
+        val functionNameSuffixProvider = FunctionNameSuffixProvider(concreteFunctions)
         concreteFunctions.forEachIndexed { index, function ->
             val isOverloaded = !concreteFunctions.isSingle { functionMetadata ->
                 functionMetadata.name == function.name &&
                     functionMetadata.extensionReceiverType ==
                     function.extensionReceiverType
             }
-            appendTest(isStatic, function, isOverloaded, isParameterized)
+            val expectedSuffix = functionNameSuffixProvider.suffix(function)
+            appendTest(isStatic, function, isOverloaded, isParameterized, expectedSuffix)
                 .onlyIf(
                     { exceptionCaptureMethod != ExceptionCaptureMethod.NO_CAPTURE },
                     {
@@ -228,7 +237,8 @@ class TestStringBuilder(
                                 function,
                                 isOverloaded,
                                 isParameterized,
-                                exceptionCaptureMethod
+                                exceptionCaptureMethod,
+                                expectedSuffix
                             )
                     }
                 )
@@ -245,7 +255,8 @@ class TestStringBuilder(
         isStatic: Boolean,
         function: FunctionMetadata,
         isOverloaded: Boolean,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        expectedSuffix: String
     ) = append("${indent()}@Test\n")
         .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName}")
         .onlyIf(
@@ -253,7 +264,13 @@ class TestStringBuilder(
             { appendFunctionParameterTypes(function.parameters) }
         )
         .append(" then _`() {\n")
-        .appendTestBody(isStatic, function, isParameterized, ExceptionCaptureMethod.NO_CAPTURE)
+        .appendTestBody(
+            isStatic,
+            function,
+            isParameterized,
+            ExceptionCaptureMethod.NO_CAPTURE,
+            expectedSuffix
+        )
         .append("${indent()}}\n")
 
     private fun appendExceptionTest(
@@ -261,7 +278,8 @@ class TestStringBuilder(
         function: FunctionMetadata,
         isOverloaded: Boolean,
         isParameterized: Boolean,
-        exceptionCaptureMethod: ExceptionCaptureMethod
+        exceptionCaptureMethod: ExceptionCaptureMethod,
+        expectedSuffix: String
     ) = append("${indent()}@Test")
         .onlyIf(
             { exceptionCaptureMethod == ExceptionCaptureMethod.ANNOTATION_EXPECTS },
@@ -274,7 +292,7 @@ class TestStringBuilder(
             { appendFunctionParameterTypes(function.parameters) }
         )
         .append(" then throws exception`() {\n")
-        .appendTestBody(isStatic, function, isParameterized, exceptionCaptureMethod)
+        .appendTestBody(isStatic, function, isParameterized, exceptionCaptureMethod, expectedSuffix)
         .append("${indent()}}\n")
 
     private fun appendFunctionParameterTypes(parameters: List<TypedParameter>) =
@@ -290,10 +308,11 @@ class TestStringBuilder(
         isStatic: Boolean,
         function: FunctionMetadata,
         isParameterized: Boolean,
-        exceptionCaptureMethod: ExceptionCaptureMethod
+        exceptionCaptureMethod: ExceptionCaptureMethod,
+        expectedSuffix: String
     ) = appendGiven(function, isParameterized, exceptionCaptureMethod)
         .appendWhen(isStatic, function, isParameterized, exceptionCaptureMethod)
-        .appendThen(function, isParameterized, exceptionCaptureMethod)
+        .appendThen(function, isParameterized, exceptionCaptureMethod, expectedSuffix)
 
     private fun appendGiven(
         function: FunctionMetadata,
@@ -410,9 +429,10 @@ class TestStringBuilder(
     private fun appendThen(
         function: FunctionMetadata,
         isParameterized: Boolean,
-        exceptionCaptureMethod: ExceptionCaptureMethod
+        exceptionCaptureMethod: ExceptionCaptureMethod,
+        expectedSuffix: String
     ) = append("${indent(2)}// Then\n")
-        .appendReturnValueAssertion(function, isParameterized)
+        .appendReturnValueAssertion(function, isParameterized, expectedSuffix)
         .append(indent(2))
         .append {
             when (exceptionCaptureMethod) {
@@ -424,13 +444,16 @@ class TestStringBuilder(
 
     private fun appendReturnValueAssertion(
         function: FunctionMetadata,
-        isParameterized: Boolean
+        isParameterized: Boolean,
+        expectedSuffix: String
     ) = onlyIf(
         {
             function.hasReturnValue() && isParameterized
         },
         {
-            append("${indent(2)}assertEquals(${function.expectedReturnValueVariableName}, $actualValueVariableName)\n")
+            append(
+                "${indent(2)}assertEquals(${function.expectedReturnValueVariableName(expectedSuffix)}, $actualValueVariableName)\n"
+            )
         }
     )
 
@@ -442,11 +465,9 @@ class TestStringBuilder(
         .appendBlankLine()
 
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
+        val parameters = getFunctionParametersAsConstructorParameters(classUnderTest.functions)
         val returnTypes = classUnderTest.functions.map { it.returnType }
-        return appendParameterizedCompanionObject(
-            classUnderTest.functions.flatMap { it.parameters },
-            returnTypes
-        )
+        return appendParameterizedCompanionObject(parameters, returnTypes)
     }
 
     private fun appendParameterizedCompanionObject(
@@ -459,7 +480,12 @@ class TestStringBuilder(
             "${indent(2)}fun data(): Collection<Array<*>> = listOf(\n" +
             "${indent(3)}arrayOf("
     )
-        .appendParameterValues(parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
+        .append(
+            (parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
+                .joinToString(", ") {
+                    mockerCodeGenerator.getMockedValue(it.name, it.type)
+                }
+        )
         .append(
             ")\n" +
                 "${indent(2)})\n" +
@@ -493,6 +519,24 @@ class TestStringBuilder(
     )
 
     private fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
+}
+
+class FunctionNameSuffixProvider(private val functions: Collection<FunctionMetadata>) {
+    private val functionNameCounter = mutableMapOf<String, Int>()
+
+    fun suffix(function: FunctionMetadata) = if (functionNameCounter.containsKey(function.name)) {
+        val occurrences = (functionNameCounter[function.name] ?: 0) + 1
+        functionNameCounter[function.name] = occurrences
+        "$occurrences"
+    } else {
+        functionNameCounter[function.name] = 1
+        val hasMultipleUses = functions.count { it.name == function.name } > 1
+        if (hasMultipleUses) {
+            "1"
+        } else {
+            ""
+        }
+    }
 }
 
 private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetadata) -> Boolean) =
