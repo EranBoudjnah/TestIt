@@ -8,7 +8,7 @@ fun TypedParameter.toKotlinString(
     isParameterized: Boolean
 ) = if (type.isUnit) {
     "Unit"
-}else {
+} else {
     if (isParameterized) {
         "${function.name}${name.capitalize()}"
     } else {
