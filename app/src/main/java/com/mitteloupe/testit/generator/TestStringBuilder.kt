@@ -43,13 +43,10 @@ class TestStringBuilder(
                 isParameterized
             )
             .append(" {\n")
-            .onlyIf(
-                { isParameterized },
-                {
-                    appendParameterizedCompanionObject(classUnderTest)
-                        .appendBlankLine()
-                }
-            )
+            .onlyIf(isParameterized) {
+                appendParameterizedCompanionObject(classUnderTest)
+                    .appendBlankLine()
+            }
             .appendMockingRule(config.hasMockableConstructorParameters, isParameterized)
             .appendClassVariable(classUnderTest.className)
             .appendMocks(classUnderTest.constructorParameters)
@@ -100,10 +97,7 @@ class TestStringBuilder(
             append("import $qualifiedName\n")
         }
 
-        return onlyIf(
-            { usedImports.isNotEmpty() },
-            { append("\n") }
-        )
+        return onlyIf(usedImports.isNotEmpty()) { append("\n") }
     }
 
     private fun appendTestClassRunnerAnnotation(
@@ -125,24 +119,18 @@ class TestStringBuilder(
     private fun appendConstructorParameters(
         functions: List<FunctionMetadata>,
         isParameterized: Boolean
-    ) = onlyIf(
-        { isParameterized },
-        {
-            val parameters = getFunctionParametersAsConstructorParameters(functions)
-            onlyIf(
-                { parameters.isNotEmpty() },
-                {
-                    append("(\n")
-                        .append(
-                            parameters.joinToString(",\n") { parameter ->
-                                "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
-                            }
-                        )
-                        .append("\n)")
-                }
-            )
+    ) = onlyIf(isParameterized) {
+        val parameters = getFunctionParametersAsConstructorParameters(functions)
+        onlyIf(parameters.isNotEmpty()) {
+            append("(\n")
+                .append(
+                    parameters.joinToString(",\n") { parameter ->
+                        "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
+                    }
+                )
+                .append("\n)")
         }
-    )
+    }
 
     private fun getFunctionParametersAsConstructorParameters(
         functions: List<FunctionMetadata>
@@ -167,25 +155,18 @@ class TestStringBuilder(
     private fun appendMockingRule(
         hasMockableConstructorParameters: Boolean,
         isParameterized: Boolean
-    ) = onlyIf(
-        { isParameterized && hasMockableConstructorParameters },
-        {
-            mockerCodeGenerator.mockingRule?.let {
-                append(it)
-                    .appendBlankLine()
-            }
+    ) = onlyIf(isParameterized && hasMockableConstructorParameters) {
+        mockerCodeGenerator.mockingRule?.let {
+            append(it).appendBlankLine()
         }
-    )
+    }
 
     private fun appendMocks(classParameters: List<TypedParameter>) =
         append(
             classParameters.joinToString("\n\n") { parameter ->
                 mockerCodeGenerator.getMockedVariableDefinition(parameter)
             }
-        ).onlyIf(
-            { classParameters.isNotEmpty() },
-            { appendBlankLine() }
-        )
+        ).onlyIf(classParameters.isNotEmpty()) { appendBlankLine() }
 
     private fun appendSetUp(
         classUnderTest: ClassMetadata
@@ -228,24 +209,18 @@ class TestStringBuilder(
             }
             val expectedSuffix = functionNameSuffixProvider.suffix(function)
             appendTest(isStatic, function, isOverloaded, isParameterized, expectedSuffix)
-                .onlyIf(
-                    { exceptionCaptureMethod != ExceptionCaptureMethod.NO_CAPTURE },
-                    {
-                        append("\n")
-                            .appendExceptionTest(
-                                isStatic,
-                                function,
-                                isOverloaded,
-                                isParameterized,
-                                exceptionCaptureMethod,
-                                expectedSuffix
-                            )
-                    }
-                )
-                .onlyIf(
-                    { index != lastIndex },
-                    { append("\n") }
-                )
+                .onlyIf(exceptionCaptureMethod != ExceptionCaptureMethod.NO_CAPTURE) {
+                    append("\n")
+                        .appendExceptionTest(
+                            isStatic,
+                            function,
+                            isOverloaded,
+                            isParameterized,
+                            exceptionCaptureMethod,
+                            expectedSuffix
+                        )
+                }
+                .onlyIf(index != lastIndex) { append("\n") }
         }
 
         return this
@@ -259,10 +234,7 @@ class TestStringBuilder(
         expectedSuffix: String
     ) = append("${indent()}@Test\n")
         .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName}")
-        .onlyIf(
-            { isOverloaded },
-            { appendFunctionParameterTypes(function.parameters) }
-        )
+        .onlyIf(isOverloaded) { appendFunctionParameterTypes(function.parameters) }
         .append(" then _`() {\n")
         .appendTestBody(
             isStatic,
@@ -281,16 +253,12 @@ class TestStringBuilder(
         exceptionCaptureMethod: ExceptionCaptureMethod,
         expectedSuffix: String
     ) = append("${indent()}@Test")
-        .onlyIf(
-            { exceptionCaptureMethod == ExceptionCaptureMethod.ANNOTATION_EXPECTS },
-            { append("(expected = Exception::class)") }
-        )
+        .onlyIf(exceptionCaptureMethod == ExceptionCaptureMethod.ANNOTATION_EXPECTS) {
+            append("(expected = Exception::class)")
+        }
         .append("\n")
         .append("${indent()}fun `Given _ when ${function.nameInTestFunctionName}")
-        .onlyIf(
-            { isOverloaded },
-            { appendFunctionParameterTypes(function.parameters) }
-        )
+        .onlyIf(isOverloaded) { appendFunctionParameterTypes(function.parameters) }
         .append(" then throws exception`() {\n")
         .appendTestBody(isStatic, function, isParameterized, exceptionCaptureMethod, expectedSuffix)
         .append("${indent()}}\n")
@@ -320,28 +288,22 @@ class TestStringBuilder(
         exceptionCaptureMethod: ExceptionCaptureMethod
     ) = append("${indent(2)}// Given\n")
         .appendFunctionParameterMocks(function, isParameterized)
-        .onlyIf(
-            { exceptionCaptureMethod == ExceptionCaptureMethod.TRY_CATCH },
-            {
-                append("${indent(2)}val expectedException = Exception()\n")
-                    .append("${indent(2)}lateinit var actualException: Exception\n")
-            }
-        )
+        .onlyIf(exceptionCaptureMethod == ExceptionCaptureMethod.TRY_CATCH) {
+            append("${indent(2)}val expectedException = Exception()\n")
+                .append("${indent(2)}lateinit var actualException: Exception\n")
+        }
         .append("\n")
 
     private fun appendFunctionParameterMocks(
         function: FunctionMetadata,
         isParameterized: Boolean
-    ) = onlyIf(
-        { !isParameterized },
-        {
-            function.parameters.forEach { parameter ->
-                val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
-                append("${indent(2)}val ${parameter.name} = $value\n")
-            }
-            this
+    ) = onlyIf(!isParameterized) {
+        function.parameters.forEach { parameter ->
+            val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
+            append("${indent(2)}val ${parameter.name} = $value\n")
         }
-    ).also {
+        this
+    }.also {
         function.extensionReceiverType?.let { receiverType ->
             if (function.parameters.isNotEmpty()) {
                 append("\n")
@@ -361,19 +323,15 @@ class TestStringBuilder(
         isParameterized: Boolean,
         expectsException: ExceptionCaptureMethod
     ) = append("${indent(2)}// When\n")
-        .onlyIf(
-            { expectsException == ExceptionCaptureMethod.TRY_CATCH },
-            {
-                append(indent(2))
-                append("try {\n")
-                append(indent())
-            }
-        )
+        .onlyIf(expectsException == ExceptionCaptureMethod.TRY_CATCH) {
+            append(indent(2))
+            append("try {\n")
+            append(indent())
+        }
         .append(indent(2))
-        .onlyIf(
-            { expectsException == ExceptionCaptureMethod.NO_CAPTURE },
-            { appendActualVariable(function) }
-        )
+        .onlyIf(expectsException == ExceptionCaptureMethod.NO_CAPTURE) {
+            appendActualVariable(function)
+        }
         .appendReceiverOpen(function, isStatic)
         .append("${function.name}(")
         .append(
@@ -383,25 +341,17 @@ class TestStringBuilder(
         )
         .append(")")
         .appendReceiverClose(function, isStatic)
-        .onlyIf(
-            { expectsException == ExceptionCaptureMethod.TRY_CATCH },
-            {
-                append("\n")
-                    .append("${indent(2)}} catch (exception: Exception) {\n")
-                    .append("${indent(3)}actualException = exception\n")
-                    .append("${indent(2)}}")
-            }
-        )
+        .onlyIf(expectsException == ExceptionCaptureMethod.TRY_CATCH) {
+            append("\n")
+                .append("${indent(2)}} catch (exception: Exception) {\n")
+                .append("${indent(3)}actualException = exception\n")
+                .append("${indent(2)}}")
+        }
         .appendBlankLine()
 
     private fun appendActualVariable(
         function: FunctionMetadata
-    ) = onlyIf(
-        { function.hasReturnValue() },
-        {
-            append("val $actualValueVariableName = ")
-        }
-    )
+    ) = onlyIf(function.hasReturnValue()) { append("val $actualValueVariableName = ") }
 
     private fun appendReceiverOpen(
         function: FunctionMetadata,
@@ -417,14 +367,11 @@ class TestStringBuilder(
     private fun appendReceiverClose(
         function: FunctionMetadata,
         isStatic: Boolean
-    ) = onlyIf(
-        { !isStatic },
-        {
-            function.extensionReceiverType?.let {
-                append("\n${indent(2)}}")
-            }
+    ) = onlyIf(!isStatic) {
+        function.extensionReceiverType?.let {
+            append("\n${indent(2)}}")
         }
-    )
+    }
 
     private fun appendThen(
         function: FunctionMetadata,
@@ -448,16 +395,11 @@ class TestStringBuilder(
         function: FunctionMetadata,
         isParameterized: Boolean,
         expectedSuffix: String
-    ) = onlyIf(
-        {
-            function.hasReturnValue() && isParameterized
-        },
-        {
-            append(
-                "${indent(2)}assertEquals(${function.expectedReturnValueVariableName(expectedSuffix)}, $actualValueVariableName)\n"
-            )
-        }
-    )
+    ) = onlyIf(function.hasReturnValue() && isParameterized) {
+        append(
+            "${indent(2)}assertEquals(${function.expectedReturnValueVariableName(expectedSuffix)}, $actualValueVariableName)\n"
+        )
+    }
 
     private fun appendBlankLine() = append("\n\n")
 
@@ -545,10 +487,7 @@ private fun List<FunctionMetadata>.isSingle(predicate: (function: FunctionMetada
     singleOrNull { function -> predicate(function) } != null
 
 private fun <T : Any> T.onlyIf(isTrue: Boolean, action: T.() -> T?) =
-    onlyIf({ isTrue }, action)
-
-private fun <T : Any> T.onlyIf(predicate: () -> Boolean, action: T.() -> T?) =
-    if (predicate()) {
+    if (isTrue) {
         action() ?: this
     } else {
         this
