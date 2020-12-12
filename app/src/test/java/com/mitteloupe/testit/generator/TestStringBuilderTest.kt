@@ -29,6 +29,7 @@ private const val ACTUAL_VALUE_VARIABLE_NAME = "actualTest"
 private const val DEFAULT_ASSERTION_STATEMENT = "defaultAssertion"
 private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
 private const val PARAMETERIZED_RUNNER_ANNOTATION = "@Parameterized"
+private const val MOCKING_RULE = "__@get:Rule\n__val mockitoRule: MethodRule = MockitoJUnit.rule()"
 
 private val unitDataType = DataType.Specific("Unit", false)
 
@@ -1359,6 +1360,50 @@ class TestStringBuilderTest {
                 "\n" +
                 "$givenAnnotation\n" +
                 "class ${TEST_CLASS_NAME}Test {\n" +
+                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
+                "\n" +
+                "__@Before\n" +
+                "__fun setUp() {\n" +
+                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
+                "__}\n" +
+                "\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized tests, class data with mockable constructor parameters when appendTestClass then returns expected output`() {
+        // Given
+        val config = givenTestStringBuilderConfiguration(
+            hasMockableConstructorParameters = true,
+            isParameterized = true
+        )
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+        given { mockerCodeGenerator.mockingRule }
+            .willReturn(MOCKING_RULE)
+
+        // When
+        val actualValue = cut.appendTestClass(config)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${TEST_CLASS_NAME}Test {\n" +
+                "__companion object {\n" +
+                "____@JvmStatic\n" +
+                "____@Parameters\n" +
+                "____fun data(): Collection<Array<*>> = listOf(\n" +
+                "______arrayOf()\n" +
+                "____)\n" +
+                "__}\n" +
+                "\n" +
+                "$MOCKING_RULE\n" +
+                "\n" +
                 "__private lateinit var cut: $TEST_CLASS_NAME\n" +
                 "\n" +
                 "__@Before\n" +
