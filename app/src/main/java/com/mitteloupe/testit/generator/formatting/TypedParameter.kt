@@ -6,8 +6,12 @@ import com.mitteloupe.testit.model.TypedParameter
 fun TypedParameter.toKotlinString(
     function: FunctionMetadata,
     isParameterized: Boolean
-) = if (isParameterized) {
-    "${function.name}${name.capitalize()}"
-} else {
-    name
+) = if (type.isUnit) {
+    "Unit"
+}else {
+    if (isParameterized) {
+        "${function.name}${name.capitalize()}"
+    } else {
+        name
+    }
 }

@@ -16,8 +16,6 @@ import com.mitteloupe.testit.model.TypedParameter
 import com.mitteloupe.testit.model.concreteFunctions
 import com.mitteloupe.testit.processing.hasReturnValue
 
-private val unitDataType = DataType.Specific("Unit", false)
-
 class TestStringBuilder(
     private val stringBuilder: StringBuilder,
     private val formatting: Formatting,
@@ -137,10 +135,11 @@ class TestStringBuilder(
     ): List<TypedParameter> {
         val functionNameSuffixProvider = FunctionNameSuffixProvider(functions)
         return functions.flatMap { function ->
-            function.parameters.map { parameter ->
-                val parameterName = parameter.toKotlinString(function, true)
-                TypedParameter(parameterName, parameter.type)
-            } + emptyList<TypedParameter>().onlyIf(function.returnType != unitDataType) {
+            function.parameters.filter { parameter -> parameter.type.isNotUnit }
+                .map { parameter ->
+                    val parameterName = parameter.toKotlinString(function, true)
+                    TypedParameter(parameterName, parameter.type)
+                } + emptyList<TypedParameter>().onlyIf(function.returnType.isNotUnit) {
                 val suffix = functionNameSuffixProvider.suffix(function)
                 listOf(
                     TypedParameter(
@@ -298,10 +297,11 @@ class TestStringBuilder(
         function: FunctionMetadata,
         isParameterized: Boolean
     ) = onlyIf(!isParameterized) {
-        function.parameters.forEach { parameter ->
-            val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
-            append("${indent(2)}val ${parameter.name} = $value\n")
-        }
+        function.parameters.filter { it.type.isNotUnit }
+            .forEach { parameter ->
+                val value = mockerCodeGenerator.getMockedValue(parameter.name, parameter.type)
+                append("${indent(2)}val ${parameter.name} = $value\n")
+            }
         this
     }.also {
         function.extensionReceiverType?.let { receiverType ->
@@ -434,13 +434,6 @@ class TestStringBuilder(
             ")\n" +
                 "${indent(2)})\n" +
                 "${indent()}}"
-        )
-
-    private fun appendParameterValues(parameters: List<TypedParameter>) =
-        append(
-            parameters.joinToString(", ") {
-                mockerCodeGenerator.getMockedValue(it.name, it.type)
-            }
         )
 
     private fun append(string: String): TestStringBuilder {

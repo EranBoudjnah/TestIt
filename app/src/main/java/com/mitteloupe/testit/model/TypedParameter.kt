@@ -2,6 +2,8 @@ package com.mitteloupe.testit.model
 
 data class TypedParameter(val name: String, val type: DataType)
 
+val unitDataType = DataType.Specific("Unit", false)
+
 sealed class DataType(open val name: String, open val isNullable: Boolean) {
     data class Specific(
         override val name: String,
@@ -65,4 +67,10 @@ sealed class DataType(open val name: String, open val isNullable: Boolean) {
         result = 31 * result + isNullable.hashCode()
         return result
     }
+
+    val isUnit: Boolean
+        get() = this == unitDataType
+
+    val isNotUnit: Boolean
+        get() = !isUnit
 }

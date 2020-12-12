@@ -437,11 +437,9 @@ class TestStringBuilderTest {
                 "__@Test\n" +
                 "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
                 "____// Given\n" +
-                "____val ${functionParameter1.name} = $mockedValue1\n" +
-                "____val ${functionParameter2.name} = $mockedValue2\n" +
                 "\n" +
                 "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(Unit, Unit)\n" +
                 "\n" +
                 "____// Then\n" +
                 "____$DEFAULT_ASSERTION_STATEMENT\n" +
@@ -1458,7 +1456,7 @@ class TestStringBuilderTest {
         val outputClassName = "outputClassName"
         val isParameterized = true
         given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
-            .willReturn("@RunWith(Parameterized::class)")
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         // When
         val actualValue = cut.appendFunctionsTestClass(
@@ -1476,7 +1474,7 @@ class TestStringBuilderTest {
                 "import $givenImport1\n" +
                 "import $givenImport2\n" +
                 "\n" +
-                "@RunWith(Parameterized::class)\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
                 "class ${outputClassName}Test {\n" +
                 "}\n",
             outputString
@@ -1525,10 +1523,6 @@ class TestStringBuilderTest {
                 null,
                 DataType.Specific("DataType5", false)
             )
-        val mockedValue1 = "\"Some value 1\""
-        givenMockedValue(functionParameter1, mockedValue1)
-        val mockedValue2 = "\"Some value 2\""
-        givenMockedValue(functionParameter2, mockedValue2)
         val functionsUnderTest = StaticFunctionsMetadata(
             PACKAGE_NAME,
             emptyMap(),
@@ -1590,13 +1584,143 @@ class TestStringBuilderTest {
                 "__@Test\n" +
                 "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
                 "____// Given\n" +
-                "____val ${functionParameter1.name} = $mockedValue1\n" +
-                "____val ${functionParameter2.name} = $mockedValue2\n" +
                 "\n" +
                 "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(${functionParameter1.name}, ${functionParameter2.name})\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)\n" +
                 "\n" +
                 "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "}\n",
+            outputString
+        )
+    }
+
+    @Test
+    fun `Given parameterized test, static functions metadata when appendFunctionsTestClass then returns expected output`() {
+        // Given
+        val function1Name = "function1"
+        val functionMetadata1 =
+            FunctionMetadata(
+                function1Name,
+                false,
+                emptyList(),
+                null,
+                DataType.Specific("DataType1", false)
+            )
+        val function2Name = "function2"
+        val functionMetadata2 =
+            FunctionMetadata(
+                function2Name,
+                true,
+                emptyList(),
+                null,
+                DataType.Specific("DataType2", false)
+            )
+        val extensionReceiverType = DataType.Specific("ReceiverDataType", false)
+        val functionMetadata3 =
+            FunctionMetadata(
+                "function3",
+                false,
+                emptyList(),
+                extensionReceiverType,
+                DataType.Specific("DataType3", false)
+            )
+        val mockedReceiverType = "mock<ReceiverDataType>()"
+        givenMockedValue(extensionReceiverType, mockedReceiverType)
+        val functionMetadata4 =
+            FunctionMetadata("function4", false, emptyList(), null, unitDataType)
+        val functionParameter1 = TypedParameter("functionParameterName1", unitDataType)
+        val functionParameter2 = TypedParameter("functionParameterName2", unitDataType)
+        val functionMetadata5 =
+            FunctionMetadata(
+                "function5",
+                false,
+                listOf(functionParameter1, functionParameter2),
+                null,
+                DataType.Specific("DataType5", false)
+            )
+        val mockedValue1 = "\"Some value 1\""
+        givenMockedValue(functionParameter1, mockedValue1)
+        val mockedValue2 = "\"Some value 2\""
+        givenMockedValue(functionParameter2, mockedValue2)
+        val functionsUnderTest = StaticFunctionsMetadata(
+            PACKAGE_NAME,
+            emptyMap(),
+            listOf(
+                functionMetadata1,
+                functionMetadata2,
+                functionMetadata3,
+                functionMetadata4,
+                functionMetadata5
+            )
+        )
+        val usedImports = setOf<String>()
+        val outputClassName = "outputClassName"
+        given { mockerCodeGenerator.testClassParameterizedRunnerAnnotation }
+            .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
+
+        // When
+        val actualValue =
+            cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, true)
+
+        // Then
+        val outputString = actualValue.toString()
+        assertEquals(
+            "package $PACKAGE_NAME\n" +
+                "\n" +
+                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
+                "class ${outputClassName}Test(\n" +
+                "__private val ${function1Name}Expected: DataType1,\n" +
+                "__private val ${function2Name}Expected: DataType2,\n" +
+                "__private val function3Expected: DataType3,\n" +
+                "__private val function5Expected: DataType5\n" +
+                ") {\n" +
+                "__@Test\n" +
+                "__fun `Given _ when $function1Name then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = $function1Name()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(function1Expected, actualTest)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
+                "____// Given\n" +
+                "____val receiver = mock<${extensionReceiverType.name}>()\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(function3Expected, actualTest)\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____${functionMetadata4.name}()\n" +
+                "\n" +
+                "____// Then\n" +
+                "____$DEFAULT_ASSERTION_STATEMENT\n" +
+                "__}\n" +
+                "\n" +
+                "__@Test\n" +
+                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
+                "____// Given\n" +
+                "\n" +
+                "____// When\n" +
+                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)\n" +
+                "\n" +
+                "____// Then\n" +
+                "____assertEquals(function5Expected, actualTest)\n" +
                 "____$DEFAULT_ASSERTION_STATEMENT\n" +
                 "__}\n" +
                 "}\n",
