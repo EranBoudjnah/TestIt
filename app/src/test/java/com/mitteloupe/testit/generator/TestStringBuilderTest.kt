@@ -1449,7 +1449,7 @@ class TestStringBuilderTest {
     }
 
     @Test
-    fun `Given parameterized test with static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
+    fun `Given parameterized test, static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
         // Given
         val givenImport1 = "com.path.to.Class1"
         val givenImport2 = "com.path.to.Class2"
