@@ -3,15 +3,13 @@ package com.mitteloupe.testit.generator
 import com.mitteloupe.testit.config.model.Configuration
 import com.mitteloupe.testit.config.model.Mocker
 import com.mitteloupe.testit.generator.formatting.Formatting
-import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockKCodeGenerator
 import com.mitteloupe.testit.generator.mocking.MockableTypeQualifier
 import com.mitteloupe.testit.generator.mocking.MockitoCodeGenerator
 
 class TestsGeneratorFactory(
     private val mockerCodeGeneratorProvider: MockerCodeGeneratorProvider,
-    private val formatting: Formatting,
-    private val dataTypeToParameterMapper: DateTypeToParameterMapper
+    private val formatting: Formatting
 ) {
     fun createTestsGenerator(configuration: Configuration): KotlinJUnitTestGenerator {
         val mockerCodeGenerator =
@@ -24,8 +22,7 @@ class TestsGeneratorFactory(
                 configuration.classUnderTest,
                 configuration.actualValue,
                 configuration.defaultAssertion,
-                configuration.exceptionCaptureMethod,
-                dataTypeToParameterMapper
+                configuration.exceptionCaptureMethod
             ),
             mockerCodeGenerator
         )

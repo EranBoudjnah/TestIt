@@ -2,7 +2,6 @@ package com.mitteloupe.testit.generator
 
 import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
 import com.mitteloupe.testit.generator.formatting.Formatting
-import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
@@ -45,9 +44,6 @@ class TestStringBuilderTest {
     @Mock
     private lateinit var mockerCodeGenerator: MockerCodeGenerator
 
-    @Mock
-    private lateinit var dateTypeToParameterMapper: DateTypeToParameterMapper
-
     private val outString = mutableListOf<String>()
 
     @Before
@@ -74,8 +70,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            EXCEPTION_CAPTURE_METHOD,
-            dateTypeToParameterMapper
+            EXCEPTION_CAPTURE_METHOD
         )
     }
 
@@ -491,7 +486,8 @@ class TestStringBuilderTest {
         val functionMetadata4 =
             FunctionMetadata(functionName4, false, emptyList(), null, unitDataType)
 
-        val functionParameter1DataType = DataType.Specific("Boolean", true)
+        val functionParameter1TypeName = "Boolean"
+        val functionParameter1DataType = DataType.Specific(functionParameter1TypeName, true)
         val functionParameter1 =
             TypedParameter("functionParameterName1", functionParameter1DataType)
         val functionParameter2DataType =
@@ -553,14 +549,15 @@ class TestStringBuilderTest {
             isParameterized = true
         )
 
+        val capitalizedParameterName1 = "FunctionParameterName1"
+        val capitalizedParameterName2 = "FunctionParameterName2"
+        val capitalizedParameterName3 = "FunctionParameterName3"
+
         // When
         val actualValue = cut.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
-        val capitalizedParameterName1 = "FunctionParameterName1"
-        val capitalizedParameterName2 = "FunctionParameterName2"
-        val capitalizedParameterName3 = "FunctionParameterName3"
         assertEquals(
             "package $PACKAGE_NAME\n" +
                 "\n" +
@@ -569,7 +566,7 @@ class TestStringBuilderTest {
                 "__private val ${functionName1}Expected: DataType1,\n" +
                 "__private val ${functionName2}Expected: DataType2,\n" +
                 "__private val ${functionName3}Expected: DataType3,\n" +
-                "__private val $functionName5$capitalizedParameterName1: Boolean?,\n" +
+                "__private val $functionName5$capitalizedParameterName1: $functionParameter1TypeName?,\n" +
                 "__private val $functionName5$capitalizedParameterName2: List<String>?,\n" +
                 "__private val $functionName5$capitalizedParameterName3: (Double) -> Unit,\n" +
                 "__private val ${functionName5}Expected: DataType5\n" +
@@ -1041,8 +1038,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            ExceptionCaptureMethod.ANNOTATION_EXPECTS,
-            dateTypeToParameterMapper
+            ExceptionCaptureMethod.ANNOTATION_EXPECTS
         )
 
         // When
@@ -1116,8 +1112,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            ExceptionCaptureMethod.ANNOTATION_EXPECTS,
-            dateTypeToParameterMapper
+            ExceptionCaptureMethod.ANNOTATION_EXPECTS
         )
 
         // When
@@ -1196,8 +1191,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            ExceptionCaptureMethod.TRY_CATCH,
-            dateTypeToParameterMapper
+            ExceptionCaptureMethod.TRY_CATCH
         )
 
         // When
@@ -1277,8 +1271,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            ExceptionCaptureMethod.TRY_CATCH,
-            dateTypeToParameterMapper
+            ExceptionCaptureMethod.TRY_CATCH
         )
 
         // When

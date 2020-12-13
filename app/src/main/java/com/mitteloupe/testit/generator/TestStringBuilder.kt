@@ -5,7 +5,6 @@ import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.generator.formatting.expectedReturnValueVariableName
 import com.mitteloupe.testit.generator.formatting.nameInTestFunctionName
 import com.mitteloupe.testit.generator.formatting.toKotlinString
-import com.mitteloupe.testit.generator.mapper.DateTypeToParameterMapper
 import com.mitteloupe.testit.generator.mocking.MockerCodeGenerator
 import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
@@ -23,8 +22,7 @@ class TestStringBuilder(
     private val classUnderTestVariableName: String,
     private val actualValueVariableName: String,
     private val defaultAssertionStatement: String,
-    private val exceptionCaptureMethod: ExceptionCaptureMethod,
-    private val dateTypeToParameterMapper: DateTypeToParameterMapper
+    private val exceptionCaptureMethod: ExceptionCaptureMethod
 ) {
     fun appendTestClass(config: TestStringBuilderConfiguration): TestStringBuilder {
         val classUnderTest = config.classUnderTest
@@ -139,15 +137,16 @@ class TestStringBuilder(
                 .map { parameter ->
                     val parameterName = parameter.toKotlinString(function, true)
                     TypedParameter(parameterName, parameter.type)
-                } + emptyList<TypedParameter>().onlyIf(function.returnType.isNotUnit) {
-                val suffix = functionNameSuffixProvider.suffix(function)
-                listOf(
-                    TypedParameter(
-                        function.expectedReturnValueVariableName(suffix),
-                        function.returnType
+                } +
+                emptyList<TypedParameter>().onlyIf(function.returnType.isNotUnit) {
+                    val suffix = functionNameSuffixProvider.suffix(function)
+                    listOf(
+                        TypedParameter(
+                            function.expectedReturnValueVariableName(suffix),
+                            function.returnType
+                        )
                     )
-                )
-            }
+                }
         }
     }
 
@@ -410,14 +409,10 @@ class TestStringBuilder(
 
     private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
         val parameters = getFunctionParametersAsConstructorParameters(classUnderTest.functions)
-        val returnTypes = classUnderTest.functions.map { it.returnType }
-        return appendParameterizedCompanionObject(parameters, returnTypes)
+        return appendParameterizedCompanionObject(parameters)
     }
 
-    private fun appendParameterizedCompanionObject(
-        parameters: List<TypedParameter>,
-        expectedTypes: List<DataType>
-    ) = append(
+    private fun appendParameterizedCompanionObject(parameters: List<TypedParameter>) = append(
         "${indent()}companion object {\n" +
             "${indent(2)}@JvmStatic\n" +
             "${indent(2)}@Parameters\n" +
@@ -425,10 +420,9 @@ class TestStringBuilder(
             "${indent(3)}arrayOf("
     )
         .append(
-            (parameters + dateTypeToParameterMapper.toParameters(expectedTypes))
-                .joinToString(", ") {
-                    mockerCodeGenerator.getMockedValue(it.name, it.type)
-                }
+            parameters.joinToString(", ") {
+                mockerCodeGenerator.getMockedValue(it.name, it.type)
+            }
         )
         .append(
             ")\n" +
