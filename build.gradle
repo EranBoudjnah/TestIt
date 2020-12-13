@@ -1,4 +1,5 @@
 import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: "com.github.ben-manes.versions"
 
 buildscript {
@@ -26,11 +27,11 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
 
-task installGitHook(type: Copy) {
+tasks.register("installGitHook", Copy) {
     def suffix = "macos"
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         suffix = "windows"
@@ -41,7 +42,7 @@ task installGitHook(type: Copy) {
     fileMode 0775
 }
 
-task installCodeStyle(type: Copy) {
+tasks.register("installCodeStyle", Copy) {
     from new File(rootProject.rootDir, 'automation/codeStyles/Project.xml')
     into { new File(rootProject.rootDir, '.idea/codeStyles') }
 }
