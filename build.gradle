@@ -27,6 +27,18 @@ allprojects {
     }
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        def requested = details.requested
+        if (requested.group == 'org.jetbrains.kotlin' && requested.name == 'kotlin-reflect') {
+            details.useVersion kotlin_version
+        }
+        if (requested.group == 'com.pinterest' && requested.name == 'ktlint') {
+            details.useVersion '0.40.0'
+        }
+    }
+}
+
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
