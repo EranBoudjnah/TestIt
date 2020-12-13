@@ -569,9 +569,9 @@ class TestStringBuilderTest {
                 "__private val ${functionName1}Expected: DataType1,\n" +
                 "__private val ${functionName2}Expected: DataType2,\n" +
                 "__private val ${functionName3}Expected: DataType3,\n" +
-                "__private val ${functionName5}$capitalizedParameterName1: Boolean?,\n" +
-                "__private val ${functionName5}$capitalizedParameterName2: List<String>?,\n" +
-                "__private val ${functionName5}$capitalizedParameterName3: (Double) -> Unit,\n" +
+                "__private val $functionName5$capitalizedParameterName1: Boolean?,\n" +
+                "__private val $functionName5$capitalizedParameterName2: List<String>?,\n" +
+                "__private val $functionName5$capitalizedParameterName3: (Double) -> Unit,\n" +
                 "__private val ${functionName5}Expected: DataType5\n" +
                 ") {\n" +
                 "__companion object {\n" +
