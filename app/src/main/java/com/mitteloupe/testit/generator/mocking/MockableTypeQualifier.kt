@@ -62,15 +62,27 @@ class MockableTypeQualifier {
     )
 
     fun getNonMockableType(dataType: DataType) = if (dataType is DataType.Lambda) {
-        null
+        val lambdaArguments = dataType.lambdaArguments()
+        val lambdaContent = if (lambdaArguments.isEmpty()) {
+            ""
+        } else {
+            " $lambdaArguments -> "
+        }
+        ConcreteValue("(?)->?") { _, _ -> "{$lambdaContent}" }
     } else {
-        nonMockableTypes.firstOrNull { type -> type.dataType == dataType.name }
+        nonMockableTypes.firstOrNull { type -> type.dataType == dataType.name } ?: ConcreteValue(
+            dataType.name,
+        ) { _, _ -> "${dataType.toKotlinString()}()" }
     }
 
     fun isMockable(typedParameter: TypedParameter): Boolean = isMockable(typedParameter.type)
 
     fun isMockable(type: DataType) = nonMockableTypes.none { mockableType ->
         type.name == mockableType.dataType
+    }
+
+    private fun DataType.Lambda.lambdaArguments() = inputParameterTypes.joinToString(", ") {
+        it.name
     }
 
     private fun getCodeForCollectionOf(functionName: String, parameterType: DataType): String {
