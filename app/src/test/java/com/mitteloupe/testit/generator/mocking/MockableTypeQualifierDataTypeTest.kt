@@ -11,8 +11,8 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class MockableTypeQualifierDataTypeTest(
     private val givenDataType: DataType,
-    private val expectedType: String?,
-    private val expectedDefaultValue: String?,
+    private val expectedType: String,
+    private val expectedDefaultValue: String,
     private val isMockableExpected2: Boolean
 ) {
     companion object {
@@ -58,8 +58,8 @@ class MockableTypeQualifierDataTypeTest(
 
         // When
         val actualValue = cut.getNonMockableType(givenDataType)
-        val actualDataType = actualValue?.dataType
-        val actualDefaultValue = actualValue?.defaultValue?.invoke("Test", givenDataType)
+        val actualDataType = actualValue.dataType
+        val actualDefaultValue = actualValue.defaultValue.invoke("Test", givenDataType)
 
         // Then
         assertEquals(expectedType, actualDataType)
