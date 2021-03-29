@@ -11,8 +11,8 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class MockableTypeQualifierDataTypeTest(
     private val givenDataType: DataType,
-    private val expectedType: String,
-    private val expectedDefaultValue: String,
+    private val expectedType: String?,
+    private val expectedDefaultValue: String?,
     private val isMockableExpected2: Boolean
 ) {
     companion object {
@@ -37,9 +37,9 @@ class MockableTypeQualifierDataTypeTest(
             arrayOf(DataType.Specific("Set", true), "Set", "setOf<Any>()", false),
             arrayOf(DataType.Specific("MutableSet", false), "MutableSet", "mutableSetOf<Any>()", false),
             arrayOf(DataType.Specific("Unit", true), "Unit", "Unit", false),
-            arrayOf(DataType.Specific("CustomDataType", false), "CustomDataType", "CustomDataType()", true),
+            arrayOf(DataType.Specific("CustomDataType", false), null, null, true),
             arrayOf(DataType.Lambda("Lambda", true, dataType("a"), dataType("b")), "(?)->?", "{ a, b -> }", true),
-            arrayOf(DataType.Generic("Manager", false, dataType("Employee")), "Manager", "Manager<Employee>()", true)
+            arrayOf(DataType.Generic("Manager", false, dataType("Employee")), null, null, true)
         )
 
         private fun dataType(name: String) = DataType.Specific(name, false)
@@ -58,8 +58,8 @@ class MockableTypeQualifierDataTypeTest(
 
         // When
         val actualValue = cut.getNonMockableType(givenDataType)
-        val actualDataType = actualValue.dataType
-        val actualDefaultValue = actualValue.defaultValue.invoke("Test", givenDataType)
+        val actualDataType = actualValue?.dataType
+        val actualDefaultValue = actualValue?.defaultValue?.invoke("Test", givenDataType)
 
         // Then
         assertEquals(expectedType, actualDataType)

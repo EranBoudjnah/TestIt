@@ -70,9 +70,7 @@ class MockableTypeQualifier {
         }
         ConcreteValue("(?)->?") { _, _ -> "{$lambdaContent}" }
     } else {
-        nonMockableTypes.firstOrNull { type -> type.dataType == dataType.name } ?: ConcreteValue(
-            dataType.name,
-        ) { _, _ -> "${dataType.toKotlinString()}()" }
+        nonMockableTypes.firstOrNull { type -> type.dataType == dataType.name }
     }
 
     fun isMockable(typedParameter: TypedParameter): Boolean = isMockable(typedParameter.type)
