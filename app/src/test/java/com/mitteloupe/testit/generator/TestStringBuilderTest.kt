@@ -8,11 +8,6 @@ import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -20,6 +15,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 
 private const val PACKAGE_NAME = "com.test.it"
 private const val TEST_CLASS_NAME = "TestClass"
@@ -34,7 +34,7 @@ private val unitDataType = DataType.Specific("Unit", false)
 
 @RunWith(MockitoJUnitRunner::class)
 class TestStringBuilderTest {
-    private lateinit var cut: TestStringBuilder
+    private lateinit var classUnderTest: TestStringBuilder
 
     private lateinit var stringBuilder: StringBuilder
 
@@ -63,7 +63,7 @@ class TestStringBuilderTest {
                 .willReturn("__" * indentation)
         }
 
-        cut = TestStringBuilder(
+        classUnderTest = TestStringBuilder(
             this.stringBuilder,
             formatting,
             mockerCodeGenerator,
@@ -85,7 +85,7 @@ class TestStringBuilderTest {
         val config = givenTestStringBuilderConfiguration()
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -113,7 +113,7 @@ class TestStringBuilderTest {
             .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -153,7 +153,7 @@ class TestStringBuilderTest {
             .willReturn(givenAbstractCode)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -183,7 +183,7 @@ class TestStringBuilderTest {
         )
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -225,7 +225,7 @@ class TestStringBuilderTest {
             .willReturn(codeForParameter2)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -282,7 +282,7 @@ class TestStringBuilderTest {
             .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -378,7 +378,7 @@ class TestStringBuilderTest {
         )
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -554,7 +554,7 @@ class TestStringBuilderTest {
         val capitalizedParameterName3 = "FunctionParameterName3"
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -723,7 +723,7 @@ class TestStringBuilderTest {
         )
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -908,7 +908,7 @@ class TestStringBuilderTest {
         )
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -1342,7 +1342,7 @@ class TestStringBuilderTest {
         given { mockerCodeGenerator.testClassBaseRunnerAnnotation }.willReturn(givenAnnotation)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -1376,7 +1376,7 @@ class TestStringBuilderTest {
             .willReturn(MOCKING_RULE)
 
         // When
-        val actualValue = cut.appendTestClass(config)
+        val actualValue = classUnderTest.appendTestClass(config)
 
         // Then
         val outputString = actualValue.toString()
@@ -1418,7 +1418,7 @@ class TestStringBuilderTest {
         val isParameterized = false
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(
+        val actualValue = classUnderTest.appendFunctionsTestClass(
             functionsUnderTest,
             usedImports,
             outputClassName,
@@ -1452,7 +1452,7 @@ class TestStringBuilderTest {
             .willReturn(PARAMETERIZED_RUNNER_ANNOTATION)
 
         // When
-        val actualValue = cut.appendFunctionsTestClass(
+        val actualValue = classUnderTest.appendFunctionsTestClass(
             functionsUnderTest,
             usedImports,
             outputClassName,
@@ -1532,7 +1532,12 @@ class TestStringBuilderTest {
 
         // When
         val actualValue =
-            cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, false)
+            classUnderTest.appendFunctionsTestClass(
+                functionsUnderTest,
+                usedImports,
+                outputClassName,
+                false
+            )
 
         // Then
         val outputString = actualValue.toString()
@@ -1655,7 +1660,12 @@ class TestStringBuilderTest {
 
         // When
         val actualValue =
-            cut.appendFunctionsTestClass(functionsUnderTest, usedImports, outputClassName, true)
+            classUnderTest.appendFunctionsTestClass(
+                functionsUnderTest,
+                usedImports,
+                outputClassName,
+                true
+            )
 
         // Then
         val outputString = actualValue.toString()
@@ -1724,7 +1734,7 @@ class TestStringBuilderTest {
     @Test
     fun `When clear then resets stringBuilder and mockerCodeGenerator`() {
         // When
-        cut.clear()
+        classUnderTest.clear()
 
         // Then
         verify(stringBuilder).clear()

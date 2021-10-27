@@ -9,14 +9,14 @@ import org.junit.rules.MethodRule
 import org.mockito.junit.MockitoJUnit
 
 class TestFilePathFormatterTest {
-    private lateinit var cut: TestFilePathFormatter
+    private lateinit var classUnderTest: TestFilePathFormatter
 
     @get:Rule
     val rule: MethodRule = MockitoJUnit.rule()
 
     @Before
     fun setUp() {
-        cut = TestFilePathFormatter("/")
+        classUnderTest = TestFilePathFormatter("/")
     }
 
     @Test
@@ -28,7 +28,7 @@ class TestFilePathFormatterTest {
         val expected = "$basePath/test/java/com/mitteloupe/testit/generator/"
 
         // When
-        val actual = cut.getTestFilePath(sourceFileName)
+        val actual = classUnderTest.getTestFilePath(sourceFileName)
 
         // Then
         assertEquals(expected, actual)
@@ -41,7 +41,7 @@ class TestFilePathFormatterTest {
             "/Users/me/Projects/TestIt/app/source/main/java/com/mitteloupe/testit/generator/TestFilePathFormatter.kt"
 
         // When
-        val actual = cut.getTestFilePath(sourceFileName)
+        val actual = classUnderTest.getTestFilePath(sourceFileName)
 
         // Then
         assertNull(actual)

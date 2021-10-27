@@ -7,13 +7,13 @@ import com.mitteloupe.testit.model.FileMetadata
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
-import com.nhaarman.mockitokotlin2.given
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.given
 
 private const val PACKAGE_NAME = "com.test.String"
 private val singleImport = mapOf("ClassName" to "com.import.ClassName")
@@ -22,14 +22,14 @@ private val unitDataType = DataType.Specific("Unit", false)
 
 @RunWith(MockitoJUnitRunner::class)
 class AntlrKotlinFileParserTest {
-    private lateinit var cut: AntlrKotlinFileParser
+    private lateinit var classUnderTest: AntlrKotlinFileParser
 
     @Mock
     lateinit var dataTypeParser: DataTypeParser
 
     @Before
     fun setUp() {
-        cut = AntlrKotlinFileParser(dataTypeParser)
+        classUnderTest = AntlrKotlinFileParser(dataTypeParser)
     }
 
     @Test
@@ -45,7 +45,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -87,7 +87,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -133,7 +133,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -176,7 +176,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -214,7 +214,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -252,7 +252,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -292,7 +292,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -332,7 +332,7 @@ class AntlrKotlinFileParserTest {
         )
 
         // When
-        val actualValue = with(cut) {
+        val actualValue = with(classUnderTest) {
             receiver.parse()
         }
 
@@ -346,7 +346,7 @@ class AntlrKotlinFileParserTest {
         val receiver = "Not valid code"
 
         // When
-        with(cut) {
+        with(classUnderTest) {
             receiver.parse()
         }
 

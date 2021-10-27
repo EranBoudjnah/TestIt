@@ -22,9 +22,9 @@ class MockitoCodeGenerator(
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",
         "MockitoJUnit" to "org.mockito.junit.MockitoJUnit",
         "Mock" to "org.mockito.Mock",
-        "mock" to "com.nhaarman.mockitokotlin2.mock",
+        "mock" to "org.mockito.kotlin.mock",
         "Mockito" to "org.mockito.Mockito",
-        "UseConstructor" to "com.nhaarman.mockitokotlin2.UseConstructor"
+        "UseConstructor" to "org.mockito.kotlin.UseConstructor"
     ) + super.knownImports
 
     override val setUpStatements: String? = null

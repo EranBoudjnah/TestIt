@@ -3,9 +3,9 @@ package com.mitteloupe.testit.generator.mocking
 import com.mitteloupe.testit.generator.formatting.Formatting
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.TypedParameter
-import com.nhaarman.mockitokotlin2.UseConstructor
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.UseConstructor
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

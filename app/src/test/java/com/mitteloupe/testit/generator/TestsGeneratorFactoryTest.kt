@@ -4,18 +4,18 @@ import com.mitteloupe.testit.config.model.Configuration
 import com.mitteloupe.testit.config.model.ExceptionCaptureMethod
 import com.mitteloupe.testit.config.model.Mocker
 import com.mitteloupe.testit.generator.formatting.Formatting
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 @RunWith(MockitoJUnitRunner::class)
 class TestsGeneratorFactoryTest {
-    private lateinit var cut: TestsGeneratorFactory
+    private lateinit var classUnderTest: TestsGeneratorFactory
 
     @Mock
     lateinit var mockerCodeGeneratorProvider: MockerCodeGeneratorProvider
@@ -25,7 +25,7 @@ class TestsGeneratorFactoryTest {
 
     @Before
     fun setUp() {
-        cut = TestsGeneratorFactory(
+        classUnderTest = TestsGeneratorFactory(
             mockerCodeGeneratorProvider,
             formatting
         )
@@ -45,7 +45,7 @@ class TestsGeneratorFactoryTest {
         given { mockerCodeGeneratorProvider.getGenerator(mocker, formatting) }.willReturn(mock())
 
         // When
-        cut.createTestsGenerator(configuration)
+        classUnderTest.createTestsGenerator(configuration)
 
         // Then
         verify(mockerCodeGeneratorProvider).getGenerator(mocker, formatting)

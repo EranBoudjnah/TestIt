@@ -5,8 +5,8 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
-import com.nhaarman.mockitokotlin2.given
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
 import org.hamcrest.Matchers.hasItems
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals
