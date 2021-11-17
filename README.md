@@ -48,7 +48,7 @@ import com.mitteloupe.testit.generator.TestFilePathFormatter
 import com.mitteloupe.testit.generator.TestsGeneratorFactory
 import com.mitteloupe.testit.model.ClassTestCode
 import com.mitteloupe.testit.parser.KotlinFileParser
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

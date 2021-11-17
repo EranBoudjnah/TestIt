@@ -13,10 +13,10 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:4.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.0.0"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.38.0"
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.2.0"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.39.0"
     }
 }
 
@@ -34,7 +34,7 @@ configurations.all {
             details.useVersion kotlin_version
         }
         if (requested.group == 'com.pinterest' && requested.name == 'ktlint') {
-            details.useVersion '0.40.0'
+            details.useVersion '0.42.1'
         }
     }
 }
