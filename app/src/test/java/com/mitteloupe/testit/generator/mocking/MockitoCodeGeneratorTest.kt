@@ -5,8 +5,6 @@ import com.mitteloupe.testit.model.ClassMetadata
 import com.mitteloupe.testit.model.DataType
 import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.TypedParameter
-import org.mockito.kotlin.given
-import org.mockito.kotlin.mock
 import org.hamcrest.Matchers.hasItems
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals
@@ -18,6 +16,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
 
 @RunWith(MockitoJUnitRunner::class)
 class MockitoCodeGeneratorTest {
