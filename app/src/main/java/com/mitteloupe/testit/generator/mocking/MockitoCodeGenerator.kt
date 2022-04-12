@@ -7,7 +7,8 @@ import com.mitteloupe.testit.model.DataType
 
 class MockitoCodeGenerator(
     mockableTypeQualifier: MockableTypeQualifier,
-    formatting: Formatting
+    formatting: Formatting,
+    mockitoRuleVariableName: String
 ) : MockerCodeGenerator(mockableTypeQualifier, formatting) {
     private var hasMockedConstructorParameters = false
     private var isParameterizedTest = false
@@ -16,7 +17,7 @@ class MockitoCodeGenerator(
 
     override val mockingRule =
         "${indent()}@get:Rule\n" +
-            "${indent()}val rule: MethodRule = MockitoJUnit.rule()"
+            "${indent()}val $mockitoRuleVariableName: MethodRule = MockitoJUnit.rule()"
 
     override val knownImports = mapOf(
         "MockitoJUnitRunner" to "org.mockito.junit.MockitoJUnitRunner",

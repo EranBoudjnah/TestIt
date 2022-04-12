@@ -6,6 +6,7 @@ import com.mitteloupe.testit.config.model.Mocker
 
 class ConfigurationBuilder {
     private var mocker: Mocker? = null
+    private var mockitoRule: String? = null
     private var classUnderTest: String? = null
     private var actualValue: String? = null
     private var defaultAssertion: String? = null
@@ -16,6 +17,9 @@ class ConfigurationBuilder {
             !is String -> throw IllegalArgumentException("Ambiguous property: $key")
             "dependency.mocker" -> {
                 mocker = value.toMocker()
+            }
+            "vocabulary.mockitorule" -> {
+                mockitoRule = value.toString()
             }
             "vocabulary.classundertest" -> {
                 classUnderTest = value.toString()
@@ -37,6 +41,8 @@ class ConfigurationBuilder {
 
     fun build(): Configuration {
         val outMocker = mocker ?: throw IllegalStateException("Mocker type not defined")
+        val outMockitoRule =
+            mockitoRule ?: throw IllegalStateException("Mocker type not defined")
         val outClassUnderTest =
             classUnderTest ?: throw IllegalStateException("Mocker type not defined")
         val outActualValue = actualValue ?: throw IllegalStateException("Mocker type not defined")
@@ -44,16 +50,17 @@ class ConfigurationBuilder {
             defaultAssertion ?: throw IllegalStateException("Mocker type not defined")
 
         return Configuration(
-            outMocker,
-            outClassUnderTest,
-            outActualValue,
-            outDefaultAssertion,
-            exceptionCaptureMethod
+            mocker = outMocker,
+            mockitoRule = outMockitoRule,
+            classUnderTest = outClassUnderTest,
+            actualValue = outActualValue,
+            defaultAssertion = outDefaultAssertion,
+            exceptionCaptureMethod = exceptionCaptureMethod
         )
     }
 }
 
-private fun String.toExceptionCaptureMethod() = when (this.toLowerCase()) {
+private fun String.toExceptionCaptureMethod() = when (lowercase()) {
     "annotation", "expects", "annotationexpects" -> ExceptionCaptureMethod.ANNOTATION_EXPECTS
     "try", "catch", "trycatch", "try/catch" -> ExceptionCaptureMethod.TRY_CATCH
     "no", "none", "false", "" -> ExceptionCaptureMethod.NO_CAPTURE

@@ -19,9 +19,10 @@ class MockerCodeGeneratorProviderTest {
     fun `Given MOCKITO when getGenerator then returns mockito code generator`() {
         // Given
         val mocker = Mocker.MOCKITO
+        val mockitoRuleVariableName = "mockitoRule"
 
         // When
-        val actualValue = cut.getGenerator(mocker, mock())
+        val actualValue = cut.getGenerator(mocker, mock(), mockitoRuleVariableName)
 
         // Then
         assertTrue(actualValue is MockitoCodeGenerator)
@@ -31,9 +32,10 @@ class MockerCodeGeneratorProviderTest {
     fun `Given MOCKK when getGenerator then returns mockk code generator`() {
         // Given
         val mocker = Mocker.MOCKK
+        val mockitoRuleVariableName = "canBeAnything"
 
         // When
-        val actualValue = cut.getGenerator(mocker, mock())
+        val actualValue = cut.getGenerator(mocker, mock(), mockitoRuleVariableName)
 
         // Then
         assertTrue(actualValue is MockKCodeGenerator)

@@ -13,7 +13,11 @@ class TestsGeneratorFactory(
 ) {
     fun createTestsGenerator(configuration: Configuration): KotlinJUnitTestGenerator {
         val mockerCodeGenerator =
-            mockerCodeGeneratorProvider.getGenerator(configuration.mocker, formatting)
+            mockerCodeGeneratorProvider.getGenerator(
+                configuration.mocker,
+                formatting,
+                configuration.mockitoRule
+            )
         return KotlinJUnitTestGenerator(
             TestStringBuilder(
                 StringBuilder(),
@@ -30,8 +34,11 @@ class TestsGeneratorFactory(
 }
 
 class MockerCodeGeneratorProvider(private val mockableTypeQualifier: MockableTypeQualifier) {
-    fun getGenerator(mocker: Mocker, formatting: Formatting) = when (mocker) {
-        Mocker.MOCKITO -> MockitoCodeGenerator(mockableTypeQualifier, formatting)
-        Mocker.MOCKK -> MockKCodeGenerator(mockableTypeQualifier, formatting)
-    }
+    fun getGenerator(mocker: Mocker, formatting: Formatting, mockitoRuleVariableName: String) =
+        when (mocker) {
+            Mocker.MOCKITO -> {
+                MockitoCodeGenerator(mockableTypeQualifier, formatting, mockitoRuleVariableName)
+            }
+            Mocker.MOCKK -> MockKCodeGenerator(mockableTypeQualifier, formatting)
+        }
 }

@@ -19,9 +19,11 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
 
+private const val mockitoRuleVariableName = "testMockitoRule"
+
 @RunWith(MockitoJUnitRunner::class)
 class MockitoCodeGeneratorTest {
-    private lateinit var cut: MockitoCodeGenerator
+    private lateinit var classUnderTest: MockitoCodeGenerator
 
     @Mock
     lateinit var mockableTypeQualifier: MockableTypeQualifier
@@ -33,19 +35,20 @@ class MockitoCodeGeneratorTest {
     fun setUp() {
         given { formatting.getIndentation(1) }.willReturn("_")
 
-        cut = MockitoCodeGenerator(mockableTypeQualifier, formatting)
+        classUnderTest =
+            MockitoCodeGenerator(mockableTypeQualifier, formatting, mockitoRuleVariableName)
     }
 
     @Test
     fun `Given imports were required when reset then imports are empty`() {
         // Given
-        cut.setHasMockedFunctionParameters()
+        classUnderTest.setHasMockedFunctionParameters()
 
         // When
-        cut.reset()
+        classUnderTest.reset()
 
         // Then
-        assertTrue(cut.requiredImports.isEmpty())
+        assertTrue(classUnderTest.requiredImports.isEmpty())
     }
 
     @Test
@@ -57,7 +60,7 @@ class MockitoCodeGeneratorTest {
             "_lateinit var parameterName: testing"
 
         // When
-        val actualValue = cut.getConstructorMock(parameterName, parameterType)
+        val actualValue = classUnderTest.getConstructorMock(parameterName, parameterType)
 
         // Then
         assertEquals(expected, actualValue)
@@ -70,7 +73,7 @@ class MockitoCodeGeneratorTest {
         val expected = "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS)"
 
         // When
-        val actualValue = cut.getAbstractClassUnderTest(classUnderTest)
+        val actualValue = this.classUnderTest.getAbstractClassUnderTest(classUnderTest)
 
         // Then
         assertEquals(expected, actualValue)
@@ -89,7 +92,7 @@ class MockitoCodeGeneratorTest {
             "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS, useConstructor = UseConstructor.withArguments(param1, param2))"
 
         // When
-        val actualValue = cut.getAbstractClassUnderTest(classUnderTest)
+        val actualValue = this.classUnderTest.getAbstractClassUnderTest(classUnderTest)
 
         // Then
         assertEquals(expected, actualValue)
@@ -103,8 +106,8 @@ class MockitoCodeGeneratorTest {
         val expected3 = "MockitoJUnit"
 
         // When
-        cut.setIsParameterizedTest()
-        val actualValue = cut.requiredImports
+        classUnderTest.setIsParameterizedTest()
+        val actualValue = classUnderTest.requiredImports
 
         // Then
         assertThat(actualValue, not(hasItems(expected1, expected2, expected3)))
@@ -116,11 +119,11 @@ class MockitoCodeGeneratorTest {
         val expected1 = "Rule"
         val expected2 = "MethodRule"
         val expected3 = "MockitoJUnit"
-        cut.setHasMockedConstructorParameters(mock())
+        classUnderTest.setHasMockedConstructorParameters(mock())
 
         // When
-        cut.setIsParameterizedTest()
-        val actualValue = cut.requiredImports
+        classUnderTest.setIsParameterizedTest()
+        val actualValue = classUnderTest.requiredImports
 
         // Then
         assertThat(actualValue, hasItems(expected1, expected2, expected3))
@@ -135,8 +138,8 @@ class MockitoCodeGeneratorTest {
         val classUnderTest = mockClassMetadata()
 
         // When
-        cut.setHasMockedConstructorParameters(classUnderTest)
-        val actualValue = cut.requiredImports
+        this.classUnderTest.setHasMockedConstructorParameters(classUnderTest)
+        val actualValue = this.classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected1, expected2, expected3))
@@ -153,8 +156,8 @@ class MockitoCodeGeneratorTest {
         )
 
         // When
-        cut.setHasMockedConstructorParameters(classUnderTest)
-        val actualValue = cut.requiredImports
+        this.classUnderTest.setHasMockedConstructorParameters(classUnderTest)
+        val actualValue = this.classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected1, expected2, expected3))
@@ -173,8 +176,8 @@ class MockitoCodeGeneratorTest {
         )
 
         // When
-        cut.setHasMockedConstructorParameters(classUnderTest)
-        val actualValue = cut.requiredImports
+        this.classUnderTest.setHasMockedConstructorParameters(classUnderTest)
+        val actualValue = this.classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected1, expected2, expected3, expected4))
@@ -190,11 +193,11 @@ class MockitoCodeGeneratorTest {
         val expected5 = "MethodRule"
         val expected6 = "MockitoJUnit"
         val classUnderTest = mockClassMetadata()
-        cut.setIsParameterizedTest()
+        this.classUnderTest.setIsParameterizedTest()
 
         // When
-        cut.setHasMockedConstructorParameters(classUnderTest)
-        val actualValue = cut.requiredImports
+        this.classUnderTest.setHasMockedConstructorParameters(classUnderTest)
+        val actualValue = this.classUnderTest.requiredImports
 
         // Then
         assertEquals(
@@ -216,8 +219,8 @@ class MockitoCodeGeneratorTest {
         val expected = "mock"
 
         // When
-        cut.setHasMockedFunctionParameters()
-        val actualValue = cut.requiredImports
+        classUnderTest.setHasMockedFunctionParameters()
+        val actualValue = classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected))
@@ -229,8 +232,8 @@ class MockitoCodeGeneratorTest {
         val expected = "mock"
 
         // When
-        cut.setHasMockedFunctionReturnValues()
-        val actualValue = cut.requiredImports
+        classUnderTest.setHasMockedFunctionReturnValues()
+        val actualValue = classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected))
@@ -243,8 +246,8 @@ class MockitoCodeGeneratorTest {
         val expected2 = "Mockito"
 
         // When
-        cut.setIsAbstractClassUnderTest()
-        val actualValue = cut.requiredImports
+        classUnderTest.setIsAbstractClassUnderTest()
+        val actualValue = classUnderTest.requiredImports
 
         // Then
         assertEquals(actualValue, setOf(expected1, expected2))
@@ -260,7 +263,7 @@ class MockitoCodeGeneratorTest {
             .willReturn(null)
 
         // When
-        val actualValue = cut.getMockedValue(variableName, variableType)
+        val actualValue = classUnderTest.getMockedValue(variableName, variableType)
 
         // Then
         assertEquals(expected, actualValue)
@@ -285,7 +288,7 @@ class MockitoCodeGeneratorTest {
             .willReturn(null)
 
         // When
-        val actualValue = cut.getMockedValue(variableName, variableType)
+        val actualValue = classUnderTest.getMockedValue(variableName, variableType)
 
         // Then
         assertEquals(expected, actualValue)
@@ -294,7 +297,7 @@ class MockitoCodeGeneratorTest {
     @Test
     fun `When getting setUpStatements then returns null`() {
         // When
-        val actualValue = cut.setUpStatements
+        val actualValue = classUnderTest.setUpStatements
 
         // Then
         assertNull(actualValue)
@@ -304,10 +307,10 @@ class MockitoCodeGeneratorTest {
     fun `When getting mockingRule then returns expected code`() {
         // Given
         val expectedValue = "_@get:Rule\n" +
-            "_val rule: MethodRule = MockitoJUnit.rule()"
+            "_val $mockitoRuleVariableName: MethodRule = MockitoJUnit.rule()"
 
         // When
-        val actualValue = cut.mockingRule
+        val actualValue = classUnderTest.mockingRule
 
         // Then
         assertEquals(expectedValue, actualValue)

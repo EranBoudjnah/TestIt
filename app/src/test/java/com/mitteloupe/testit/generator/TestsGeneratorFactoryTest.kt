@@ -35,19 +35,23 @@ class TestsGeneratorFactoryTest {
     fun `Given configuration when createTestsGenerator then queries correct dependencies`() {
         // Given
         val mocker = Mocker.MOCKITO
+        val mockitoRule = "mockitoRule"
         val configuration = Configuration(
             mocker = mocker,
+            mockitoRule = mockitoRule,
             classUnderTest = "classUnderTest",
             actualValue = "actual",
             defaultAssertion = "default",
             exceptionCaptureMethod = ExceptionCaptureMethod.NO_CAPTURE
         )
-        given { mockerCodeGeneratorProvider.getGenerator(mocker, formatting) }.willReturn(mock())
+        given {
+            mockerCodeGeneratorProvider.getGenerator(mocker, formatting, mockitoRule)
+        }.willReturn(mock())
 
         // When
         classUnderTest.createTestsGenerator(configuration)
 
         // Then
-        verify(mockerCodeGeneratorProvider).getGenerator(mocker, formatting)
+        verify(mockerCodeGeneratorProvider).getGenerator(mocker, formatting, mockitoRule)
     }
 }
