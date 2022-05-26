@@ -2,6 +2,7 @@ package com.mitteloupe.testit.model
 
 data class TypedParameter(val name: String, val type: DataType)
 
+@JvmField
 val unitDataType = DataType.Specific("Unit", false)
 
 sealed class DataType(open val name: String, open val isNullable: Boolean) {
