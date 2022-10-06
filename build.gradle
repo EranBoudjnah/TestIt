@@ -3,7 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: "com.github.ben-manes.versions"
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.7.20'
     repositories {
         google()
         jcenter()
@@ -13,9 +13,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.3.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:10.2.1"
+        classpath "org.jlleitschuh.gradle:ktlint-gradle:11.0.0"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.42.0"
     }
 }
@@ -34,7 +34,7 @@ configurations.all {
             details.useVersion kotlin_version
         }
         if (requested.group == 'com.pinterest' && requested.name == 'ktlint') {
-            details.useVersion '0.45.2'
+            details.useVersion '0.47.1'
         }
     }
 }
