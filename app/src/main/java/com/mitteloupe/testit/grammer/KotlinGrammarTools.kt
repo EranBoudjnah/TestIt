@@ -51,9 +51,9 @@ class KotlinParseTree(
         builder.apply {
             node.children.forEach { child ->
                 when (child.type) {
-                    KotlinParseTreeNodeType.RULE -> append((" " x depth) + child.name + ls)
+                    KotlinParseTreeNodeType.RULE -> append((" " * depth) + child.name + ls)
                     KotlinParseTreeNodeType.TERMINAL -> append(
-                        (" " x depth) +
+                        (" " * depth) +
                             "${child.name}(\"${child.text!!.replace(ls, "\\n")}\")" + ls
                     )
                 }
@@ -70,4 +70,4 @@ fun parseKotlinCode(sourceCode: String) = parseKotlinCode(tokenizeKotlinCode(sou
 
 fun tokenizeKotlinCode(sourceCode: String) = Parser.tokenize(sourceCode)
 
-private infix fun String.x(times: Int) = repeat(times)
+private infix operator fun String.times(times: Int) = repeat(times)
