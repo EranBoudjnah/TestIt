@@ -12,7 +12,7 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class MockableTypeQualifierTypedParameterTest(
     private val isMockableTypedParameter: TypedParameter,
-    private val isMockableExpected: Boolean,
+    private val isMockableExpected: Boolean
 ) {
     companion object {
         @JvmStatic
