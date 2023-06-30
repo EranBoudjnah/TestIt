@@ -36,7 +36,7 @@ class MockitoCodeGenerator(
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
         "${indent()}@Mock\n" +
-            "${indent()}lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
+            "${indent()}private lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
 
     override fun getMockedInstance(variableType: DataType) =
         "mock<${variableType.toNonNullableKotlinString()}>()"
