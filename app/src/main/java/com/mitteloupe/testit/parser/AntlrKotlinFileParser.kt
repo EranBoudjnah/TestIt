@@ -12,6 +12,20 @@ import com.mitteloupe.testit.model.TypedParameter
 private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown", false)
 private val UNIT_DATA_TYPE = DataType.Specific("Unit", false)
 
+private const val NODE_NAME_SIMPLE_IDENTIFIER = "simpleIdentifier"
+private const val NODE_NAME_IDENTIFIER = "Identifier"
+private const val NODE_NAME_HEADER_IDENTIFIER = "identifier"
+private const val MODIFIER_NODE_NAME = "modifier"
+
+private val dataTypeNodeNames = listOf(
+    "typeReference",
+    "userType",
+    "simpleUserType",
+    NODE_NAME_SIMPLE_IDENTIFIER,
+    NODE_NAME_IDENTIFIER
+)
+private val nullableDataTypeNodeNames = listOf("nullableType") + dataTypeNodeNames
+
 class AntlrKotlinFileParser(
     private val dataTypeParser: DataTypeParser
 ) : KotlinFileParser {
@@ -25,14 +39,12 @@ class AntlrKotlinFileParser(
         val code = parseKotlinCode(this)
 
         packageName = code.applyToChildNodes(
-            listOf("packageHeader", "identifier"),
-            ::getNameRecursivelyFromChildren
-        ).joinToString("")
+            listOf("packageHeader", NODE_NAME_HEADER_IDENTIFIER)
+        ) { it.recursiveName }.joinToString("")
 
         code.applyToChildNodes(
-            listOf("importList", "importHeader", "identifier"),
-            ::getNameRecursivelyFromChildren
-        ).forEach { qualifiedName ->
+            listOf("importList", "importHeader", NODE_NAME_HEADER_IDENTIFIER)
+        ) { it.recursiveName }.forEach { qualifiedName ->
             val entityName = qualifiedName.substringAfterLast(".")
             knownImports[entityName] = qualifiedName
         }
@@ -48,42 +60,24 @@ class AntlrKotlinFileParser(
     }
 
     private fun extractClassFromNode(node: KotlinParseTree): ClassMetadata? {
-        var className: String? = null
-        var isClassAbstract = false
-        val classParameters = mutableListOf<TypedParameter>()
-        val functions = mutableListOf<FunctionMetadata>()
+        node.isClassType || return null
+        node.children.stream().filter { childNode ->
+            childNode.name == "modifiers"
+        }.anyMatch { childNode ->
+            childNode.isEnumClass || childNode.isSealedClass || childNode.isPrivateClass
+        } && return null
 
-        if (!isClassType(node)) {
-            return null
-        }
-
-        node.children.forEach { childNode ->
-            when (childNode.name) {
-                "simpleIdentifier" -> className = getNameFromNode(childNode)
-                "primaryConstructor" -> {
-                    extractConstructorParametersListFromNode(childNode).let { parameters ->
-                        parameters.forEach { parameter -> addAnyKnownImports(parameter.type) }
-                        classParameters.addAll(parameters)
-                    }
-                }
-                "classBody" -> {
-                    extractPublicFunctionsFromNodes(childNode).let { parameters ->
-                        functions.addAll(parameters)
-                    }
-                }
-                "modifiers" -> {
-                    if (isEnumClass(childNode) ||
-                        isSealedClass(childNode) ||
-                        isPrivateClass(childNode)
-                    ) {
-                        return null
-                    }
-                    if (isAbstractClass(childNode)) {
-                        isClassAbstract = true
-                    }
-                }
-            }
-        }
+        val className = node.children.firstOrNull { childNode ->
+            childNode.name == NODE_NAME_SIMPLE_IDENTIFIER
+        }?.nestedName
+        val isClassAbstract = node.children.stream().filter { childNode ->
+            childNode.name == "modifiers"
+        }.anyMatch { childNode -> childNode.isAbstractClass }
+        val classParameters = node.childrenNamed("primaryConstructor")
+            .flatMap(::extractConstructorParametersListFromNode)
+            .onEach { parameter -> addAnyKnownImports(parameter.type) }
+        val functions = node.childrenNamed("classBody")
+            .flatMap(::extractPublicFunctionsFromNodes)
 
         val classMetadata = className?.let { validClassName ->
             ClassMetadata(
@@ -101,20 +95,20 @@ class AntlrKotlinFileParser(
         return classMetadata
     }
 
-    private fun isClassType(node: KotlinParseTree) =
-        node.children.any { childNode -> childNode.name == "CLASS" }
+    private val KotlinParseTree.isClassType
+        get() = children.any { childNode -> childNode.name == "CLASS" }
 
-    private fun isEnumClass(childNode: KotlinParseTree) =
-        childNode.hasClassModifier("ENUM")
+    private val KotlinParseTree.isEnumClass
+        get() = hasClassModifier("ENUM")
 
-    private fun isSealedClass(childNode: KotlinParseTree) =
-        childNode.hasClassModifier("SEALED")
+    private val KotlinParseTree.isSealedClass
+        get() = hasClassModifier("SEALED")
 
-    private fun isPrivateClass(childNode: KotlinParseTree) =
-        childNode.hasVisibilityModifier("PRIVATE")
+    private val KotlinParseTree.isPrivateClass
+        get() = hasVisibilityModifier("PRIVATE")
 
-    private fun isAbstractClass(childNode: KotlinParseTree) =
-        childNode.hasInheritanceModifier("ABSTRACT")
+    private val KotlinParseTree.isAbstractClass
+        get() = hasInheritanceModifier("ABSTRACT")
 
     private fun KotlinParseTree.hasClassModifier(modifier: String) =
         hasModifier("classModifier", modifier)
@@ -126,7 +120,7 @@ class AntlrKotlinFileParser(
         hasModifier("visibilityModifier", modifier)
 
     private fun KotlinParseTree.hasModifier(modifierType: String, modifier: String) =
-        extractChildNode(listOf("modifier", modifierType, modifier)) != null
+        extractChildNode(listOf(MODIFIER_NODE_NAME, modifierType, modifier)) != null
 
     private fun extractPublicFunctionsFromNodes(node: KotlinParseTree) =
         node.applyToChildNodes(
@@ -157,7 +151,9 @@ class AntlrKotlinFileParser(
     }
 
     private fun extractFunctionMetadataFromNode(node: KotlinParseTree): FunctionMetadata? {
-        var functionName: String? = null
+        val functionName = node.children.firstOrNull { childNode ->
+            childNode.name == NODE_NAME_SIMPLE_IDENTIFIER
+        }?.nestedName
         var isAbstract = false
         var returnType: DataType? = null
         var extensionReceiverType: DataType? = null
@@ -165,9 +161,6 @@ class AntlrKotlinFileParser(
 
         node.children.forEach { childNode ->
             when (childNode.name) {
-                "simpleIdentifier" -> {
-                    functionName = getNameFromNode(childNode)
-                }
                 "modifiers" -> {
                     if (isPrivateFunction(childNode) ||
                         isProtectedFunction(childNode)
@@ -178,24 +171,24 @@ class AntlrKotlinFileParser(
                         isAbstract = true
                     }
                 }
+
                 "receiverType" -> {
-                    extractDataType(childNode)?.let {
-                        extensionReceiverType = it.text?.let { text -> getDataTypeFromString(text) }
-                            ?: UNKNOWN_DATA_TYPE
-                    }
+                    extensionReceiverType =
+                        extractDataType(childNode)?.text?.dataType ?: UNKNOWN_DATA_TYPE
                 }
+
                 "functionValueParameters" -> {
                     extractFunctionParametersListFromNode(childNode).let { parameters ->
                         functionParameters.addAll(parameters)
                     }
                 }
+
                 "type" -> {
-                    extractDataType(childNode)?.let {
-                        returnType = it.text?.let { text ->
-                            getDataTypeFromString(text.appendNullableIfNeeded(childNode))
-                        } ?: UNKNOWN_DATA_TYPE
-                    }
+                    returnType = extractDataType(childNode)
+                        ?.text?.appendNullableIfNeeded(childNode)?.dataType
+                        ?: UNKNOWN_DATA_TYPE
                 }
+
                 "functionBody" -> {
                     if (returnType == null) {
                         extractTypeByAssignment(childNode)?.let {
@@ -225,47 +218,57 @@ class AntlrKotlinFileParser(
         }
     }
 
-    private fun isPrivateFunction(childNode: KotlinParseTree) =
-        childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PRIVATE")) != null
+    private fun isPrivateFunction(childNode: KotlinParseTree): Boolean {
+        return childNode.extractChildNode(
+            listOf(
+                MODIFIER_NODE_NAME,
+                "visibilityModifier",
+                "PRIVATE"
+            )
+        ) != null
+    }
 
     private fun isProtectedFunction(childNode: KotlinParseTree) =
-        childNode.extractChildNode(listOf("modifier", "visibilityModifier", "PROTECTED")) != null
+        childNode.extractChildNode(
+            listOf(
+                MODIFIER_NODE_NAME,
+                "visibilityModifier",
+                "PROTECTED"
+            )
+        ) != null
 
     private fun isAbstractFunction(childNode: KotlinParseTree) =
-        childNode.extractChildNode(listOf("modifier", "inheritanceModifier", "ABSTRACT")) != null
+        childNode.extractChildNode(
+            listOf(
+                MODIFIER_NODE_NAME,
+                "inheritanceModifier",
+                "ABSTRACT"
+            )
+        ) != null
 
-    private fun extractDataType(childNode: KotlinParseTree) = childNode.extractChildNode(
-        listOf("typeReference", "userType", "simpleUserType", "simpleIdentifier", "Identifier")
-    ) ?: childNode.extractChildNode(
-        listOf(
-            "nullableType",
-            "typeReference",
-            "userType",
-            "simpleUserType",
-            "simpleIdentifier",
-            "Identifier"
+    private fun extractDataType(childNode: KotlinParseTree): KotlinParseTree? =
+        childNode.extractChildNode(dataTypeNodeNames) ?: childNode.extractChildNode(
+            nullableDataTypeNodeNames
         )
-    )
 
     private fun extractTypeByAssignment(childNode: KotlinParseTree) = childNode.extractChildNode(
         listOf("expression", "disjunction", "conjunction", "equality")
     )
 
-    private fun getNameFromNode(node: KotlinParseTree) =
-        node.extractChildNode(listOf("Identifier"))?.text
-            ?: node.children.firstOrNull()?.text
+    private val KotlinParseTree.nestedName
+        get() = extractChildNode(listOf(NODE_NAME_IDENTIFIER))?.text ?: children.firstOrNull()?.text
 
-    private fun getNameRecursivelyFromChildren(node: KotlinParseTree): String =
-        when (node.name) {
-            "simpleIdentifier" -> getNameFromNode(node)
+    private val KotlinParseTree.recursiveName: String
+        get(): String = when (name) {
+            NODE_NAME_SIMPLE_IDENTIFIER -> nestedName
             "DOT" -> "."
             "LANGLE" -> "<"
             "RANGLE" -> ">"
             "QUEST_NO_WS" -> "?"
-            in Regex("[A-Z]+") -> node.text ?: ""
+            in Regex("[A-Z]+") -> text.orEmpty()
             else -> null
-        } ?: node.children.joinToString("") { childNode ->
-            getNameRecursivelyFromChildren(childNode)
+        } ?: children.joinToString("") { childNode ->
+            childNode.recursiveName
         }
 
     private fun extractConstructorParametersListFromNode(node: KotlinParseTree) =
@@ -281,32 +284,22 @@ class AntlrKotlinFileParser(
         )
 
     private fun extractTypedParameterFromNode(node: KotlinParseTree): TypedParameter? {
-        var parameterName: String? = null
-        var parameterType: DataType? = null
+        val parameterName = node.children.firstOrNull { childNode ->
+            childNode.name == NODE_NAME_SIMPLE_IDENTIFIER
+        }?.nestedName
+        val parameterType = node.children.firstOrNull { childNode ->
+            childNode.name == "type"
+        }?.recursiveName?.dataType
 
-        node.children.forEach { childNode ->
-            when (childNode.name) {
-                "simpleIdentifier" -> {
-                    parameterName = getNameFromNode(childNode)
-                }
-                "type" -> {
-                    val parameterAsString = getNameRecursivelyFromChildren(childNode)
-                    parameterType = getDataTypeFromString(parameterAsString)
-                }
-            }
-        }
-
-        return parameterName?.let { nonNullParameterName ->
-            parameterType?.let { nonNullParameterType ->
-                TypedParameter(nonNullParameterName, nonNullParameterType)
+        return parameterName?.let {
+            parameterType?.let {
+                TypedParameter(parameterName, parameterType)
             }
         }
     }
 
     private fun addAnyKnownImports(dataType: DataType) {
-        getAllSpecificTypes(dataType).forEach { specificType ->
-            addImportIfKnown(specificType)
-        }
+        getAllSpecificTypes(dataType).forEach(::addImportIfKnown)
     }
 
     private fun getAllSpecificTypes(vararg dataTypes: DataType): List<String> =
@@ -333,23 +326,24 @@ class AntlrKotlinFileParser(
         usedImports.clear()
     }
 
-    private fun getDataTypeFromString(
-        parameterType: String
-    ) = dataTypeParser.parse(parameterType)
+    private val String.dataType
+        get() = dataTypeParser.parse(this)
 
     private fun <T : Any> KotlinParseTree.applyToChildNodes(
         nodeNames: List<String>,
         action: (KotlinParseTree) -> T?
-    ): List<T> =
-        children.filter { child ->
-            child.name == nodeNames[0]
-        }.flatMap { matchingChild ->
-            if (nodeNames.size == 1) {
-                listOf(action(matchingChild))
-            } else {
-                matchingChild.applyToChildNodes(nodeNames.subList(1, nodeNames.size), action)
-            }
-        }.mapNotNull { it }
+    ): List<T> = children.filter { child ->
+        child.name == nodeNames[0]
+    }.flatMap { matchingChild ->
+        if (nodeNames.size == 1) {
+            listOf(action(matchingChild))
+        } else {
+            matchingChild.applyToChildNodes(nodeNames.subList(1, nodeNames.size), action)
+        }
+    }.filterNotNull()
+
+    private fun KotlinParseTree.childrenNamed(nodeName: String) =
+        children.filter { childNode -> childNode.name == nodeName }
 
     private fun KotlinParseTree.extractChildNode(nodeNames: List<String>): KotlinParseTree? =
         children.firstOrNull { child ->
