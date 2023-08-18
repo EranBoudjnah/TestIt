@@ -9,8 +9,8 @@ import com.mitteloupe.testit.model.FunctionMetadata
 import com.mitteloupe.testit.model.StaticFunctionsMetadata
 import com.mitteloupe.testit.model.TypedParameter
 
-private val UNKNOWN_DATA_TYPE = DataType.Specific("Unknown", false)
-private val UNIT_DATA_TYPE = DataType.Specific("Unit", false)
+private val unknownDataType = DataType.Specific("Unknown", false)
+private val unitDataType = DataType.Specific("Unit", false)
 
 private const val NODE_NAME_SIMPLE_IDENTIFIER = "simpleIdentifier"
 private const val NODE_NAME_IDENTIFIER = "Identifier"
@@ -174,7 +174,7 @@ class AntlrKotlinFileParser(
 
                 "receiverType" -> {
                     extensionReceiverType =
-                        extractDataType(childNode)?.text?.dataType ?: UNKNOWN_DATA_TYPE
+                        extractDataType(childNode)?.text?.dataType ?: unknownDataType
                 }
 
                 "functionValueParameters" -> {
@@ -186,13 +186,13 @@ class AntlrKotlinFileParser(
                 "type" -> {
                     returnType = extractDataType(childNode)
                         ?.text?.appendNullableIfNeeded(childNode)?.dataType
-                        ?: UNKNOWN_DATA_TYPE
+                        ?: unknownDataType
                 }
 
                 "functionBody" -> {
                     if (returnType == null) {
                         extractTypeByAssignment(childNode)?.let {
-                            returnType = UNKNOWN_DATA_TYPE
+                            returnType = unknownDataType
                         }
                     }
                 }
@@ -213,7 +213,7 @@ class AntlrKotlinFileParser(
                 isAbstract,
                 functionParameters,
                 extensionReceiverType,
-                returnType ?: UNIT_DATA_TYPE
+                returnType ?: unitDataType
             )
         }
     }

@@ -19,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
 
-private const val mockitoRuleVariableName = "testMockitoRule"
+private const val MOCKITO_RULE_VARIABLE_NAME = "testMockitoRule"
 
 @RunWith(MockitoJUnitRunner::class)
 class MockitoCodeGeneratorTest {
@@ -36,7 +36,7 @@ class MockitoCodeGeneratorTest {
         given { formatting.getIndentation(1) }.willReturn("_")
 
         classUnderTest =
-            MockitoCodeGenerator(mockableTypeQualifier, formatting, mockitoRuleVariableName)
+            MockitoCodeGenerator(mockableTypeQualifier, formatting, MOCKITO_RULE_VARIABLE_NAME)
     }
 
     @Test
@@ -307,7 +307,7 @@ class MockitoCodeGeneratorTest {
     fun `When getting mockingRule then returns expected code`() {
         // Given
         val expectedValue = "_@get:Rule\n" +
-            "_val $mockitoRuleVariableName: MethodRule = MockitoJUnit.rule()"
+            "_val $MOCKITO_RULE_VARIABLE_NAME: MethodRule = MockitoJUnit.rule()"
 
         // When
         val actualValue = classUnderTest.mockingRule

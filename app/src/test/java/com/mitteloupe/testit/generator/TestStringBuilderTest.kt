@@ -26,7 +26,7 @@ private const val TEST_CLASS_NAME = "TestClass"
 private const val CLASS_UNDER_TEST_VARIABLE_NAME = "cut"
 private const val ACTUAL_VALUE_VARIABLE_NAME = "actualTest"
 private const val DEFAULT_ASSERTION_STATEMENT = "defaultAssertion"
-private val EXCEPTION_CAPTURE_METHOD = ExceptionCaptureMethod.NO_CAPTURE
+private val exceptionCaptureMethod = ExceptionCaptureMethod.NO_CAPTURE
 private const val PARAMETERIZED_RUNNER_ANNOTATION = "@Parameterized"
 private const val MOCKING_RULE = "__@get:Rule\n__val mockitoRule: MethodRule = MockitoJUnit.rule()"
 
@@ -70,7 +70,7 @@ class TestStringBuilderTest {
             CLASS_UNDER_TEST_VARIABLE_NAME,
             ACTUAL_VALUE_VARIABLE_NAME,
             DEFAULT_ASSERTION_STATEMENT,
-            EXCEPTION_CAPTURE_METHOD
+            exceptionCaptureMethod
         )
     }
 
