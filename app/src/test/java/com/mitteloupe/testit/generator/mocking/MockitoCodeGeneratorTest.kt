@@ -57,7 +57,7 @@ class MockitoCodeGeneratorTest {
         val parameterName = "parameterName"
         val parameterType = DataType.Specific("testing", false)
         val expected = "_@Mock\n" +
-            "_lateinit var parameterName: testing"
+            "_private lateinit var parameterName: testing"
 
         // When
         val actualValue = classUnderTest.getConstructorMock(parameterName, parameterType)
