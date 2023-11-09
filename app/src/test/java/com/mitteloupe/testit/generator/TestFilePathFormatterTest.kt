@@ -37,8 +37,8 @@ class TestFilePathFormatterTest {
     @Test
     fun `Given unrecognized file name when getTestFilePath then returns null`() {
         // Given
-        val sourceFileName =
-            "/Users/me/Projects/TestIt/app/source/main/java/com/mitteloupe/testit/generator/TestFilePathFormatter.kt"
+        val sourceFileName = "/Users/me/Projects/TestIt/" +
+            "app/source/main/java/com/mitteloupe/testit/generator/TestFilePathFormatter.kt"
 
         // When
         val actual = classUnderTest.getTestFilePath(sourceFileName)

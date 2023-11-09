@@ -35,14 +35,15 @@ class MockitoCodeGenerator(
     }
 
     override fun getConstructorMock(parameterName: String, parameterType: DataType) =
-        "${indent()}@Mock\n" +
-            "${indent()}private lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"
+        """${indent()}@Mock
+${indent()}private lateinit var $parameterName: ${parameterType.toNonNullableKotlinString()}"""
 
     override fun getMockedInstance(variableType: DataType) =
         "mock<${variableType.toNonNullableKotlinString()}>()"
 
     override fun getAbstractClassUnderTest(classUnderTest: ClassMetadata) =
-        "mock(defaultAnswer = Mockito.CALLS_REAL_METHODS${constructorArgumentsForAbstract(classUnderTest)})"
+        "mock(defaultAnswer = " +
+            "Mockito.CALLS_REAL_METHODS${constructorArgumentsForAbstract(classUnderTest)})"
 
     override fun setIsParameterizedTest() {
         super.setIsParameterizedTest()
@@ -91,8 +92,8 @@ class MockitoCodeGenerator(
         if (classUnderTest.constructorParameters.isEmpty()) {
             ""
         } else {
-            val arguments =
-                classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name }
+            val arguments = classUnderTest.constructorParameters
+                .joinToString(", ") { parameter -> parameter.name }
             ", useConstructor = UseConstructor.withArguments($arguments)"
         }
 }

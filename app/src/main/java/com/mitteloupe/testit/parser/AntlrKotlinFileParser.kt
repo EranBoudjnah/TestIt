@@ -133,7 +133,9 @@ class AntlrKotlinFileParser(
             ::extractFunctionMetadataFromNode
         )
 
-    private fun extractStaticFunctionsMetadataFromNode(code: KotlinParseTree): StaticFunctionsMetadata {
+    private fun extractStaticFunctionsMetadataFromNode(
+        code: KotlinParseTree
+    ): StaticFunctionsMetadata {
         val staticFunctions = code.applyToChildNodes(
             listOf("topLevelObject", "declaration", "functionDeclaration"),
             ::extractFunctionMetadataFromNode
@@ -201,7 +203,9 @@ class AntlrKotlinFileParser(
 
         return functionName?.let { validFunctionName ->
             if (!isAbstract) {
-                functionParameters.forEach { typedParameter -> addAnyKnownImports(typedParameter.type) }
+                functionParameters.forEach { typedParameter ->
+                    addAnyKnownImports(typedParameter.type)
+                }
             }
 
             extensionReceiverType?.let {
@@ -307,7 +311,9 @@ class AntlrKotlinFileParser(
             when (dataType) {
                 is DataType.Specific -> listOf(dataType.name)
                 is DataType.Generic -> getAllSpecificTypes(*dataType.genericTypes) + dataType.name
-                is DataType.Lambda -> getAllSpecificTypes(*dataType.inputParameterTypes) + dataType.name
+                is DataType.Lambda -> {
+                    getAllSpecificTypes(*dataType.inputParameterTypes) + dataType.name
+                }
             }
         }
 

@@ -14,7 +14,10 @@ class TestFilePathFormatter(
         if (pathRegex.containsMatchIn(sourceFileName)) {
             val sourcePath = sourceFileName.substringBeforeLast(fileSeparator) + fileSeparator
             pathRegex.replace(sourcePath) { matchResult ->
-                "${fileSeparator}src${fileSeparator}test$fileSeparator${matchResult.groupValues[2]}$fileSeparator"
+                "${fileSeparator}src" +
+                    "${fileSeparator}test" +
+                    "$fileSeparator${matchResult.groupValues[2]}" +
+                    fileSeparator
             }
         } else {
             null

@@ -55,6 +55,7 @@ class MockerCodeGeneratorTest {
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given non-mockable typed parameter when getMockedVariableDefinition then returns default value`() {
         // Given
         val variableName = "variableName"
@@ -75,6 +76,7 @@ class MockerCodeGeneratorTest {
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given mockable typed parameter when getMockedVariableDefinition then returns constructor mock`() {
         // Given
         val variableName = "variableName"

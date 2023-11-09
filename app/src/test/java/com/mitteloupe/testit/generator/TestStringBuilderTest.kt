@@ -90,22 +90,24 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()
+__}
+
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test and minimal class data when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(isParameterized = true)
@@ -118,26 +120,27 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf()\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf()
+____)
+__}
+
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()
+__}
+
+}
+""",
             outputString
         )
     }
@@ -158,17 +161,18 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $givenAbstractCode\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $givenAbstractCode
+__}
+
+}
+""",
             outputString
         )
     }
@@ -188,25 +192,27 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "import $givenImport1\n" +
-                "import $givenImport2\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+import $givenImport1
+import $givenImport2
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given class data with constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val givenParameterName1 = "paramName1"
@@ -230,26 +236,28 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "$codeForParameter1\n" +
-                "\n" +
-                "$codeForParameter2\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2)\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+$codeForParameter1
+
+$codeForParameter2
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2)
+__}
+
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test and class data with constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val givenParameterName1 = "paramName1"
@@ -287,32 +295,33 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf()\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "$codeForParameter1\n" +
-                "\n" +
-                "$codeForParameter2\n" +
-                "\n" +
-                "$codeForParameter3\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2, $givenParameterName3)\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf()
+____)
+__}
+
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+$codeForParameter1
+
+$codeForParameter2
+
+$codeForParameter3
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME($givenParameterName1, $givenParameterName2, $givenParameterName3)
+__}
+
+}
+""",
             outputString
         )
     }
@@ -383,68 +392,70 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata3.name}()\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(Unit, Unit)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {
+____// Given
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata3.name}()
+____}
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata4.name} then _`() {
+____// Given
+
+____// When
+____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata5.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}(Unit, Unit)
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test and class data with functions when appendTestClass then returns expected output`() {
         // Given
         val functionName1 = "function1"
@@ -559,88 +570,90 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test(\n" +
-                "__private val ${functionName1}Expected: DataType1,\n" +
-                "__private val ${functionName2}Expected: DataType2,\n" +
-                "__private val ${functionName3}Expected: DataType3,\n" +
-                "__private val $functionName5$capitalizedParameterName1: $functionParameter1TypeName?,\n" +
-                "__private val $functionName5$capitalizedParameterName2: List<String>?,\n" +
-                "__private val $functionName5$capitalizedParameterName3: (Double) -> Unit,\n" +
-                "__private val ${functionName5}Expected: DataType5\n" +
-                ") {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf($mockedValue1, $mockedValue2, $mockedValue3, $expectedFunction5Parameter1, $expectedFunction5Parameter2, $expectedFunction5Parameter3, $mockedValue5)\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(${functionName1}Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata3.name}()\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(${functionName3}Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}($functionName5$capitalizedParameterName1, $functionName5$capitalizedParameterName2, $functionName5$capitalizedParameterName3)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(${functionName5}Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test(
+__private val ${functionName1}Expected: DataType1,
+__private val ${functionName2}Expected: DataType2,
+__private val ${functionName3}Expected: DataType3,
+__private val $functionName5$capitalizedParameterName1: $functionParameter1TypeName?,
+__private val $functionName5$capitalizedParameterName2: List<String>?,
+__private val $functionName5$capitalizedParameterName3: (Double) -> Unit,
+__private val ${functionName5}Expected: DataType5
+) {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf($mockedValue1, $mockedValue2, $mockedValue3, $expectedFunction5Parameter1, $expectedFunction5Parameter2, $expectedFunction5Parameter3, $mockedValue5)
+____)
+__}
+
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____assertEquals(${functionName1}Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {
+____// Given
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata3.name}()
+____}
+
+____// Then
+____assertEquals(${functionName3}Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata4.name} then _`() {
+____// Given
+
+____// When
+____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata4.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata5.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata5.name}($functionName5$capitalizedParameterName1, $functionName5$capitalizedParameterName2, $functionName5$capitalizedParameterName3)
+
+____// Then
+____assertEquals(${functionName5}Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given class data with overloaded functions when appendTestClass then returns expected output`() {
         // Given
         val overloadedFunctionName = "function1"
@@ -728,90 +741,92 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $overloadedFunctionName() then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {\n" +
-                "____// Given\n" +
-                "____val $parameterName2 = null\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($parameterName2)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata3.name}()\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {\n" +
-                "____// Given\n" +
-                "____val $parameterName4 = null\n" +
-                "\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata4.name}($parameterName4)\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {\n" +
-                "____// Given\n" +
-                "____val $parameterName5 = null\n" +
-                "\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata5.name}($parameterName5)\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when $overloadedFunctionName() then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {
+____// Given
+____val $parameterName2 = null
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($parameterName2)
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {
+____// Given
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata3.name}()
+____}
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {
+____// Given
+____val $parameterName4 = null
+
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata4.name}($parameterName4)
+____}
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {
+____// Given
+____val $parameterName5 = null
+
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata5.name}($parameterName5)
+____}
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test and class data with overloaded functions when appendTestClass then returns expected output`() {
         // Given
         val overloadedFunctionName = "function1"
@@ -913,110 +928,112 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test(\n" +
-                "__private val $overloadedFunctionName$constructorExpected1: $dataType1,\n" +
-                "__private val $overloadedFunctionName$constructorParameterName2: $parameterDataType2,\n" +
-                "__private val $overloadedFunctionName$constructorExpected2: DataType2,\n" +
-                "__private val $overloadedFunctionName$constructorExpected3: $dataType1,\n" +
-                "__private val $overloadedFunctionName$constructorParameterName4: Param4,\n" +
-                "__private val $overloadedFunctionName$constructorExpected4: DataType2,\n" +
-                "__private val $overloadedFunctionName$constructorParameterName5: Param5,\n" +
-                "__private val $overloadedFunctionName$constructorExpected5: DataType2\n" +
-                ") {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf(null, null, null, null, null, null, null, null)\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $overloadedFunctionName() then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals($overloadedFunctionName$constructorExpected1, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($overloadedFunctionName$constructorParameterName2)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals($overloadedFunctionName$constructorExpected2, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata3.name}()\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals($overloadedFunctionName$constructorExpected3, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata4.name}($overloadedFunctionName$constructorParameterName4)\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals($overloadedFunctionName$constructorExpected4, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____val receiver = $mockedReceiverType\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {\n" +
-                "______receiver.${functionMetadata5.name}($overloadedFunctionName$constructorParameterName5)\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals($overloadedFunctionName$constructorExpected5, $ACTUAL_VALUE_VARIABLE_NAME)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test(
+__private val $overloadedFunctionName$constructorExpected1: $dataType1,
+__private val $overloadedFunctionName$constructorParameterName2: $parameterDataType2,
+__private val $overloadedFunctionName$constructorExpected2: DataType2,
+__private val $overloadedFunctionName$constructorExpected3: $dataType1,
+__private val $overloadedFunctionName$constructorParameterName4: Param4,
+__private val $overloadedFunctionName$constructorExpected4: DataType2,
+__private val $overloadedFunctionName$constructorParameterName5: Param5,
+__private val $overloadedFunctionName$constructorExpected5: DataType2
+) {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf(null, null, null, null, null, null, null, null)
+____)
+__}
+
+__private lateinit var $CLASS_UNDER_TEST_VARIABLE_NAME: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when $overloadedFunctionName() then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____assertEquals($overloadedFunctionName$constructorExpected1, $ACTUAL_VALUE_VARIABLE_NAME)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $overloadedFunctionName($parameterDataType2) then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}($overloadedFunctionName$constructorParameterName2)
+
+____// Then
+____assertEquals($overloadedFunctionName$constructorExpected2, $ACTUAL_VALUE_VARIABLE_NAME)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $commonReceiverName#$overloadedFunctionName() then _`() {
+____// Given
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata3.name}()
+____}
+
+____// Then
+____assertEquals($overloadedFunctionName$constructorExpected3, $ACTUAL_VALUE_VARIABLE_NAME)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when $commonReceiverName#$overloadedFunctionName($parameterDataType4) then _`() {
+____// Given
+
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata4.name}($overloadedFunctionName$constructorParameterName4)
+____}
+
+____// Then
+____assertEquals($overloadedFunctionName$constructorExpected4, $ACTUAL_VALUE_VARIABLE_NAME)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType5.name}#$overloadedFunctionName then _`() {
+____// Given
+
+____val receiver = $mockedReceiverType
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = with($CLASS_UNDER_TEST_VARIABLE_NAME) {
+______receiver.${functionMetadata5.name}($overloadedFunctionName$constructorParameterName5)
+____}
+
+____// Then
+____assertEquals($overloadedFunctionName$constructorExpected5, $ACTUAL_VALUE_VARIABLE_NAME)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1047,43 +1064,45 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test(expected = Exception::class)\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____// Exception is thrown\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test(expected = Exception::class)
+__fun `Given _ when ${functionMetadata1.name} then throws exception`() {
+____// Given
+
+____// When
+____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____// Exception is thrown
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test, class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionName = "function1"
@@ -1121,55 +1140,57 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test(\n" +
-                "__private val ${functionName}Expected: $returnType\n" +
-                ") {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf(null)\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(${functionName}Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test(expected = Exception::class)\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____// Exception is thrown\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test(
+__private val ${functionName}Expected: $returnType
+) {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf(null)
+____)
+__}
+
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____assertEquals(${functionName}Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test(expected = Exception::class)
+__fun `Given _ when ${functionMetadata1.name} then throws exception`() {
+____// Given
+
+____// When
+____$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____// Exception is thrown
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given class data with function and try-catch exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1200,49 +1221,51 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
-                "____// Given\n" +
-                "____val expectedException = Exception()\n" +
-                "____lateinit var actualException: Exception\n" +
-                "\n" +
-                "____// When\n" +
-                "____try {\n" +
-                "______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "____} catch (exception: Exception) {\n" +
-                "______actualException = exception\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(expectedException, actualException)\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${TEST_CLASS_NAME}Test {
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then throws exception`() {
+____// Given
+____val expectedException = Exception()
+____lateinit var actualException: Exception
+
+____// When
+____try {
+______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+____} catch (exception: Exception) {
+______actualException = exception
+____}
+
+____// Then
+____assertEquals(expectedException, actualException)
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test, class data with function and try-catch exception when appendTestClass then returns expected output`() {
         // Given
         val functionName = "function1"
@@ -1280,61 +1303,63 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test(\n" +
-                "__private val ${functionName}Expected: $returnType\n" +
-                ") {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf(null)\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____cut = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(${functionName}Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then throws exception`() {\n" +
-                "____// Given\n" +
-                "____val expectedException = Exception()\n" +
-                "____lateinit var actualException: Exception\n" +
-                "\n" +
-                "____// When\n" +
-                "____try {\n" +
-                "______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()\n" +
-                "____} catch (exception: Exception) {\n" +
-                "______actualException = exception\n" +
-                "____}\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(expectedException, actualException)\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test(
+__private val ${functionName}Expected: $returnType
+) {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf(null)
+____)
+__}
+
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____cut = $TEST_CLASS_NAME()
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+
+____// Then
+____assertEquals(${functionName}Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then throws exception`() {
+____// Given
+____val expectedException = Exception()
+____lateinit var actualException: Exception
+
+____// When
+____try {
+______$CLASS_UNDER_TEST_VARIABLE_NAME.${functionMetadata1.name}()
+____} catch (exception: Exception) {
+______actualException = exception
+____}
+
+____// Then
+____assertEquals(expectedException, actualException)
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given class data with mockable constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(hasMockableConstructorParameters = true)
@@ -1364,6 +1389,7 @@ class TestStringBuilderTest {
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized tests, class data with mockable constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(
@@ -1381,33 +1407,35 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${TEST_CLASS_NAME}Test {\n" +
-                "__companion object {\n" +
-                "____@JvmStatic\n" +
-                "____@Parameters\n" +
-                "____fun data(): Collection<Array<*>> = listOf(\n" +
-                "______arrayOf()\n" +
-                "____)\n" +
-                "__}\n" +
-                "\n" +
-                "$MOCKING_RULE\n" +
-                "\n" +
-                "__private lateinit var cut: $TEST_CLASS_NAME\n" +
-                "\n" +
-                "__@Before\n" +
-                "__fun setUp() {\n" +
-                "____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()\n" +
-                "__}\n" +
-                "\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${TEST_CLASS_NAME}Test {
+__companion object {
+____@JvmStatic
+____@Parameters
+____fun data(): Collection<Array<*>> = listOf(
+______arrayOf()
+____)
+__}
+
+$MOCKING_RULE
+
+__private lateinit var cut: $TEST_CLASS_NAME
+
+__@Before
+__fun setUp() {
+____$CLASS_UNDER_TEST_VARIABLE_NAME = $TEST_CLASS_NAME()
+__}
+
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
         // Given
         val givenImport1 = "com.path.to.Class1"
@@ -1440,6 +1468,7 @@ class TestStringBuilderTest {
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test, static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
         // Given
         val givenImport1 = "com.path.to.Class1"
@@ -1462,19 +1491,21 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "import $givenImport1\n" +
-                "import $givenImport2\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${outputClassName}Test {\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+import $givenImport1
+import $givenImport2
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${outputClassName}Test {
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given static functions metadata when appendFunctionsTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1542,59 +1573,61 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "class ${outputClassName}Test {\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata1.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata1.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = mock<${extensionReceiverType.name}>()\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____${functionMetadata4.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+class ${outputClassName}Test {
+__@Test
+__fun `Given _ when ${functionMetadata1.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata1.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {
+____// Given
+____val receiver = mock<${extensionReceiverType.name}>()
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata4.name} then _`() {
+____// Given
+
+____// When
+____${functionMetadata4.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata5.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }
 
     @Test
+    @Suppress("ktlint:max-line-length")
     fun `Given parameterized test, static functions metadata when appendFunctionsTestClass then returns expected output`() {
         // Given
         val function1Name = "function1"
@@ -1670,63 +1703,64 @@ class TestStringBuilderTest {
         // Then
         val outputString = actualValue.toString()
         assertEquals(
-            "package $PACKAGE_NAME\n" +
-                "\n" +
-                "$PARAMETERIZED_RUNNER_ANNOTATION\n" +
-                "class ${outputClassName}Test(\n" +
-                "__private val ${function1Name}Expected: DataType1,\n" +
-                "__private val ${function2Name}Expected: DataType2,\n" +
-                "__private val function3Expected: DataType3,\n" +
-                "__private val function5Expected: DataType5\n" +
-                ") {\n" +
-                "__@Test\n" +
-                "__fun `Given _ when $function1Name then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = $function1Name()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(function1Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {\n" +
-                "____// Given\n" +
-                "____val receiver = mock<${extensionReceiverType.name}>()\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(function3Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata4.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____${functionMetadata4.name}()\n" +
-                "\n" +
-                "____// Then\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "\n" +
-                "__@Test\n" +
-                "__fun `Given _ when ${functionMetadata5.name} then _`() {\n" +
-                "____// Given\n" +
-                "\n" +
-                "____// When\n" +
-                "____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)\n" +
-                "\n" +
-                "____// Then\n" +
-                "____assertEquals(function5Expected, actualTest)\n" +
-                "____$DEFAULT_ASSERTION_STATEMENT\n" +
-                "__}\n" +
-                "}\n",
+            """package $PACKAGE_NAME
+
+$PARAMETERIZED_RUNNER_ANNOTATION
+class ${outputClassName}Test(
+__private val ${function1Name}Expected: DataType1,
+__private val ${function2Name}Expected: DataType2,
+__private val function3Expected: DataType3,
+__private val function5Expected: DataType5
+) {
+__@Test
+__fun `Given _ when $function1Name then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = $function1Name()
+
+____// Then
+____assertEquals(function1Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${extensionReceiverType.name}#${functionMetadata3.name} then _`() {
+____// Given
+____val receiver = mock<${extensionReceiverType.name}>()
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = receiver.${functionMetadata3.name}()
+
+____// Then
+____assertEquals(function3Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata4.name} then _`() {
+____// Given
+
+____// When
+____${functionMetadata4.name}()
+
+____// Then
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+
+__@Test
+__fun `Given _ when ${functionMetadata5.name} then _`() {
+____// Given
+
+____// When
+____val $ACTUAL_VALUE_VARIABLE_NAME = ${functionMetadata5.name}(Unit, Unit)
+
+____// Then
+____assertEquals(function5Expected, actualTest)
+____$DEFAULT_ASSERTION_STATEMENT
+__}
+}
+""",
             outputString
         )
     }

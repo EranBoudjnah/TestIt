@@ -103,12 +103,14 @@ class TestStringBuilder(
         isParameterized -> {
             append("${mockerCodeGenerator.testClassParameterizedRunnerAnnotation}\n")
         }
+
         hasMockableConstructorParameters -> {
             mockerCodeGenerator.testClassBaseRunnerAnnotation?.let { annotation ->
                 append("$annotation\n")
             }
             this
         }
+
         else -> this
     }
 
@@ -121,7 +123,8 @@ class TestStringBuilder(
             append("(\n")
                 .append(
                     parameters.joinToString(",\n") { parameter ->
-                        "${indent()}private val ${parameter.name}: ${parameter.type.toKotlinString()}"
+                        "${indent()}private val ${parameter.name}: " +
+                            parameter.type.toKotlinString()
                     }
                 )
                 .append("\n)")
@@ -184,7 +187,8 @@ class TestStringBuilder(
                 },
                 {
                     "${classUnderTest.className}(" +
-                        classUnderTest.constructorParameters.joinToString(", ") { parameter -> parameter.name } +
+                        classUnderTest.constructorParameters
+                            .joinToString(", ") { parameter -> parameter.name } +
                         ")\n"
                 }
             ).append("${indent()}}")
@@ -384,7 +388,10 @@ class TestStringBuilder(
         .append(indent(2))
         .append {
             when (exceptionCaptureMethod) {
-                ExceptionCaptureMethod.TRY_CATCH -> "assertEquals(expectedException, actualException)\n"
+                ExceptionCaptureMethod.TRY_CATCH -> {
+                    "assertEquals(expectedException, actualException)\n"
+                }
+
                 ExceptionCaptureMethod.ANNOTATION_EXPECTS -> "// Exception is thrown\n"
                 else -> "$defaultAssertionStatement\n"
             }
@@ -396,7 +403,9 @@ class TestStringBuilder(
         expectedSuffix: String
     ) = onlyIf(function.hasReturnValue() && isParameterized) {
         append(
-            "${indent(2)}assertEquals(${function.expectedReturnValueVariableName(expectedSuffix)}, $actualValueVariableName)\n"
+            indent(2) + "assertEquals(" +
+                function.expectedReturnValueVariableName(expectedSuffix) + ", " +
+                actualValueVariableName + ")\n"
         )
     }
 
@@ -407,7 +416,9 @@ class TestStringBuilder(
     ) = append("${indent()}private lateinit var $classUnderTestVariableName: $className")
         .appendBlankLine()
 
-    private fun appendParameterizedCompanionObject(classUnderTest: ClassMetadata): TestStringBuilder {
+    private fun appendParameterizedCompanionObject(
+        classUnderTest: ClassMetadata
+    ): TestStringBuilder {
         val parameters = getFunctionParametersAsConstructorParameters(classUnderTest.functions)
         return appendParameterizedCompanionObject(parameters)
     }
