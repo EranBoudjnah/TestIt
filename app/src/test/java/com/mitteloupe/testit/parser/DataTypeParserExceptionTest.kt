@@ -4,11 +4,11 @@ import org.junit.Before
 import org.junit.Test
 
 class DataTypeParserExceptionTest {
-    private lateinit var cut: DataTypeParser
+    private lateinit var classUnderTest: DataTypeParser
 
     @Before
     fun setUp() {
-        cut = DataTypeParser()
+        classUnderTest = DataTypeParser()
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -17,7 +17,7 @@ class DataTypeParserExceptionTest {
         val dataType = "<A"
 
         // When
-        cut.parse(dataType)
+        classUnderTest.parse(dataType)
 
         // Then
         // Exception is thrown

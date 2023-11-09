@@ -19,37 +19,79 @@ class MockableTypeQualifierDataTypeTest(
         @JvmStatic
         @Parameters(name = "Given {0}")
         fun data(): Collection<Array<*>> = listOf(
-            arrayOf(DataType.Specific("Boolean", false), "Boolean", "false", false),
-            arrayOf(DataType.Specific("Byte", true), "Byte", "0b0", false),
-            arrayOf(DataType.Specific("Class", false), "Class", "Any::class.java", false),
-            arrayOf(DataType.Specific("Double", true), "Double", "0.0", false),
-            arrayOf(DataType.Specific("Float", false), "Float", "0f", false),
-            arrayOf(DataType.Specific("Int", true), "Int", "0", false),
-            arrayOf(DataType.Specific("Integer", false), "Integer", "0 as Integer", false),
-            arrayOf(DataType.Specific("Long", true), "Long", "0L", false),
-            arrayOf(DataType.Specific("Short", false), "Short", "0.toShort()", false),
-            arrayOf(DataType.Specific("String", true), "String", "\"Test\"", false),
-            arrayOf(DataType.Specific("Array", false), "Array", "arrayOf<Any>()", false),
-            arrayOf(DataType.Specific("List", true), "List", "listOf<Any>()", false),
-            arrayOf(DataType.Specific("MutableList", false), "MutableList", "mutableListOf<Any>()", false),
-            arrayOf(DataType.Specific("Map", true), "Map", "mapOf<Any>()", false),
-            arrayOf(DataType.Specific("MutableMap", false), "MutableMap", "mutableMapOf<Any>()", false),
-            arrayOf(DataType.Specific("Set", true), "Set", "setOf<Any>()", false),
-            arrayOf(DataType.Specific("MutableSet", false), "MutableSet", "mutableSetOf<Any>()", false),
-            arrayOf(DataType.Specific("Unit", true), "Unit", "Unit", false),
-            arrayOf(DataType.Specific("CustomDataType", false), null, null, true),
-            arrayOf(DataType.Lambda("Lambda", true, dataType("a"), dataType("b")), "(?)->?", "{ a, b -> }", true),
+            specificTestCase(name = "Boolean", defaultValue = "false"),
+            specificTestCase(name = "Byte", defaultValue = "0b0", isNullable = true),
+            specificTestCase(name = "Class", defaultValue = "Any::class.java"),
+            specificTestCase(name = "Double", defaultValue = "0.0", isNullable = true),
+            specificTestCase(name = "Float", defaultValue = "0f"),
+            specificTestCase(name = "Int", defaultValue = "0", isNullable = true),
+            specificTestCase(name = "Integer", defaultValue = "0 as Integer"),
+            specificTestCase(name = "Long", defaultValue = "0L", isNullable = true),
+            specificTestCase(name = "Short", defaultValue = "0.toShort()"),
+            specificTestCase(name = "String", defaultValue = "\"Test\"", isNullable = true),
+            specificTestCase(name = "Array", defaultValue = "arrayOf<Any>()"),
+            specificTestCase(name = "List", defaultValue = "listOf<Any>()", isNullable = true),
+            specificTestCase(
+                name = "MutableList",
+                defaultValue = "mutableListOf<Any>()",
+                isNullable = false,
+                isMockable = false
+            ),
+            specificTestCase(
+                name = "Map",
+                defaultValue = "mapOf<Any>()",
+                isNullable = true
+            ),
+            specificTestCase(
+                name = "MutableMap",
+                defaultValue = "mutableMapOf<Any>()"
+            ),
+            specificTestCase(
+                name = "Set",
+                defaultValue = "setOf<Any>()",
+                isNullable = true
+            ),
+            specificTestCase(
+                name = "MutableSet",
+                defaultValue = "mutableSetOf<Any>()"
+            ),
+            specificTestCase(
+                name = "Unit",
+                defaultValue = "Unit",
+                isNullable = true
+            ),
+            specificTestCase(
+                name = "CustomDataType",
+                defaultValue = null,
+                isNullable = false,
+                isMockable = true,
+                expectedType = null
+            ),
+            arrayOf(
+                DataType.Lambda("Lambda", true, dataType("a"), dataType("b")),
+                "(?)->?",
+                "{ a, b -> }",
+                true
+            ),
             arrayOf(DataType.Generic("Manager", false, dataType("Employee")), null, null, true)
         )
+
+        private fun specificTestCase(
+            name: String,
+            defaultValue: String?,
+            isNullable: Boolean = false,
+            isMockable: Boolean = false,
+            expectedType: String? = name
+        ) = arrayOf(DataType.Specific(name, isNullable), expectedType, defaultValue, isMockable)
 
         private fun dataType(name: String) = DataType.Specific(name, false)
     }
 
-    private lateinit var cut: MockableTypeQualifier
+    private lateinit var classUnderTest: MockableTypeQualifier
 
     @Before
     fun setUp() {
-        cut = MockableTypeQualifier()
+        classUnderTest = MockableTypeQualifier()
     }
 
     @Test
@@ -57,7 +99,7 @@ class MockableTypeQualifierDataTypeTest(
         // Given
 
         // When
-        val actualValue = cut.getNonMockableType(givenDataType)
+        val actualValue = classUnderTest.getNonMockableType(givenDataType)
         val actualDataType = actualValue?.dataType
         val actualDefaultValue = actualValue?.defaultValue?.invoke("Test", givenDataType)
 
@@ -71,7 +113,7 @@ class MockableTypeQualifierDataTypeTest(
         // Given
 
         // When
-        val actualValue = cut.isMockable(givenDataType)
+        val actualValue = classUnderTest.isMockable(givenDataType)
 
         // Then
         assertEquals(isMockableExpected2, actualValue)

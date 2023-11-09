@@ -69,17 +69,17 @@ class DataTypeParserTest(
         )
     }
 
-    private lateinit var cut: DataTypeParser
+    private lateinit var classUnderTest: DataTypeParser
 
     @Before
     fun setUp() {
-        cut = DataTypeParser()
+        classUnderTest = DataTypeParser()
     }
 
     @Test
     fun `Given parse data and root null flag when parse then returns expected value`() {
         // When
-        val actualValue = cut.parse(parseDataType)
+        val actualValue = classUnderTest.parse(parseDataType)
 
         // Then
         assertEquals(parseExpected, actualValue)

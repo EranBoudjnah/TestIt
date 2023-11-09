@@ -124,7 +124,7 @@ class MockerCodeGeneratorTest {
     @Test
     fun `Given non-mockable when DataType#isMockable then returns false`() {
         // Given
-        val receiver = mock<DataType>()
+        val receiver = mock<DataType.Specific>()
         given { mockableTypeQualifier.isMockable(receiver) }.willReturn(false)
 
         // When
@@ -139,7 +139,7 @@ class MockerCodeGeneratorTest {
     @Test
     fun `Given mockable when DataType#isMockable then returns true`() {
         // Given
-        val receiver = mock<DataType>()
+        val receiver = mock<DataType.Specific>()
         given { mockableTypeQualifier.isMockable(receiver) }.willReturn(true)
 
         // When

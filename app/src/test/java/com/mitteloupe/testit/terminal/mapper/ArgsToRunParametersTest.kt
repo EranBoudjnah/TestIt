@@ -22,17 +22,17 @@ class ArgsToRunParametersTest(
         )
     }
 
-    private lateinit var cut: ArgsToRunParameters
+    private lateinit var classUnderTest: ArgsToRunParameters
 
     @Before
     fun setUp() {
-        cut = ArgsToRunParameters()
+        classUnderTest = ArgsToRunParameters()
     }
 
     @Test
     fun `Given array of parameters when toParameters then returns expected RunParameters`() {
         // When
-        val actualValue = cut.toParameters(toParametersArgs)
+        val actualValue = classUnderTest.toParameters(toParametersArgs)
 
         // Then
         assertEquals(toParametersExpected, actualValue)

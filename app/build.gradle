@@ -3,7 +3,7 @@ apply plugin: 'kotlin'
 
 ext {
     Version = [
-            mockito: '4.10.0'
+            mockito: '5.2.0'
     ]
 }
 
@@ -18,7 +18,7 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:${Version.mockito}"
     testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
 
-    testImplementation 'io.mockk:mockk:1.13.3'
+    testImplementation 'io.mockk:mockk:1.13.8'
 
     testImplementation 'org.assertj:assertj-core:3.23.1'
     testImplementation 'org.hamcrest:hamcrest:2.2'

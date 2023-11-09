@@ -11,42 +11,95 @@ import org.junit.runners.Parameterized.Parameters
 
 @RunWith(Parameterized::class)
 class MockableTypeQualifierTypedParameterTest(
-    private val isMockableTypedParameter: TypedParameter,
-    private val isMockableExpected: Boolean
+    private val givenTypedParameter: TypedParameter,
+    private val expected: Boolean
 ) {
     companion object {
         @JvmStatic
         @Parameters(name = "Given {0}")
         fun data(): Collection<Array<*>> = listOf(
-            arrayOf(TypedParameter("Name", DataType.Specific("Boolean", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Byte", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Class", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Double", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Float", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Int", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Integer", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Long", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Short", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("String", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Array", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("List", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("MutableList", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Map", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("MutableMap", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Set", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("MutableSet", false)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Unit", true)), false),
-            arrayOf(TypedParameter("Name", DataType.Specific("Unknown", false)), true),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Boolean"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Byte",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Class"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Double",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Float"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Int",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Integer"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Long",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Short"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "String",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Array"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "List",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableList"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Map",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableMap"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Set",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableSet"),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Unit",
+                isNullable = true
+            ),
+            expectedSpecificTestCase(
+                parameterName = "Name",
+                dataTypeName = "Unknown",
+                expected = true
+            ),
             arrayOf(TypedParameter("Name", DataType.Lambda("Lambda", true)), true),
             arrayOf(TypedParameter("Name", DataType.Generic("Generic", false)), true)
         )
+
+        private fun expectedSpecificTestCase(
+            parameterName: String,
+            dataTypeName: String,
+            isNullable: Boolean = false,
+            expected: Boolean = false
+        ) = arrayOf(
+            TypedParameter(
+                name = parameterName,
+                type = DataType.Specific(dataTypeName, isNullable)
+            ),
+            expected
+        )
     }
 
-    private lateinit var cut: MockableTypeQualifier
+    private lateinit var classUnderTest: MockableTypeQualifier
 
     @Before
     fun setUp() {
-        cut = MockableTypeQualifier()
+        classUnderTest = MockableTypeQualifier()
     }
 
     @Test
@@ -54,9 +107,9 @@ class MockableTypeQualifierTypedParameterTest(
         // Given
 
         // When
-        val actualValue = cut.isMockable(isMockableTypedParameter)
+        val actualValue = classUnderTest.isMockable(givenTypedParameter)
 
         // Then
-        assertEquals(isMockableExpected, actualValue)
+        assertEquals(expected, actualValue)
     }
 }

@@ -8,11 +8,11 @@ import org.junit.Test
 import org.mockito.kotlin.mock
 
 class MockerCodeGeneratorProviderTest {
-    private lateinit var cut: MockerCodeGeneratorProvider
+    private lateinit var classUnderTest: MockerCodeGeneratorProvider
 
     @Before
     fun setUp() {
-        cut = MockerCodeGeneratorProvider(mock())
+        classUnderTest = MockerCodeGeneratorProvider(mock())
     }
 
     @Test
@@ -22,7 +22,7 @@ class MockerCodeGeneratorProviderTest {
         val mockitoRuleVariableName = "mockitoRule"
 
         // When
-        val actualValue = cut.getGenerator(mocker, mock(), mockitoRuleVariableName)
+        val actualValue = classUnderTest.getGenerator(mocker, mock(), mockitoRuleVariableName)
 
         // Then
         assertTrue(actualValue is MockitoCodeGenerator)
@@ -35,7 +35,7 @@ class MockerCodeGeneratorProviderTest {
         val mockitoRuleVariableName = "canBeAnything"
 
         // When
-        val actualValue = cut.getGenerator(mocker, mock(), mockitoRuleVariableName)
+        val actualValue = classUnderTest.getGenerator(mocker, mock(), mockitoRuleVariableName)
 
         // Then
         assertTrue(actualValue is MockKCodeGenerator)
