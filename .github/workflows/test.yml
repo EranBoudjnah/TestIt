@@ -1,4 +1,4 @@
-name: Android CI
+name: Test
 
 env:
   cache-name: android-gradle
