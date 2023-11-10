@@ -1,6 +1,6 @@
 # TestIt
 
-[![Build Status](https://img.shields.io/travis/EranBoudjnah/TestIt)](https://travis-ci.com/EranBoudjnah/TestIt)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EranBoudjnah/TestIt/test.yml)
 [![License](https://img.shields.io/github/license/EranBoudjnah/Solid)](https://github.com/EranBoudjnah/TestIt/blob/master/LICENSE)
 
 While [TDD](https://en.wikipedia.org/wiki/Test-driven_development) is a better approach for development, many projects don't practice it and end up with low test coverage.
