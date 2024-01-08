@@ -18,7 +18,7 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:${Version.mockito}"
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
 
-    testImplementation 'io.mockk:mockk:1.13.8'
+    testImplementation 'io.mockk:mockk:1.13.9'
 
     testImplementation 'org.assertj:assertj-core:3.25.1'
     testImplementation 'org.hamcrest:hamcrest:2.2'
