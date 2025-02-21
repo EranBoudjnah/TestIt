@@ -20,7 +20,7 @@ dependencies {
 
     testImplementation 'io.mockk:mockk:1.13.16'
 
-    testImplementation 'org.assertj:assertj-core:3.27.2'
+    testImplementation 'org.assertj:assertj-core:3.27.3'
     testImplementation 'org.hamcrest:hamcrest:3.0'
 }
 
