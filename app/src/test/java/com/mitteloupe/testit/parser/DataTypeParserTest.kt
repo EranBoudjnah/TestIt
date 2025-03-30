@@ -16,10 +16,10 @@ class DataTypeParserTest(
     companion object {
         @JvmStatic
         @Parameters(name = "Parsing {0}")
-        fun data(): Collection<Array<*>> = listOf(
-            arrayOf("ABC", DataType.Specific("ABC", false)),
-            arrayOf("ABC?", DataType.Specific("ABC", true)),
-            arrayOf(
+        fun data(): Iterable<Array<*>> = setOf(
+            testCase("ABC", DataType.Specific("ABC", false)),
+            testCase("ABC?", DataType.Specific("ABC", true)),
+            testCase(
                 "ABC<DEF>?",
                 DataType.Generic(
                     "ABC",
@@ -27,7 +27,7 @@ class DataTypeParserTest(
                     DataType.Specific("DEF", false)
                 )
             ),
-            arrayOf(
+            testCase(
                 "A<B?,C<D,E>?,F<G>>",
                 DataType.Generic(
                     "A",
@@ -46,7 +46,7 @@ class DataTypeParserTest(
                     )
                 )
             ),
-            arrayOf(
+            testCase(
                 "(name:Value?)->Result",
                 DataType.Lambda(
                     "Result",
@@ -54,7 +54,7 @@ class DataTypeParserTest(
                     DataType.Specific("Value", true)
                 )
             ),
-            arrayOf(
+            testCase(
                 "(ABC<DEF>?)->G123",
                 DataType.Lambda(
                     "G123",
@@ -67,6 +67,11 @@ class DataTypeParserTest(
                 )
             )
         )
+
+        private fun testCase(
+            dataType: String,
+            concreteDataType: DataType
+        ) = arrayOf(dataType, concreteDataType)
     }
 
     private lateinit var classUnderTest: DataTypeParser

@@ -1,9 +1,20 @@
 #!/bin/bash
 
-echo "Running lint..."
+hash ktlint 2>/dev/null || {
+    echo "❌ ktlint is required but is not installed."
+    exit 1
+}
 
-git diff --name-only --cached | grep ".kt" | while read fn; do ktlint --android "${fn}"; done
+echo "Running ktlint..."
+
+ktlint . '!**/build/**'
 RESULT_KTLINT=$?
 
-[ $RESULT_KTLINT -ne 0 ] && exit 1
+if [[ $RESULT_KTLINT -ne 0 ]]; then
+  echo "❌ Please fix all issues before committing again."
+  exit 1
+fi
+
+echo "✅ KtLint check passed."
+
 exit 0

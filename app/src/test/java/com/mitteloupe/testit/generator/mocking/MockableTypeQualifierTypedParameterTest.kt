@@ -17,62 +17,62 @@ class MockableTypeQualifierTypedParameterTest(
     companion object {
         @JvmStatic
         @Parameters(name = "Given {0}")
-        fun data(): Collection<Array<*>> = listOf(
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Boolean"),
-            expectedSpecificTestCase(
+        fun data(): Iterable<Array<*>> = setOf(
+            testCase(parameterName = "Name", dataTypeName = "Boolean"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Byte",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Class"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "Class"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Double",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Float"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "Float"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Int",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Integer"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "Integer"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Long",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Short"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "Short"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "String",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "Array"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "Array"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "List",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableList"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "MutableList"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Map",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableMap"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "MutableMap"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Set",
                 isNullable = true
             ),
-            expectedSpecificTestCase(parameterName = "Name", dataTypeName = "MutableSet"),
-            expectedSpecificTestCase(
+            testCase(parameterName = "Name", dataTypeName = "MutableSet"),
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Unit",
                 isNullable = true
             ),
-            expectedSpecificTestCase(
+            testCase(
                 parameterName = "Name",
                 dataTypeName = "Unknown",
                 expected = true
@@ -81,7 +81,7 @@ class MockableTypeQualifierTypedParameterTest(
             arrayOf(TypedParameter("Name", DataType.Generic("Generic", false)), true)
         )
 
-        private fun expectedSpecificTestCase(
+        private fun testCase(
             parameterName: String,
             dataTypeName: String,
             isNullable: Boolean = false,
