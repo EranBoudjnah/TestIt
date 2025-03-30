@@ -127,7 +127,7 @@ class ${TEST_CLASS_NAME}Test {
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf()
 ____)
 __}
@@ -302,7 +302,7 @@ class ${TEST_CLASS_NAME}Test {
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf()
 ____)
 __}
@@ -585,7 +585,7 @@ __private val ${functionName5}Expected: DataType5
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf($mockedValue1, $mockedValue2, $mockedValue3, $expectedFunction5Parameter1, $expectedFunction5Parameter2, $expectedFunction5Parameter3, $mockedValue5)
 ____)
 __}
@@ -944,7 +944,7 @@ __private val $overloadedFunctionName$constructorExpected5: DataType2
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf(null, null, null, null, null, null, null, null)
 ____)
 __}
@@ -1149,7 +1149,7 @@ __private val ${functionName}Expected: $returnType
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf(null)
 ____)
 __}
@@ -1312,7 +1312,7 @@ __private val ${functionName}Expected: $returnType
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf(null)
 ____)
 __}
@@ -1414,7 +1414,7 @@ class ${TEST_CLASS_NAME}Test {
 __companion object {
 ____@JvmStatic
 ____@Parameters
-____fun data(): Collection<Array<*>> = listOf(
+____fun data(): Iterable<Array<*>> = setOf(
 ______arrayOf()
 ____)
 __}

@@ -18,49 +18,49 @@ class MockableTypeQualifierDataTypeTest(
     companion object {
         @JvmStatic
         @Parameters(name = "Given {0}")
-        fun data(): Collection<Array<*>> = listOf(
-            specificTestCase(name = "Boolean", defaultValue = "false"),
-            specificTestCase(name = "Byte", defaultValue = "0b0", isNullable = true),
-            specificTestCase(name = "Class", defaultValue = "Any::class.java"),
-            specificTestCase(name = "Double", defaultValue = "0.0", isNullable = true),
-            specificTestCase(name = "Float", defaultValue = "0f"),
-            specificTestCase(name = "Int", defaultValue = "0", isNullable = true),
-            specificTestCase(name = "Integer", defaultValue = "0 as Integer"),
-            specificTestCase(name = "Long", defaultValue = "0L", isNullable = true),
-            specificTestCase(name = "Short", defaultValue = "0.toShort()"),
-            specificTestCase(name = "String", defaultValue = "\"Test\"", isNullable = true),
-            specificTestCase(name = "Array", defaultValue = "arrayOf<Any>()"),
-            specificTestCase(name = "List", defaultValue = "listOf<Any>()", isNullable = true),
-            specificTestCase(
+        fun data(): Iterable<Array<*>> = setOf(
+            testCase(name = "Boolean", defaultValue = "false"),
+            testCase(name = "Byte", defaultValue = "0b0", isNullable = true),
+            testCase(name = "Class", defaultValue = "Any::class.java"),
+            testCase(name = "Double", defaultValue = "0.0", isNullable = true),
+            testCase(name = "Float", defaultValue = "0f"),
+            testCase(name = "Int", defaultValue = "0", isNullable = true),
+            testCase(name = "Integer", defaultValue = "0 as Integer"),
+            testCase(name = "Long", defaultValue = "0L", isNullable = true),
+            testCase(name = "Short", defaultValue = "0.toShort()"),
+            testCase(name = "String", defaultValue = "\"Test\"", isNullable = true),
+            testCase(name = "Array", defaultValue = "arrayOf<Any>()"),
+            testCase(name = "List", defaultValue = "listOf<Any>()", isNullable = true),
+            testCase(
                 name = "MutableList",
                 defaultValue = "mutableListOf<Any>()",
                 isNullable = false,
                 isMockable = false
             ),
-            specificTestCase(
+            testCase(
                 name = "Map",
                 defaultValue = "mapOf<Any>()",
                 isNullable = true
             ),
-            specificTestCase(
+            testCase(
                 name = "MutableMap",
                 defaultValue = "mutableMapOf<Any>()"
             ),
-            specificTestCase(
+            testCase(
                 name = "Set",
                 defaultValue = "setOf<Any>()",
                 isNullable = true
             ),
-            specificTestCase(
+            testCase(
                 name = "MutableSet",
                 defaultValue = "mutableSetOf<Any>()"
             ),
-            specificTestCase(
+            testCase(
                 name = "Unit",
                 defaultValue = "Unit",
                 isNullable = true
             ),
-            specificTestCase(
+            testCase(
                 name = "CustomDataType",
                 defaultValue = null,
                 isNullable = false,
@@ -76,7 +76,7 @@ class MockableTypeQualifierDataTypeTest(
             arrayOf(DataType.Generic("Manager", false, dataType("Employee")), null, null, true)
         )
 
-        private fun specificTestCase(
+        private fun testCase(
             name: String,
             defaultValue: String?,
             isNullable: Boolean = false,

@@ -427,7 +427,7 @@ class TestStringBuilder(
         "${indent()}companion object {\n" +
             "${indent(2)}@JvmStatic\n" +
             "${indent(2)}@Parameters\n" +
-            "${indent(2)}fun data(): Collection<Array<*>> = listOf(\n" +
+            "${indent(2)}fun data(): Iterable<Array<*>> = setOf(\n" +
             "${indent(3)}arrayOf("
     )
         .append(
@@ -463,7 +463,7 @@ class TestStringBuilder(
     private fun indent(indentation: Int = 1) = formatting.getIndentation(indentation)
 }
 
-class FunctionNameSuffixProvider(private val functions: Collection<FunctionMetadata>) {
+class FunctionNameSuffixProvider(private val functions: Iterable<FunctionMetadata>) {
     private val functionNameCounter = mutableMapOf<String, Int>()
 
     fun suffix(function: FunctionMetadata) = if (functionNameCounter.containsKey(function.name)) {

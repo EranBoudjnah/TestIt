@@ -16,10 +16,13 @@ class ArgsToRunParametersTest(
     companion object {
         @JvmStatic
         @Parameters
-        fun data(): Collection<Array<*>> = listOf(
-            arrayOf(arrayOf("a"), RunParameters("a", false)),
-            arrayOf(arrayOf("b", "-p"), RunParameters("b", true))
+        fun data(): Iterable<Array<*>> = setOf(
+            testCase(arrayOf("a"), RunParameters("a", false)),
+            testCase(arrayOf("b", "-p"), RunParameters("b", true))
         )
+
+        private fun testCase(arguments: Array<String>, parameters: RunParameters) =
+            arrayOf(arguments, parameters)
     }
 
     private lateinit var classUnderTest: ArgsToRunParameters
