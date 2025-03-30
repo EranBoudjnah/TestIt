@@ -67,7 +67,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class without constructor parameters when getAbstractClassUnderTest then returns expected code`() {
         // Given
         val classUnderTest = mockClassMetadata()
@@ -81,7 +81,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class with constructor parameters when getAbstractClassUnderTest then returns expected code`() {
         // Given
         val classUnderTest = mockClassMetadata(
@@ -103,7 +103,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given no mocked constructor parameters when setIsParameterizedTest then imports not added`() {
         // Given
         val expected1 = "Rule"
@@ -119,7 +119,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given mocked constructor parameters when setIsParameterizedTest then adds expected imports`() {
         // Given
         val expected1 = "Rule"
@@ -152,7 +152,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given abstract class without constructor parameters when setHasMockedConstructorParameters then adds expected imports`() {
         // Given
         val expected1 = "RunWith"
@@ -171,7 +171,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given abstract class with constructor parameters when setHasMockedConstructorParameters then adds expected imports`() {
         // Given
         val expected1 = "RunWith"
@@ -192,7 +192,7 @@ class MockitoCodeGeneratorTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test when setHasMockedConstructorParameters then adds expected imports`() {
         // Given
         val expected1 = "RunWith"

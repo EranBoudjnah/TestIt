@@ -185,7 +185,7 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class with function returning value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
@@ -224,7 +224,7 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class with function returning nullable value when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
@@ -263,7 +263,7 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class with function with parameter when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +
@@ -304,7 +304,7 @@ class AntlrKotlinFileParserTest {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class with function with nullable parameter when String#parse then returns expected metadata`() {
         // Given
         val receiver = "package com.test.String\n" +

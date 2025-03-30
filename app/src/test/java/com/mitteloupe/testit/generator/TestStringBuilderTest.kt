@@ -107,7 +107,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test and minimal class data when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(isParameterized = true)
@@ -212,7 +212,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class data with constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val givenParameterName1 = "paramName1"
@@ -257,7 +257,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test and class data with constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val givenParameterName1 = "paramName1"
@@ -455,7 +455,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test and class data with functions when appendTestClass then returns expected output`() {
         // Given
         val functionName1 = "function1"
@@ -653,7 +653,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class data with overloaded functions when appendTestClass then returns expected output`() {
         // Given
         val overloadedFunctionName = "function1"
@@ -826,7 +826,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test and class data with overloaded functions when appendTestClass then returns expected output`() {
         // Given
         val overloadedFunctionName = "function1"
@@ -1033,7 +1033,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1102,7 +1102,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test, class data with function and annotation exception when appendTestClass then returns expected output`() {
         // Given
         val functionName = "function1"
@@ -1190,7 +1190,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class data with function and try-catch exception when appendTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1265,7 +1265,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test, class data with function and try-catch exception when appendTestClass then returns expected output`() {
         // Given
         val functionName = "function1"
@@ -1359,7 +1359,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given class data with mockable constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(hasMockableConstructorParameters = true)
@@ -1389,7 +1389,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized tests, class data with mockable constructor parameters when appendTestClass then returns expected output`() {
         // Given
         val config = givenTestStringBuilderConfiguration(
@@ -1435,7 +1435,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
         // Given
         val givenImport1 = "com.path.to.Class1"
@@ -1468,7 +1468,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test, static functions metadata with imports when appendFunctionsTestClass then returns expected output`() {
         // Given
         val givenImport1 = "com.path.to.Class1"
@@ -1505,7 +1505,7 @@ class ${outputClassName}Test {
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given static functions metadata when appendFunctionsTestClass then returns expected output`() {
         // Given
         val functionMetadata1 =
@@ -1627,7 +1627,7 @@ __}
     }
 
     @Test
-    @Suppress("ktlint:max-line-length")
+    @Suppress("ktlint:standard:max-line-length")
     fun `Given parameterized test, static functions metadata when appendFunctionsTestClass then returns expected output`() {
         // Given
         val function1Name = "function1"
