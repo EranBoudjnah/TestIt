@@ -16,7 +16,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     testImplementation "org.mockito:mockito-inline:${Version.mockito}"
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.0.0'
 
     testImplementation 'io.mockk:mockk:1.14.4'
 
