@@ -1,0 +1,28 @@
+[versions]
+gradle = "8.12.1"
+kotlin = "2.2.10"
+mockito = "5.2.0"
+kotlinScriptUtil = "1.8.22"
+junit = "4.13.2"
+mockitoKotlin = "6.0.0"
+mockk = "1.14.5"
+assertjCore = "3.27.4"
+hamcrest = "3.0"
+
+[libraries]
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
+kotlin-script-util = { module = "org.jetbrains.kotlin:kotlin-script-util", version.ref = "kotlinScriptUtil" }
+junit = { module = "junit:junit", version.ref = "junit" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertjCore" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+
+[plugins]
+application = { id = "application" }
+kotlin = { id = "kotlin" }
+
