@@ -3,7 +3,7 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.github.ben-manes.versions") version "0.53.0"
     id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
 }
 
