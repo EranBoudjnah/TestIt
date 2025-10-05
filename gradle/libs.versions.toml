@@ -1,5 +1,5 @@
 [versions]
-gradle = "8.12.1"
+gradle = "8.13.0"
 kotlin = "2.2.20"
 mockito = "5.2.0"
 kotlinScriptUtil = "1.8.22"
