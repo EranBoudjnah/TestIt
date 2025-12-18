@@ -1,6 +1,6 @@
 [versions]
 gradle = "8.13.1"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 mockito = "5.2.0"
 kotlinScriptUtil = "1.8.22"
 junit = "4.13.2"
