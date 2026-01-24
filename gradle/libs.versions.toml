@@ -6,7 +6,7 @@ kotlinScriptUtil = "1.8.22"
 junit = "4.13.2"
 mockitoKotlin = "6.2.1"
 mockk = "1.14.7"
-assertjCore = "3.27.6"
+assertjCore = "3.27.7"
 hamcrest = "3.0"
 
 [libraries]
