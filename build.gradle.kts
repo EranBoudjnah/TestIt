@@ -4,7 +4,7 @@ import org.gradle.api.tasks.Delete
 
 plugins {
     id("com.github.ben-manes.versions") version "0.53.0"
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 buildscript {
