@@ -5,7 +5,7 @@ mockito = "5.2.0"
 kotlinScriptUtil = "1.8.22"
 junit = "4.13.2"
 mockitoKotlin = "6.3.0"
-mockk = "1.14.9"
+mockk = "1.14.11"
 assertjCore = "3.27.7"
 hamcrest = "3.0"
 
